@@ -1,0 +1,19 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile gradleApi()
+    compile localGroovy()
+    compile 'com.android.tools.build:gradle:2.2.0'
+}
+
+
+uploadArchives{
+    repositories.mavenDeployer{
+        repository(url:"file:///Users/zhangkaqi/localMaven")
+        pom.groupId = "channel"
+        pom.artifactId = "v2"
+        pom.version = "1.0"
+    }
+}

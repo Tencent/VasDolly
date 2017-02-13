@@ -64,7 +64,6 @@
 //import android.util.Pair;
 //import android.util.Slog;
 //import android.util.TypedValue;
-//import android.util.apk.ApkSignatureSchemeV2Verifier;
 //import android.util.jar.StrictJarFile;
 //import android.view.Gravity;
 //

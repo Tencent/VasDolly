@@ -344,7 +344,7 @@
 //        result[offset + 2] = (byte) ((value >> 16) & 0xff);
 //        result[offset + 3] = (byte) ((value >> 24) & 0xff);
 //    }
-//    //生成V2签名块
+//    //生成签名块
 //    private static byte[] generateApkSigningBlock(
 //            List<SignerConfig> signerConfigs,
 //            Map<Integer, byte[]> contentDigests) throws InvalidKeyException, SignatureException {
@@ -352,7 +352,7 @@
 //                generateApkSignatureSchemeV2Block(signerConfigs, contentDigests);
 //        return generateApkSigningBlock(apkSignatureSchemeV2Block);
 //    }
-//    //生成V2签名块
+//    //生成签名块
 //    private static byte[] generateApkSigningBlock(byte[] apkSignatureSchemeV2Block) {
 //        // FORMAT:
 //        // uint64:  size (excluding this field)
@@ -384,7 +384,7 @@
 //
 //        return result.array();
 //    }
-//    // 生成V2签名块中的id-value块中的ID为0x7109871a的value
+//    // 生成签名块中的id-value块中的ID为0x7109871a的value ,即v2签名内容块
 //    private static byte[] generateApkSignatureSchemeV2Block(
 //            List<SignerConfig> signerConfigs,
 //            Map<Integer, byte[]> contentDigests) throws InvalidKeyException, SignatureException {

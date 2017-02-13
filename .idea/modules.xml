@@ -4,8 +4,11 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ApkChannelPackage.iml" filepath="$PROJECT_DIR$/ApkChannelPackage.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/helper/helper.iml" filepath="$PROJECT_DIR$/helper/helper.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugin/plugin.iml" filepath="$PROJECT_DIR$/plugin/plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/reader/reader.iml" filepath="$PROJECT_DIR$/reader/reader.iml" />
+      <module fileurl="file://$PROJECT_DIR$/writer/writer.iml" filepath="$PROJECT_DIR$/writer/writer.iml" />
     </modules>
   </component>
 </project>

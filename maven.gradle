@@ -1,0 +1,22 @@
+//apply plugin: 'com.github.dcendents.android-maven'
+//apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven'
+
+group = project.rootProject.GROUP
+version = project.rootProject.VERSION
+
+sourceCompatibility = javaVersion.VERSION_1_7
+targetCompatibility = javaVersion.VERSION_1_7
+
+//artifacts {
+//    archives sourcesJar
+//}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: "file:///Users/zhangkaqi/localMaven")
+//        pom.groupId = "channel"
+//        pom.artifactId = "v2"
+//        pom.version = "1.0"
+    }
+}

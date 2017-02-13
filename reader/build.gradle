@@ -1,0 +1,11 @@
+apply plugin: 'java'
+apply from: rootProject.file("maven.gradle")
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(path: ':common')
+}
+
+targetCompatibility = '1.7'
+sourceCompatibility = '1.7'
+

@@ -1,1 +1,1 @@
-include ':app', ':plugin', ':library'
+include ':app', ':plugin', ':writer', ':reader', ':helper', ':common'

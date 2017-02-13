@@ -1,0 +1,22 @@
+apply plugin: 'java'
+apply from: rootProject.file("maven.gradle")
+
+
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        //classpath 'com.android.tools.build:apksig:2.3.0-alpha3'
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    //compile 'com.android.tools.build:apksig:2.3.0-alpha3'
+}
+
+targetCompatibility = '1.7'
+sourceCompatibility = '1.7'
+

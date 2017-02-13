@@ -19,6 +19,8 @@ public class ChannelConfigurationExtension {
      */
     String mApkNameFormat
 
+    //String apkSignerPath
+
 
     ChannelConfigurationExtension(Project project) {
         this.mProject = project

@@ -43,6 +43,9 @@
   <component name="ProjectType">
     <option name="id" value="Android" />
   </component>
+  <component name="SuppressionsComponent">
+    <option name="suppComments" value="[]" />
+  </component>
   <component name="masterDetails">
     <states>
       <state key="ProjectJDKs.UI">

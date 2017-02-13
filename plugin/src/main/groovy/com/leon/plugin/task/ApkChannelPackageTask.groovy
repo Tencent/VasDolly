@@ -2,10 +2,11 @@ package com.leon.plugin.task
 
 import com.android.build.gradle.api.BaseVariant
 import com.android.builder.model.SigningConfig
-import com.leon.plugin.ApkSectionInfo
-import com.leon.plugin.ChannelReader
-import com.leon.plugin.ChannelWriter
-import com.leon.plugin.V2SchemeUtil
+import com.leon.channel.common.ApkSectionInfo
+import com.leon.channel.common.V2SchemeUtil
+import com.leon.plugin.verifier.VerifyApk
+import com.leon.channel.reader.ChannelReader
+import com.leon.channel.writer.ChannelWriter
 import com.leon.plugin.extension.ChannelConfigurationExtension
 import groovy.text.SimpleTemplateEngine
 import org.gradle.api.DefaultTask
@@ -13,6 +14,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecResult
 
 
 public class ApkChannelPackageTask extends DefaultTask {
@@ -54,13 +56,48 @@ public class ApkChannelPackageTask extends DefaultTask {
             File destFile = new File(mChannelExtension.mOutputDir, apkChannelName)
             println "apkChannelName = ${apkChannelName} , channel = ${apkChannelName}"
             ChannelWriter.addChannel(apkSectionInfo, destFile, channel)
-//            boolean success = V2SchemeUtil.verifyChannelApk(destFile.getAbsolutePath())
-//            if (success) {
-//                println "after add channel , channel apk verify success"
+            //boolean success = V2SchemeUtil.verifyChannelApk(destFile.getAbsolutePath())
+            boolean success = VerifyApk.verifyV2Signature(destFile)
+            if (success) {
+                println "after add channel , channel apk verify success"
+            } else {
+                throw new GradleException("apk ${destFile} verify failure")
+            }
+//            if (!verifyV2Signature(destFile.getAbsolutePath())) {
+//                throw new GradleException("verify error")
 //            }
+
             def tempChannel = ChannelReader.getChannel(destFile)
             println "tempChannel = ${tempChannel}"
         }
+    }
+
+
+    boolean verifyV2Signature(String apkPath) {
+        def apktoolCmd = []
+        apktoolCmd.add("java")
+        apktoolCmd.add("-jar")
+        apktoolCmd.add("$project.projectDir/tools/apksigner.jar")
+        apktoolCmd.add("verify")
+        apktoolCmd.add("-v")
+        apktoolCmd.add("$apkPath")
+        ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
+        println "apk cmd verify : " + apktoolCmd
+        ExecResult result = project.exec {
+            standardOutput = arrayOutputStream
+            commandLine apktoolCmd
+        }
+
+        String str = arrayOutputStream.toString("utf-8");
+        boolean v2VerifySuccess = false
+        str.eachLine { String value ->
+            println "value = ${value}"
+            if (value.contains("APK Signature Scheme v2") && value.trim().endsWith("true")) {
+                v2VerifySuccess = true
+            }
+        }
+
+        return result.exitValue == 0 && v2VerifySuccess
     }
 
     /**
@@ -85,8 +122,6 @@ public class ApkChannelPackageTask extends DefaultTask {
         }
 
         mChannelExtension.checkParamters()
-
-
     }
 
     void checkSigningConfig() {

@@ -1,19 +1,42 @@
 apply plugin: 'groovy'
-apply plugin: 'maven'
+apply from: rootProject.file("maven.gradle")
+
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:apksig:2.3.0-alpha3'
+    }
+}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile gradleApi()
     compile localGroovy()
     compile 'com.android.tools.build:gradle:2.2.0'
+    compile 'com.android.tools.build:apksig:2.3.0-alpha3'
+    compile project(path: ':common')
+    compile project(path: ':writer')
+    compile project(path: ':reader')
 }
 
-
-uploadArchives{
-    repositories.mavenDeployer{
-        repository(url:"file:///Users/zhangkaqi/localMaven")
-        pom.groupId = "channel"
-        pom.artifactId = "v2"
-        pom.version = "1.0"
-    }
+// 一定要记得使用交叉编译选项，因为我们可能用很高的JDK版本编译，为了让安装了低版本的同学能用上我们写的插件，必须设定source和target
+compileGroovy {
+    targetCompatibility = javaVersion.VERSION_1_7
+    sourceCompatibility = javaVersion.VERSION_1_7
+    options.encoding = "UTF-8"
 }
+
+sourceCompatibility = javaVersion.VERSION_1_7
+targetCompatibility = javaVersion.VERSION_1_7
+
+//uploadArchives {
+//    repositories.mavenDeployer {
+//        repository(url: "file:///Users/zhangkaqi/localMaven")
+//        pom.groupId = "channel"
+//        pom.artifactId = "v2"
+//        pom.version = "2.0"
+//    }
+//}

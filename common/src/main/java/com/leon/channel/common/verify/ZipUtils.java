@@ -31,7 +31,7 @@ import java.nio.ByteOrder;
 public abstract class ZipUtils {
     private ZipUtils() {}
 
-    private static final int ZIP_EOCD_REC_MIN_SIZE = 22;
+    public static final int ZIP_EOCD_REC_MIN_SIZE = 22;
     private static final int ZIP_EOCD_REC_SIG = 0x06054b50;
     private static final int ZIP_EOCD_CENTRAL_DIR_SIZE_FIELD_OFFSET = 12;
     private static final int ZIP_EOCD_CENTRAL_DIR_OFFSET_FIELD_OFFSET = 16;
@@ -238,17 +238,17 @@ public abstract class ZipUtils {
                 zipEndOfCentralDirectory.position() + ZIP_EOCD_CENTRAL_DIR_SIZE_FIELD_OFFSET);
     }
 
-    private static void assertByteOrderLittleEndian(ByteBuffer buffer) {
+    public static void assertByteOrderLittleEndian(ByteBuffer buffer) {
         if (buffer.order() != ByteOrder.LITTLE_ENDIAN) {
             throw new IllegalArgumentException("ByteBuffer byte order must be little endian");
         }
     }
 
-    private static int getUnsignedInt16(ByteBuffer buffer, int offset) {
+    public static int getUnsignedInt16(ByteBuffer buffer, int offset) {
         return buffer.getShort(offset) & 0xffff;
     }
 
-    private static long getUnsignedInt32(ByteBuffer buffer, int offset) {
+    public static long getUnsignedInt32(ByteBuffer buffer, int offset) {
         return buffer.getInt(offset) & 0xffffffffL;
     }
 

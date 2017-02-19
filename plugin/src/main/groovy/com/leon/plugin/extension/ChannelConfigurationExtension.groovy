@@ -12,33 +12,27 @@ public class ChannelConfigurationExtension {
     /**
      * 渠道包输出目录
      */
-    File mOutputDir;
+    File baseOutputDir;
 
     /**
      * 渠道包的命名格式
      */
-    String mApkNameFormat
-
-    //String apkSignerPath
-
+    String apkNameFormat
 
     ChannelConfigurationExtension(Project project) {
         this.mProject = project
-        mOutputDir = new File(project.buildDir, "channel");
-        mApkNameFormat = DEFAULT_APK_NAME_FORMAT;
-    }
-
-    public void cleanOutputDir(){
-        if (mOutputDir.exists()){
-            mOutputDir.deleteDir()
-        }
-        mOutputDir.mkdirs()
+        baseOutputDir = new File(project.buildDir, "channel");
+        apkNameFormat = DEFAULT_APK_NAME_FORMAT;
     }
 
     public void checkParamters() {
-        if (mProject == null || mOutputDir == null || mApkNameFormat.isEmpty()) {
+        if (mProject == null || baseOutputDir == null || apkNameFormat.isEmpty()) {
             throw new GradleException("ChannelConfigurationExtension params invalid , " +
-                    "mProject = ${mProject} , mOutputDir = ${mOutputDir} , mApkNameFormat = ${mApkNameFormat}")
+                    "mProject = ${mProject} , baseOutputDir = ${baseOutputDir} , apkNameFormat = ${apkNameFormat}")
+        }
+
+        if (!baseOutputDir.exists()) {
+            baseOutputDir.mkdirs()
         }
     }
 }

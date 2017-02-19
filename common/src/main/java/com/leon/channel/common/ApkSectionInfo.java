@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 /**
  * Created by leontli on 17/1/18.
+ * APK info
  */
 
 public class ApkSectionInfo {

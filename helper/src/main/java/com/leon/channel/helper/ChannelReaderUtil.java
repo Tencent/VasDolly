@@ -2,6 +2,7 @@ package com.leon.channel.helper;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.leon.channel.reader.ChannelReader;
@@ -17,19 +18,47 @@ import java.util.Map;
 
 public class ChannelReaderUtil {
     private static final String TAG = "ChannelReaderUtil";
+    private static String mChannelCache;
+
+
+    public static String getChannel(Context context) {
+        if (mChannelCache == null) {
+            String channel = getChannelByV2(context);
+            if (channel == null) {
+                channel = getChannelByV1(context);
+            }
+            mChannelCache = channel;
+        }
+
+        return mChannelCache;
+    }
 
     /**
-     * get channel info
+     * if apk use v2 signature , please use this mathod to get channel info
      *
      * @param context
      * @return
      */
-    public static String getChannel(Context context) {
+    public static String getChannelByV2(Context context) {
         String apkPath = getApkPath(context);
         String channel = ChannelReader.getChannel(new File(apkPath));
-        Log.i(TAG, "channel = " + channel);
+        Log.i(TAG, "getChannelByV2 , channel = " + channel);
         return channel;
     }
+
+    /**
+     * if apk only use v1 signature , please use this mathod to get channel info
+     *
+     * @param context
+     * @return
+     */
+    public static String getChannelByV1(Context context) {
+        String apkPath = getApkPath(context);
+        String channel = ChannelReader.getChannelByZipComment(new File(apkPath));
+        Log.i(TAG, "getChannelByV1 , channel = " + channel);
+        return channel;
+    }
+
 
     /**
      * get String value from apk by id
@@ -67,7 +96,6 @@ public class ChannelReaderUtil {
         String apkPath = getApkPath(context);
         return IdValueReader.getAllIdValueMap(new File(apkPath));
     }
-
 
     /**
      * 获取已安装的APK路径

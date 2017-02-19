@@ -3,39 +3,30 @@ package com.leon.plugin.task
 import com.android.build.gradle.api.BaseVariant
 import com.android.builder.model.SigningConfig
 import com.leon.channel.common.ApkSectionInfo
+import com.leon.channel.common.V1SchemeUtil
 import com.leon.channel.common.V2SchemeUtil
-import com.leon.plugin.verifier.VerifyApk
 import com.leon.channel.reader.ChannelReader
 import com.leon.channel.writer.ChannelWriter
+import com.leon.plugin.verifier.VerifyApk
 import com.leon.plugin.extension.ChannelConfigurationExtension
 import groovy.text.SimpleTemplateEngine
-import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
-import org.gradle.process.ExecResult
 
-
-public class ApkChannelPackageTask extends DefaultTask {
-    private static final String TAG = "ApkChannelPackageTask";
-
-    static final int DEFAULT_MODE = -1;
-    static final int V1_MODE = 1;
-    static final int V2_MODE = 2;
-
+public class ApkChannelPackageTask extends ChannelPackageTask {
     int mChannelPackageMode = DEFAULT_MODE;
+
     @Input
     BaseVariant mVariant;
 
     File mBaseApk
 
+    File mOutputDir;
+
     @Input
     ChannelConfigurationExtension mChannelExtension;
-
-    @Input
-    List<String> mChannelList;
-
 
     ApkChannelPackageTask() {
         group = 'channel'
@@ -47,80 +38,58 @@ public class ApkChannelPackageTask extends DefaultTask {
         checkParameter();
         //2.check signingConfig , determine channel package mode
         checkSigningConfig()
-
-        mChannelExtension.cleanOutputDir()
-
-        ApkSectionInfo apkSectionInfo = V2SchemeUtil.getApkSectionInfo(mBaseApk)
-        mChannelList.each { channel ->
-            String apkChannelName = getChannelApkName(channel)
-            File destFile = new File(mChannelExtension.mOutputDir, apkChannelName)
-            println "apkChannelName = ${apkChannelName} , channel = ${apkChannelName}"
-            ChannelWriter.addChannel(apkSectionInfo, destFile, channel)
-            //boolean success = V2SchemeUtil.verifyChannelApk(destFile.getAbsolutePath())
-            boolean success = VerifyApk.verifyV2Signature(destFile)
-            if (success) {
-                println "after add channel , channel apk verify success"
-            } else {
-                throw new GradleException("apk ${destFile} verify failure")
-            }
-//            if (!verifyV2Signature(destFile.getAbsolutePath())) {
-//                throw new GradleException("verify error")
-//            }
-
-            def tempChannel = ChannelReader.getChannel(destFile)
-            println "tempChannel = ${tempChannel}"
-        }
+        //3.generate channel apk
+        generateChannelApk();
     }
 
 
-    boolean verifyV2Signature(String apkPath) {
-        def apktoolCmd = []
-        apktoolCmd.add("java")
-        apktoolCmd.add("-jar")
-        apktoolCmd.add("$project.projectDir/tools/apksigner.jar")
-        apktoolCmd.add("verify")
-        apktoolCmd.add("-v")
-        apktoolCmd.add("$apkPath")
-        ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
-        println "apk cmd verify : " + apktoolCmd
-        ExecResult result = project.exec {
-            standardOutput = arrayOutputStream
-            commandLine apktoolCmd
+    void generateChannelApk() {
+        if (mChannelPackageMode == ChannelPackageTask.V1_MODE) {
+            generateV1ChannelApk()
+        } else if (mChannelPackageMode == ChannelPackageTask.V2_MODE) {
+            generateV2ChannelApk()
+        } else {
+            throw new GradleException("not have precise channel package mode");
         }
-
-        String str = arrayOutputStream.toString("utf-8");
-        boolean v2VerifySuccess = false
-        str.eachLine { String value ->
-            println "value = ${value}"
-            if (value.contains("APK Signature Scheme v2") && value.trim().endsWith("true")) {
-                v2VerifySuccess = true
-            }
-        }
-
-        return result.exitValue == 0 && v2VerifySuccess
     }
 
     /**
      * check necessary parameters
      */
     void checkParameter() {
+        //1.check channel List
         if (mChannelList == null || mChannelList.isEmpty()) {
-            throw new InvalidUserDataException("channel list is empty , please check it")
+            throw new InvalidUserDataException("Task ${name} channel list is empty , please check it")
         }
 
+        //2.check output dir
+        if (mOutputDir == null) {
+            throw new InvalidUserDataException("Task ${name} mOutputDir == null")
+        }
+        if (!mOutputDir.exists()) {
+            mOutputDir.mkdirs()
+        } else {
+            // delete old apks
+            mOutputDir.eachFile { file ->
+                if (file.name.endsWith(".apk")) {
+                    file.delete()
+                }
+            }
+        }
+
+        //3.check base apk
         if (mVariant == null) {
-            throw new GradleException("mVariant is null , you are joke!")
+            throw new InvalidUserDataException("Task ${name} mVariant is null , you are joke!")
         }
-
         mBaseApk = mVariant.outputs.first().outputFile
         if (mBaseApk == null || !mBaseApk.exists() || !mBaseApk.isFile()) {
-            throw new GradleException("Base Apk is invalid , please check it")
+            throw new InvalidUserDataException("Task ${name} Base Apk is invalid , please check it")
         }
 
+        //4.check ChannelExtension
         if (mChannelExtension == null) {
-            throw new GradleException("mChannelExtension is null , you are joke!")
+            throw new InvalidUserDataException("Task ${name} mChannelExtension is null , you are joke!")
         }
-
         mChannelExtension.checkParamters()
     }
 
@@ -130,14 +99,21 @@ public class ApkChannelPackageTask extends DefaultTask {
             throw new GradleException("SigningConfig is null , please check it")
         }
 
+//        if (signingConfig.hasProperty("v1SigningEnabled") && !signingConfig.v1SigningEnabled) {
+//            throw new GradleException("you must assign V1 Mode")
+//        }
+
         if (signingConfig.hasProperty("v2SigningEnabled") && signingConfig.v2SigningEnabled) {
-            mChannelPackageMode = V2_MODE;
+            if (signingConfig.hasProperty("v1SigningEnabled") && !signingConfig.v1SigningEnabled) {
+                throw new GradleException("you only assign V2 Mode , but not assign V1 Mode , you can't install Apk below 7.0")
+            }
+            mChannelPackageMode = ChannelPackageTask.V2_MODE;
         } else if ((signingConfig.hasProperty("v1SigningEnabled") && signingConfig.v1SigningEnabled) || !signingConfig.hasProperty("v1SigningEnabled")) {
-            mChannelPackageMode = V1_MODE;
+            mChannelPackageMode = ChannelPackageTask.V1_MODE;
         } else {
             throw new GradleException("you must assign V1 or V2 Mode")
         }
-
+        println("ChannelPackageMode = ${mChannelPackageMode == ChannelPackageTask.V2_MODE ? "V2 Mode" : "V1 Mode"}")
     }
 
     /**
@@ -165,26 +141,71 @@ public class ApkChannelPackageTask extends DefaultTask {
         ]
 
         def templateEngine = new SimpleTemplateEngine()
-        def apkNamePrefix = templateEngine.createTemplate(mChannelExtension.mApkNameFormat).make(keyValue).toString()
+        def apkNamePrefix = templateEngine.createTemplate(mChannelExtension.apkNameFormat).make(keyValue).toString()
         return apkNamePrefix + '.apk'
     }
 
-    boolean generateChannelApk() {
-        if (mChannelPackageMode == V1_MODE) {
-            generateV1ChannelApk()
-        } else if (mChannelPackageMode == V2_MODE) {
-            generateV2ChannelApk()
-        } else {
-            throw new GradleException("not have precise channel package mode");
+    void generateV1ChannelApk() {
+        //check v1 signature , if not have v1 signature , you can't install Apk below 7.0
+        println("------ ${project.name}:${name} generate v1 channel apk  , begin ------")
+
+        if (!V1SchemeUtil.containV1Signature(mBaseApk)) {
+            throw new GradleException(":${name} " +
+                    "apk ${apkPath} not signed by v1 , please check your signingConfig , if not have v1 signature , you can't install Apk below 7.0")
         }
+
+        mChannelList.each { channel ->
+            String apkChannelName = getChannelApkName(channel)
+            println "generateV1ChannelApk , channel = ${channel} , apkChannelName = ${apkChannelName}"
+            File destFile = new File(mOutputDir, apkChannelName)
+            copyTo(mBaseApk, destFile)
+            V1SchemeUtil.writeChannel(destFile, channel)
+            //verify channel info
+            if (V1SchemeUtil.verifyChannel(destFile, channel)) {
+                println("generateV1ChannelApk , ${destFile} add channel success")
+            } else {
+                throw new GradleException("generateV1ChannelApk , ${destFile} add channel failure")
+            }
+            //verify v1 signature
+            if (VerifyApk.verifyV1Signature(destFile)) {
+                println "generateV1ChannelApk , after add channel , apk ${destFile} v1 verify success"
+            } else {
+                throw new GradleException("generateV1ChannelApk , after add channel , apk ${destFile} v1 verify failure")
+            }
+        }
+
+        println("------ ${project.name}:${name} generate v1 channel apk , end ------")
     }
 
-    boolean generateV1ChannelApk() {
+    void generateV2ChannelApk() {
+        println("------ ${project.name}:${name} generate v2 channel apk  , begin ------")
 
-    }
+        ApkSectionInfo apkSectionInfo = V2SchemeUtil.getApkSectionInfo(mBaseApk)
+        mChannelList.each { channel ->
+            String apkChannelName = getChannelApkName(channel)
+            println "generateV2ChannelApk , channel = ${channel} , apkChannelName = ${apkChannelName}"
+            File destFile = new File(mOutputDir, apkChannelName)
+            ChannelWriter.addChannel(apkSectionInfo, destFile, channel)
+            //verify channel info
+            if (ChannelReader.verifyChannel(destFile, channel)) {
+                println("generateV2ChannelApk , ${destFile} add channel success")
+            } else {
+                throw new GradleException("generateV2ChannelApk , ${destFile} add channel failure")
+            }
+            //verify v2 signature
+            //boolean success = V2SchemeUtil.verifyChannelApk(destFile.getAbsolutePath())
+            boolean success = VerifyApk.verifyV2Signature(destFile)
+            if (success) {
+                println "generateV2ChannelApk , after add channel , apk ${destFile} v2 verify success"
+            } else {
+                throw new GradleException("generateV2ChannelApk , after add channel , apk ${destFile} v2 verify failure")
+            }
+//            if (!verifyV2Signature(destFile.getAbsolutePath())) {
+//                throw new GradleException("verify error")
+//            }
+        }
 
-    boolean generateV2ChannelApk() {
-
+        println("------ ${project.name}:${name} generate v2 channel apk , end ------")
     }
 
 

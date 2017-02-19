@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-//apply plugin: 'channel'
+apply plugin: 'channel'
 
 
 buildscript {
@@ -12,15 +12,20 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.0'
-        //classpath 'com.leon.channel:plugin:1.0'
+        classpath 'com.leon.channel:plugin:1.0'
     }
+}
+
+rebuildChannel {
+    baseDebugApk = new File(project.projectDir, "baseApk/v1-base-debug.apk")
+    baseReleaseApk = new File(project.projectDir, "baseApk/v2-base-debug.apk")
 }
 
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.0"
     defaultConfig {
-        applicationId "com.leon.apkchannelpackage"
+        applicationId "leon.com.apkchannelpackage"
         minSdkVersion 18
         targetSdkVersion 25
         versionCode 1
@@ -41,7 +46,8 @@ android {
             storePassword "123456"
             keyAlias "leon"
             keyPassword "123456"
-            v2SigningEnabled true
+            v1SigningEnabled true
+            v2SigningEnabled false
         }
     }
 
@@ -68,6 +74,15 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
+//    productFlavors {
+//        "flavor1" {
+//
+//        }
+//
+//        "flavor2" {
+//
+//        }
+//    }
 }
 
 dependencies {
@@ -77,6 +92,6 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:25.1.0'
-    //compile 'com.leon.channel:helper:1.0'
+    compile 'com.leon.channel:helper:1.0'
     testCompile 'junit:junit:4.12'
 }

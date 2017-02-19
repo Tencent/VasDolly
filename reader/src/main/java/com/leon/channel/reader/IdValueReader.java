@@ -31,7 +31,9 @@ public class IdValueReader {
 
         byte[] buffer = getByteValueById(channelFile, id);
         try {
-            return new String(buffer, ChannelConstants.CONTENT_CHARSET);
+            if (buffer != null && buffer.length > 0) {
+                return new String(buffer, ChannelConstants.CONTENT_CHARSET);
+            }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -40,6 +42,7 @@ public class IdValueReader {
 
         return null;
     }
+
     /**
      * get byte[] value from apk by id
      *
@@ -53,10 +56,9 @@ public class IdValueReader {
         }
 
         ByteBuffer value = getByteBufferValueById(channelFile, id);
+        System.out.println("getByteValueById , id = " + id + " , value = " + value);
         if (value != null) {
             return Arrays.copyOfRange(value.array(), value.arrayOffset() + value.position(), value.arrayOffset() + value.limit());
-        } else {
-            System.out.println("id = " + id + " , value = " + value);
         }
         return null;
     }
@@ -75,7 +77,7 @@ public class IdValueReader {
         }
 
         Map<Integer, ByteBuffer> idValueMap = getAllIdValueMap(channelFile);
-        System.out.println("apk " + channelFile.getAbsolutePath() + " IdValueMap = " + idValueMap);
+        System.out.println("getByteBufferValueById , destApk " + channelFile.getAbsolutePath() + " IdValueMap = " + idValueMap);
 
         if (idValueMap != null) {
             return idValueMap.get(id);

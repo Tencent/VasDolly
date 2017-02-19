@@ -17,7 +17,7 @@ dependencies {
     compile localGroovy()
     compile 'com.android.tools.build:gradle:2.2.0'
     compile 'com.android.tools.build:apksig:2.3.0-alpha3'
-    compile project(path: ':common')
+    //compile project(path: ':common')
     compile project(path: ':writer')
     compile project(path: ':reader')
 }

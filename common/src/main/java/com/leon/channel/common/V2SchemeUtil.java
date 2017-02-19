@@ -2,7 +2,9 @@ package com.leon.channel.common;
 
 import com.leon.channel.common.verify.ApkSignatureSchemeV2Verifier;
 import com.leon.channel.common.verify.ZipUtils;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -78,7 +80,7 @@ public class V2SchemeUtil {
      * @throws IOException
      * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
      */
-    public static ByteBuffer getApkSigningBlock(File channelFile) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static ByteBuffer getApkSigningBlock(File channelFile) throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException, IOException {
         if (channelFile == null || !channelFile.exists() || !channelFile.isFile()) {
             return null;
         }
@@ -95,14 +97,14 @@ public class V2SchemeUtil {
         //2.find the APK Signing Block. The block immediately precedes the Central Directory.
         long centralDirOffset = ApkSignatureSchemeV2Verifier.getCentralDirOffset(eocd, eocdOffset);//通过eocd找到中央目录的偏移量
         //3. find the apk V2 signature block
-        Pair<ByteBuffer, Long> apkSchemeV2Block =
+        Pair<ByteBuffer, Long> apkSignatureBlock =
                 ApkSignatureSchemeV2Verifier.findApkSigningBlock(apk, centralDirOffset);//找到V2签名块的内容和偏移量
 
-        return apkSchemeV2Block.getFirst();
+        return apkSignatureBlock.getFirst();
     }
 
     /**
-     * get the Apk Section info from apk which is signatured by v2
+     * get the all Apk Section info from apk which is signatured by v2
      *
      * @param baseApk
      * @return
@@ -136,7 +138,7 @@ public class V2SchemeUtil {
         apkSectionInfo.mCentralDir = centralDir;
         apkSectionInfo.mEocd = eocdAndOffsetInFile;
 
-        System.out.println("baseApk : " + baseApk.getAbsolutePath() + " , ApkSectionInfo : " + apkSectionInfo);
+        System.out.println("baseApk : " + baseApk.getAbsolutePath() + " , ApkSectionInfo = " + apkSectionInfo);
         return apkSectionInfo;
     }
 
@@ -227,9 +229,39 @@ public class V2SchemeUtil {
         return newApkV2Scheme;
     }
 
-//    public static boolean verifyChannelApk(String apkPath) throws Exception {
-//        return VerifyApk.verifyV2Signature(new File(apkPath));
-//        //return ApkSignatureSchemeV2Verifier.hasSignature(apkPath);
-//    }
+    /**
+     * Returns {@code true} if the provided APK contains an APK Signature Scheme V2 signature.
+     * <p>
+     * NOTE: This method does not verify the signature.</b>
+     *
+     * @param apkPath
+     * @return
+     * @throws Exception
+     */
+    public static boolean verifyChannelApk(String apkPath) throws Exception {
+        return ApkSignatureSchemeV2Verifier.hasSignature(apkPath);
+    }
+
+    /**
+     * judge whether apk contain v2 signature block
+     *
+     * @param apk
+     * @return
+     */
+    public static boolean containV2Signature(File apk) {
+        try {
+            ByteBuffer apkSigningBlock = getApkSigningBlock(apk);
+            Map<Integer, ByteBuffer> idValueMap = getAllIdValue(apkSigningBlock);
+            if (idValueMap.containsKey(ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID)) {
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ApkSignatureSchemeV2Verifier.SignatureNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 
 }

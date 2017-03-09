@@ -13,7 +13,7 @@ class ChannelPackageTask extends DefaultTask {
     public static final int V2_MODE = 2;
 
     @Input
-    List<String> mChannelList;
+    public List<String> mChannelList;
 
     /**
      * verify apk by apksigner.jar

@@ -47,7 +47,7 @@ android {
             keyAlias "leon"
             keyPassword "123456"
             v1SigningEnabled true
-            v2SigningEnabled false
+            v2SigningEnabled true
         }
     }
 
@@ -74,15 +74,6 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
-//    productFlavors {
-//        "flavor1" {
-//
-//        }
-//
-//        "flavor2" {
-//
-//        }
-//    }
 }
 
 dependencies {

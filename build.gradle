@@ -6,8 +6,13 @@ ext {
     buildToolsVersion = '25.0.0'
 
     javaVersion = JavaVersion.VERSION_1_7
+
+
     GROUP = 'com.leon.channel'
-    VERSION = '1.0'
+    VERSION = '1.0.0'
+
+    //POM_PACKAGING = "pom"
+    POM_DESCRIPTION = "ApkChannelPackage"
 
     POM_URL = "https://github.com/ltlovezh/ApkChannelPackage"
     POM_SCM_URL = "https://github.com/ltlovezh/ApkChannelPackage.git"
@@ -16,7 +21,10 @@ ext {
     POM_LICENCE_NAME = "BSD License"
     POM_LICENCE_URL = "https://opensource.org/licenses/BSD-3-Clause"
     POM_LICENCE_DIST = "repo"
+
+    BINTRAY_LICENCE = ['BSD 3-Clause']
 }
+
 buildscript {
     repositories {
         maven {
@@ -28,6 +36,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:1.5"
     }
 }
 

@@ -452,7 +452,7 @@ class SignApk {
         main.putValue(hash == USE_SHA256 ? "SHA-256-Digest-Manifest" : "SHA1-Digest-Manifest",
                       new String(Base64.encode(md.digest()), "ASCII"));
 
-        Map<String, Attributes> entries = manifest.getEntries();
+        Map<String, Attributes> entries = manifest.getEntries();//此manifest为MANIFEST.MF文件对应的Manifest
         for (Map.Entry<String, Attributes> entry : entries.entrySet()) {
             // Digest of the manifest stanza for this entry.
             print.print("Name: " + entry.getKey() + "\r\n");
@@ -1134,15 +1134,15 @@ class SignApk {
                 v1SignedApkBuf.reset();
 
                 ByteBuffer[] outputChunks;
-                if (signUsingApkSignatureSchemeV2) {
+                if (signUsingApkSignatureSchemeV2) { //是否需要V2签名
                     // Additionally sign the APK using the APK Signature Scheme v2.
                     ByteBuffer apkContents = v1SignedApk;
                     List<ApkSignerV2.SignerConfig> signerConfigs =
                             createV2SignerConfigs(
                                     privateKey,
-                                    publicKey,
+                           g         publicKey,
                                     new String[] {APK_SIG_SCHEME_V2_DIGEST_ALGORITHM});
-                    outputChunks = ApkSignerV2.sign(apkContents, signerConfigs);
+                    outputChunks = ApkSignerV2.sign(apkContents, signerConfigs);//进行v2签名
                 } else {
                     // Output the JAR-signed APK as is.
                     outputChunks = new ByteBuffer[] {v1SignedApk};

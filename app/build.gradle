@@ -7,12 +7,10 @@ buildscript {
         maven {
             url "file:///Users/zhangkaqi/localMaven"
         }
-        mavenLocal()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0'
-        classpath 'com.leon.channel:plugin:1.0'
+        classpath 'com.leon.channel:plugin:1.0.1'
     }
 }
 
@@ -39,6 +37,8 @@ android {
             storePassword "123456"
             keyAlias "leon"
             keyPassword "123456"
+            v1SigningEnabled true
+            v2SigningEnabled true
         }
 
         debug {
@@ -47,7 +47,7 @@ android {
             keyAlias "leon"
             keyPassword "123456"
             v1SigningEnabled true
-            v2SigningEnabled true
+            v2SigningEnabled false
         }
     }
 
@@ -83,6 +83,6 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.leon.channel:helper:1.0'
+    compile 'com.leon.channel:helper:1.0.1'
     testCompile 'junit:junit:4.12'
 }

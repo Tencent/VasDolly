@@ -393,7 +393,7 @@ public abstract class ApkSignerV2 {
 
         List<byte[]> signerBlocks = new ArrayList<>(signerConfigs.size());
         int signerNumber = 0;
-        for (SignerConfig signerConfig : signerConfigs) {
+        for (SignerConfig signerConfig : signerConfigs) { //这里对应多个keystore签名
             signerNumber++;
             byte[] signerBlock;
             try {

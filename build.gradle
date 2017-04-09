@@ -9,7 +9,7 @@ ext {
 
 
     GROUP = 'com.leon.channel'
-    VERSION = '1.0.0'
+    VERSION = '1.0.1'
 
     //POM_PACKAGING = "pom"
     POM_DESCRIPTION = "ApkChannelPackage"
@@ -27,12 +27,10 @@ ext {
 
 buildscript {
     repositories {
-        maven {
-            url "file:///Users/zhangkaqi/localMaven"
-        }
-        mavenLocal()
+//        maven {
+//            url "file:///Users/zhangkaqi/localMaven"
+//        }
         jcenter()
-        mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.0'
@@ -43,12 +41,10 @@ buildscript {
 
 allprojects {
     repositories {
-        maven {
-            url "file:///Users/zhangkaqi/localMaven"
-        }
-        mavenLocal()
+//        maven {
+//            url "file:///Users/zhangkaqi/localMaven"
+//        }
         jcenter()
-        mavenCentral()
     }
 }
 

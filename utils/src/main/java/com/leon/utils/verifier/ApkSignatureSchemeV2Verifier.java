@@ -260,7 +260,7 @@ public class ApkSignatureSchemeV2Verifier {
         int signatureCount = 0;
         int bestSigAlgorithm = -1;
         byte[] bestSigAlgorithmSignatureBytes = null;
-        List<Integer> signaturesSigAlgorithms = new ArrayList<>();
+        List<Integer> signaturesSigAlgorithms = new ArrayList<>();//签名算法ID列表
         while (signatures.hasRemaining()) {
             signatureCount++;
             try {
@@ -274,7 +274,7 @@ public class ApkSignatureSchemeV2Verifier {
                     continue;
                 }
                 if ((bestSigAlgorithm == -1)
-                        || (compareSignatureAlgorithm(sigAlgorithm, bestSigAlgorithm) > 0)) {
+                        || (compareSignatureAlgorithm(sigAlgorithm, bestSigAlgorithm) > 0)) { //找出最强的签名算法Id和其对应的数字签名
                     bestSigAlgorithm = sigAlgorithm;//签名算法ID
                     bestSigAlgorithmSignatureBytes = readLengthPrefixedByteArray(signature);//签名数据
                 }
@@ -308,7 +308,7 @@ public class ApkSignatureSchemeV2Verifier {
                 sig.setParameter(jcaSignatureAlgorithmParams);
             }
             sig.update(signedData);
-            sigVerified = sig.verify(bestSigAlgorithmSignatureBytes);//通过公钥解密签名数据和signedData摘要数据进行对比
+            sigVerified = sig.verify(bestSigAlgorithmSignatureBytes);//通过公钥解密数字签名和signedData摘要数据进行对比
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException
                 | InvalidAlgorithmParameterException | SignatureException e) {
             throw new SecurityException(
@@ -323,7 +323,7 @@ public class ApkSignatureSchemeV2Verifier {
         byte[] contentDigest = null;
         signedData.clear();
         ByteBuffer digests = getLengthPrefixedSlice(signedData);
-        List<Integer> digestsSigAlgorithms = new ArrayList<>();
+        List<Integer> digestsSigAlgorithms = new ArrayList<>();//数据摘要中的数字签名ID列表
         int digestCount = 0;
         while (digests.hasRemaining()) {
             digestCount++;
@@ -375,7 +375,7 @@ public class ApkSignatureSchemeV2Verifier {
         if (certs.isEmpty()) {
             throw new SecurityException("No certificates listed");
         }
-        X509Certificate mainCertificate = certs.get(0);
+        X509Certificate mainCertificate = certs.get(0);//证书链中的第一个存储了公钥信息
         byte[] certificatePublicKeyBytes = mainCertificate.getPublicKey().getEncoded();
         if (!Arrays.equals(publicKeyBytes, certificatePublicKeyBytes)) { //对比数字证书中的公钥和最后的公钥是否一致
             throw new SecurityException(
@@ -479,14 +479,14 @@ public class ApkSignatureSchemeV2Verifier {
             setUnsignedInt32LittleEndian(
                     totalChunkCount,
                     concatenationOfChunkCountAndChunkDigests,
-                    1);
-            digestsOfChunks[i] = concatenationOfChunkCountAndChunkDigests;
+                    1);//写入小数据块的总大小
+            digestsOfChunks[i] = concatenationOfChunkCountAndChunkDigests;//每个摘要算法对应的数据
         }
 
         byte[] chunkContentPrefix = new byte[5];
         chunkContentPrefix[0] = (byte) 0xa5;
         int chunkIndex = 0;
-        MessageDigest[] mds = new MessageDigest[digestAlgorithms.length];
+        MessageDigest[] mds = new MessageDigest[digestAlgorithms.length];//计算摘要的算法
         for (int i = 0; i < digestAlgorithms.length; i++) {
             String jcaAlgorithmName =
                     getContentDigestAlgorithmJcaDigestAlgorithm(digestAlgorithms[i]);
@@ -505,7 +505,7 @@ public class ApkSignatureSchemeV2Verifier {
             long inputRemaining = input.size();
             while (inputRemaining > 0) {
                 int chunkSize = (int) Math.min(inputRemaining, CHUNK_SIZE_BYTES);
-                setUnsignedInt32LittleEndian(chunkSize, chunkContentPrefix, 1);
+                setUnsignedInt32LittleEndian(chunkSize, chunkContentPrefix, 1);//写入小块大小
                 for (int i = 0; i < mds.length; i++) {
                     mds[i].update(chunkContentPrefix);
                 }

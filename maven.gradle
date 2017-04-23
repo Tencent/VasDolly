@@ -6,7 +6,7 @@ apply plugin: 'com.jfrog.bintray'
 
 group = project.rootProject.GROUP
 version = project.rootProject.VERSION
-
+//javadocJar sourcesJar install bintrayUpload
 install {
     repositories.mavenInstaller {
         // This generates POM.xml with proper parameters

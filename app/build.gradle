@@ -10,7 +10,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.leon.channel:plugin:1.0.2'
+        classpath 'com.leon.channel:plugin:1.0.3'
     }
 }
 
@@ -24,7 +24,7 @@ android {
     buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "leon.com.apkchannelpackage"
-        minSdkVersion 18
+        minSdkVersion 14
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -83,6 +83,6 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.leon.channel:helper:1.0.2'
+    compile 'com.leon.channel:helper:1.0.3'
     testCompile 'junit:junit:4.12'
 }

@@ -13,6 +13,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -250,11 +251,19 @@ public class V1SchemeUtil {
      * @return
      */
     public static boolean containV1Signature(File file) {
-        JarFile jarFile = null;
+        JarFile jarFile;
         try {
             jarFile = new JarFile(file);
             JarEntry mfEntry = jarFile.getJarEntry("META-INF/MANIFEST.MF");
-            JarEntry certEntry = jarFile.getJarEntry("META-INF/CERT.SF");
+            JarEntry certEntry = null;
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                if (entry.getName().endsWith(".SF")) {
+                    certEntry = jarFile.getJarEntry(entry.getName());
+                    break;
+                }
+            }
             if (mfEntry != null && certEntry != null) {
                 return true;
             }

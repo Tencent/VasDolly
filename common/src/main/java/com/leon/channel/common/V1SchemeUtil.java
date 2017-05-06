@@ -254,17 +254,17 @@ public class V1SchemeUtil {
         JarFile jarFile;
         try {
             jarFile = new JarFile(file);
-            JarEntry mfEntry = jarFile.getJarEntry("META-INF/MANIFEST.MF");
-            JarEntry certEntry = null;
+            JarEntry manifestEntry = jarFile.getJarEntry("META-INF/MANIFEST.MF");
+            JarEntry sfEntry = null;
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
-                if (entry.getName().endsWith(".SF")) {
-                    certEntry = jarFile.getJarEntry(entry.getName());
+                if (entry.getName().matches("META-INF/\\w+\\.SF")) {
+                    sfEntry = jarFile.getJarEntry(entry.getName());
                     break;
                 }
             }
-            if (mfEntry != null && certEntry != null) {
+            if (manifestEntry != null && sfEntry != null) {
                 return true;
             }
         } catch (IOException e) {

@@ -8,6 +8,9 @@ ApkChannelPackage是一种快速多渠道打包工具，同时支持基于V1签�
 详细接入文档可参考[ApkChannelPackage插件接入文档](http://ltlovezh.com/2017/04/09/ApkChannelPackage%E6%8F%92%E4%BB%B6%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3/)
 
 ## 最新版本
-目前已更新到1.0.3版本
+目前已更新到1.0.4版本
 
-主要解决了加固重新签名后，识别V1签名不准确的问题
+主要解决了
+
+1. APK加固重新签名后，识别V1签名不准确的问题
+2. 删除了helper库中不需要的属性

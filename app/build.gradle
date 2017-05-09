@@ -10,7 +10,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.leon.channel:plugin:1.0.3'
+        classpath 'com.leon.channel:plugin:1.0.4'
     }
 }
 
@@ -83,6 +83,6 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.leon.channel:helper:1.0.3'
+    compile 'com.leon.channel:helper:1.0.4'
     testCompile 'junit:junit:4.12'
 }

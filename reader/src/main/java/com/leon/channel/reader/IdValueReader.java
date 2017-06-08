@@ -57,6 +57,7 @@ public class IdValueReader {
 
         ByteBuffer value = getByteBufferValueById(channelFile, id);
         System.out.println("getByteValueById , id = " + id + " , value = " + value);
+
         if (value != null) {
             return Arrays.copyOfRange(value.array(), value.arrayOffset() + value.position(), value.arrayOffset() + value.limit());
         }
@@ -78,7 +79,6 @@ public class IdValueReader {
 
         Map<Integer, ByteBuffer> idValueMap = getAllIdValueMap(channelFile);
         System.out.println("getByteBufferValueById , destApk " + channelFile.getAbsolutePath() + " IdValueMap = " + idValueMap);
-
         if (idValueMap != null) {
             return idValueMap.get(id);
         }
@@ -99,7 +99,7 @@ public class IdValueReader {
 
         try {
             ByteBuffer apkSigningBlock = V2SchemeUtil.getApkSigningBlock(channelFile);
-            return V2SchemeUtil.getAllIdValue(apkSigningBlock,false);
+            return V2SchemeUtil.getAllIdValue(apkSigningBlock);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ApkSignatureSchemeV2Verifier.SignatureNotFoundException e) {

@@ -23,11 +23,10 @@ public class V2SchemeUtil {
      * 参考ApkSignatureSchemeV2Verifier.findApkSignatureSchemeV2Block()方法
      *
      * @param apkSchemeBlock
-     * @param isCommandForGetSignScheme     是否是为了得到签名方式,在命令行下，不应该有不必要的控制台输出
      * @return
      * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
      */
-    public static Map<Integer, ByteBuffer> getAllIdValue(ByteBuffer apkSchemeBlock,boolean isCommandForGetSignScheme) throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static Map<Integer, ByteBuffer> getAllIdValue(ByteBuffer apkSchemeBlock) throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
         ApkSignatureSchemeV2Verifier.checkByteOrderLittleEndian(apkSchemeBlock);
         // FORMAT:
         // OFFSET       DATA TYPE  DESCRIPTION
@@ -59,7 +58,7 @@ public class V2SchemeUtil {
             }
             int id = pairs.getInt();
             idValues.put(id, ApkSignatureSchemeV2Verifier.getByteBuffer(pairs, len - 4));//4 is length of id
-            if (id == ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID&&!isCommandForGetSignScheme) {
+            if (id == ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID) {
                 System.out.println("find V2 signature block Id : " + ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID);
             }
             pairs.position(nextEntryPos);
@@ -247,20 +246,19 @@ public class V2SchemeUtil {
      * judge whether apk contain v2 signature block
      *
      * @param apk
-     * @param isCommandForGetSignScheme 是否是为了得到签名方式,在命令行下，不应该有不必要的控制台输出
      * @return
      */
-    public static boolean containV2Signature(File apk,boolean isCommandForGetSignScheme) {
+    public static boolean containV2Signature(File apk,boolean isCommand) {
         try {
             ByteBuffer apkSigningBlock = getApkSigningBlock(apk);
-            Map<Integer, ByteBuffer> idValueMap = getAllIdValue(apkSigningBlock,isCommandForGetSignScheme);
+            Map<Integer, ByteBuffer> idValueMap = getAllIdValue(apkSigningBlock);
             if (idValueMap.containsKey(ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID)) {
                 return true;
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ApkSignatureSchemeV2Verifier.SignatureNotFoundException e) {
-            if (!isCommandForGetSignScheme) {
+            if (!isCommand) {
                 e.printStackTrace();
             }
         }

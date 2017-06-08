@@ -57,7 +57,7 @@ public class IdValueWriter {
         }
         System.out.println("addIdValueByteBufferMap , idValueMap = " + idValueMap);
 
-        Map<Integer, ByteBuffer> existentIdValueMap = V2SchemeUtil.getAllIdValue(apkSectionInfo.mSchemeV2Block.getFirst(),false);
+        Map<Integer, ByteBuffer> existentIdValueMap = V2SchemeUtil.getAllIdValue(apkSectionInfo.mSchemeV2Block.getFirst());
         if (!existentIdValueMap.containsKey(ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID)) {
             throw new ApkSignatureSchemeV2Verifier.SignatureNotFoundException(
                     "No APK V2 Signature Scheme block in APK Signing Block");

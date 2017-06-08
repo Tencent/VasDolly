@@ -1,0 +1,29 @@
+apply plugin: 'java'
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.leon.channel.command.Main'
+        attributes 'Version': VERSION
+    }
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':common')
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+task generateJar(type: Copy, dependsOn: build) {
+    from ('build/libs'){
+        include 'command.jar'
+    }
+    into('jar')
+    rename('command.jar','ApkChannelPackage.jar')
+}

@@ -99,7 +99,7 @@ public class IdValueReader {
 
         try {
             ByteBuffer apkSigningBlock = V2SchemeUtil.getApkSigningBlock(channelFile);
-            return V2SchemeUtil.getAllIdValue(apkSigningBlock);
+            return V2SchemeUtil.getAllIdValue(apkSigningBlock,false);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ApkSignatureSchemeV2Verifier.SignatureNotFoundException e) {

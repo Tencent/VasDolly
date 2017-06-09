@@ -9,6 +9,7 @@ import com.leon.channel.writer.ChannelWriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
 
 /**
  * Created by zys on 17-6-8.
@@ -116,7 +117,11 @@ public class Util {
             System.out.println("generateV1ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
             File destFile = new File(outputDir, apkChannelName);
             try {
-                V1SchemeUtil.copyFile(baseApk, destFile);
+                long before =System.currentTimeMillis();
+                System.out.println("before copy");
+                copyFile(baseApk, destFile);
+                System.out.println("after copy  "+(System.currentTimeMillis()-before) +"millis");
+
                 V1SchemeUtil.writeChannel(destFile, channel);
                 //verify channel info
                 if (V1SchemeUtil.verifyChannel(destFile, channel)) {
@@ -158,7 +163,7 @@ public class Util {
                 String apkChannelName = getChannelApkName(apkName, channel);
                 System.out.println("generateV2ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
                 File destFile= new File(outputDir, apkChannelName);
-                V1SchemeUtil.copyFile(baseApk, destFile);
+                copyFile(baseApk, destFile);
                 ChannelWriter.addChannel(apkSectionInfo, destFile, channel);
 
                 //verify channel info
@@ -197,6 +202,21 @@ public class Util {
      */
     private static String getChannelApkName(String baseApkName, String channel) {
         return channel + "-" + baseApkName;
+    }
+
+
+    /**
+     * 通过调用cp命令来加快文件复制
+     * @param baseApk
+     * @param destApk
+     */
+    public static void copyFile(File baseApk,File destApk) {
+        try {
+            String command = "cp "+baseApk.getAbsolutePath()+" "+destApk.getAbsolutePath();
+            Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

@@ -27,7 +27,7 @@ public class Main {
                 "    " + cmdChannel + "                 channel information\n\n" +
                 "for example:\n\n" +
                 "    java -jar ApkChannelPackage.jar get -c /home/user/test.apk\n" +
-                "    java -jar ApkChannelPackage.jar put -c \"channel\" /home/user/test.apk\n\n" +
+                "    java -jar ApkChannelPackage.jar put -c \"channel\" /home/user/base.apk /home/user/output.apk\n\n" +
                 "Use commas to write multiple channels";
 
         if (args.length == 0 || args[0] == null || args[0].trim().length() == 0) {

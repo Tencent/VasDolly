@@ -1,6 +1,9 @@
 package com.leon.channel.command;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -19,16 +22,17 @@ public class Main {
 
         String help = "The commands are:\n\n" +
                 "global options:\n\n" +
-                "    " + cmdGet + " [ arg ]        get apk information\n" +
-                "    " + cmdPut + " [ arg ]        put channel information\n" +
+                "    " + cmdGet + "                get apk information\n" +
+                "    " + cmdPut + "                put channel information\n" +
                 "    " + cmdHelp + "               get help\n\n" +
                 "general args:\n\n" +
-                "    " + cmdSignMode + "                 signature mode\n" +
-                "    " + cmdChannel + "                 channel information\n\n" +
+                "    " + cmdSignMode + "[arg]                 signature mode\n" +
+                "    " + cmdChannel + "[arg]                 channel information\n\n" +
                 "for example:\n\n" +
                 "    java -jar ApkChannelPackage.jar get -c /home/user/test.apk\n" +
-                "    java -jar ApkChannelPackage.jar put -c \"channel\" /home/user/base.apk /home/user/output.apk\n\n" +
-                "Use commas to write multiple channels";
+                "    java -jar ApkChannelPackage.jar put -c \"channel1,channel2\" /home/user/base.apk /home/user/output.apk\n" +
+                "    java -jar ApkChannelPackage.jar put -c channel.txt /home/user/base.apk /home/user/output.apk\n\n"+
+                "Use commas to write multiple channels,you can also use channel file.\n";
 
         if (args.length == 0 || args[0] == null || args[0].trim().length() == 0) {
             System.out.print(help);
@@ -63,26 +67,35 @@ public class Main {
                     }
                 } else if (command0.equals(cmdPut)) {//插入
                     if (command1.equals(cmdChannel)) {//插入渠道信息
-                        //
-                        String filePath = args[args.length - 2].trim();
-                        File file = new File(filePath);
-                        if (!file.exists()) {
+                        //baseApk
+                        String baseApkPath = args[args.length - 2].trim();
+                        File baseApk = new File(baseApkPath);
+                        if (!baseApk.exists()) {
                             System.out.print("\nApk file does not exist!");
                             return;
-                        } else if (file.isDirectory()) {
+                        } else if (baseApk.isDirectory()) {
                             System.out.print("\nThe file path cannot be a directory!");
                             return;
                         }
-
+                        //base
                         String outPutPath = args[args.length - 1].trim();
                         File outPutDir = new File(outPutPath);
                         if (!outPutDir.isDirectory()) {
                             System.out.print("\nThe output path cannot be a file!");
                             return;
                         }
+                        //渠道信息
                         String channels = args[2].trim();
-                        String[] channelArray = channels.split(",");
-                        Util.writeChannel(file, channelArray, outPutDir);
+                        File channelFile = new File(channels);
+                        List<String> channelList = new ArrayList<>();
+                        //渠道文件
+                        if(channelFile.exists()&&!channelFile.isDirectory()){
+                            channelList= Util.readChannelFile(channelFile);
+                        }else {
+                            String[] channelArray = channels.split(",");
+                            channelList= Arrays.asList(channelArray);
+                        }
+                        Util.writeChannel(baseApk, channelList, outPutDir);
                     }
                 } else {
                     System.out.print("\nPlease enter the correct command!");

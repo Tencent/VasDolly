@@ -7,9 +7,13 @@ import com.leon.channel.common.verify.ApkSignatureSchemeV2Verifier;
 import com.leon.channel.reader.ChannelReader;
 import com.leon.channel.writer.ChannelWriter;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * Created by zys on 17-6-8.
@@ -66,15 +70,15 @@ public class Util {
      * 根据不同的方式写入渠道，并生成apk
      *
      * @param baseApk
-     * @param channelArray
+     * @param channelList
      * @param outputDir
      */
-    public static void writeChannel(File baseApk, String[] channelArray, File outputDir) {
+    public static void writeChannel(File baseApk, List<String> channelList, File outputDir) {
         int mode = judgeChannelPackageMode(baseApk);
         if (mode == V1_MODE) {
-            generateV1ChannelApk(baseApk, channelArray, outputDir);
+            generateV1ChannelApk(baseApk, channelList, outputDir);
         } else if (mode == V2_MODE) {
-            generateV2ChannelApk(baseApk, channelArray, outputDir);
+            generateV2ChannelApk(baseApk, channelList, outputDir);
         } else {
             throw new IllegalStateException("not have precise channel package mode");
         }
@@ -101,10 +105,10 @@ public class Util {
     /**
      * V1方式写入渠道
      * @param baseApk
-     * @param channelArray
+     * @param channelList
      * @param outputDir
      */
-    private static void generateV1ChannelApk(File baseApk, String[] channelArray, File outputDir) {
+    private static void generateV1ChannelApk(File baseApk, List<String> channelList, File outputDir) {
         String apkName = baseApk.getName();
         System.out.println("------ File " + apkName + " generate v1 channel apk  , begin ------");
 
@@ -112,7 +116,7 @@ public class Util {
             System.out.println("File " + baseApk.getName() + " not signed by v1 , please check your signingConfig , if not have v1 signature , you can't install Apk below 7.0");
         }
 
-        for (String channel : channelArray) {
+        for (String channel : channelList) {
             String apkChannelName = getChannelApkName(apkName, channel);
             System.out.println("generateV1ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
             File destFile = new File(outputDir, apkChannelName);
@@ -147,10 +151,10 @@ public class Util {
     /**
      *  V2方式写入渠道
      * @param baseApk
-     * @param channelArray
+     * @param channelList
      * @param outputDir
      */
-    private static void generateV2ChannelApk(File baseApk, String[] channelArray, File outputDir) {
+    private static void generateV2ChannelApk(File baseApk, List<String> channelList, File outputDir) {
 
         String apkName = baseApk.getName();
         System.out.println("------ File " + apkName + " generate v2 channel apk  , begin ------");
@@ -159,7 +163,7 @@ public class Util {
         try {
             apkSectionInfo = V2SchemeUtil.getApkSectionInfo(baseApk);
 
-            for (String channel : channelArray) {
+            for (String channel : channelList) {
                 String apkChannelName = getChannelApkName(apkName, channel);
                 System.out.println("generateV2ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
                 File destFile= new File(outputDir, apkChannelName);
@@ -210,12 +214,37 @@ public class Util {
      * @param baseApk
      * @param destApk
      */
-    public static void copyFile(File baseApk,File destApk) {
+    private static void copyFile(File baseApk,File destApk) {
         try {
             String command = "cp "+baseApk.getAbsolutePath()+" "+destApk.getAbsolutePath();
             Runtime.getRuntime().exec(command);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * 读取渠道文件
+     * @param channelFile
+     * @return
+     */
+    public static List<String> readChannelFile(File channelFile){
+        ArrayList<String> channelList = new ArrayList<>();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(channelFile));
+            String s;
+            try {
+                while ((s = br.readLine()) != null) {
+                    channelList.add(s);
+                }
+                return channelList;
+            } finally {
+                br.close();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

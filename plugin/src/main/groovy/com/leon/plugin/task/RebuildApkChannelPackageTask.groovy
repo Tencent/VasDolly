@@ -53,7 +53,7 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
     }
 
     int judgeChannelPackageMode(File baseApk) {
-        if (V2SchemeUtil.containV2Signature(baseApk)) {
+        if (V2SchemeUtil.containV2Signature(baseApk,false)) {
             return ChannelPackageTask.V2_MODE
         } else if (V1SchemeUtil.containV1Signature(baseApk)) {
             return ChannelPackageTask.V1_MODE

@@ -248,7 +248,7 @@ public class V2SchemeUtil {
      * @param apk
      * @return
      */
-    public static boolean containV2Signature(File apk) {
+    public static boolean containV2Signature(File apk,boolean isCommand) {
         try {
             ByteBuffer apkSigningBlock = getApkSigningBlock(apk);
             Map<Integer, ByteBuffer> idValueMap = getAllIdValue(apkSigningBlock);
@@ -258,7 +258,9 @@ public class V2SchemeUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ApkSignatureSchemeV2Verifier.SignatureNotFoundException e) {
-            e.printStackTrace();
+            if (!isCommand) {
+                e.printStackTrace();
+            }
         }
 
         return false;

@@ -1,5 +1,6 @@
 package com.leon.channel.command;
 
+import com.com.leon.channel.verify.VerifyApk;
 import com.leon.channel.common.ApkSectionInfo;
 import com.leon.channel.common.V1SchemeUtil;
 import com.leon.channel.common.V2SchemeUtil;
@@ -9,10 +10,11 @@ import com.leon.channel.writer.ChannelWriter;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -45,7 +47,7 @@ public class Util {
             } else {
                 return V1_V2;
             }
-        } else if (V1SchemeUtil.containV1Signature(apkFile)) {//如果没有V2签名段，并且有CERT.SF，那么一定是仅仅V1签名
+        } else if (V1SchemeUtil.containV1Signature(apkFile)) { //如果没有V2签名段，并且有CERT.SF，那么一定是仅仅V1签名
             return V1;
         } else {
             return "Apk was not signed";
@@ -76,8 +78,10 @@ public class Util {
     public static void writeChannel(File baseApk, List<String> channelList, File outputDir) {
         int mode = judgeChannelPackageMode(baseApk);
         if (mode == V1_MODE) {
+            System.out.println("baseApk : " + baseApk.getAbsolutePath() + " , ChannelPackageMode : V1 Mode");
             generateV1ChannelApk(baseApk, channelList, outputDir);
         } else if (mode == V2_MODE) {
+            System.out.println("baseApk : " + baseApk.getAbsolutePath() + " , ChannelPackageMode : V2 Mode");
             generateV2ChannelApk(baseApk, channelList, outputDir);
         } else {
             throw new IllegalStateException("not have precise channel package mode");
@@ -93,7 +97,7 @@ public class Util {
      * @link https://source.android.com/security/apksigning/v2
      */
     private static int judgeChannelPackageMode(File baseApk) {
-        if (V2SchemeUtil.containV2Signature(baseApk, false)) {
+        if (V2SchemeUtil.containV2Signature(baseApk, true)) {
             return V2_MODE;
         } else if (V1SchemeUtil.containV1Signature(baseApk)) {
             return V1_MODE;
@@ -104,16 +108,29 @@ public class Util {
 
     /**
      * V1方式写入渠道
+     *
      * @param baseApk
      * @param channelList
      * @param outputDir
      */
     private static void generateV1ChannelApk(File baseApk, List<String> channelList, File outputDir) {
+        if (!V1SchemeUtil.containV1Signature(baseApk)) {
+            System.out.println("File " + baseApk.getName() + " not signed by v1 , please check your signingConfig , if not have v1 signature , you can't install Apk below 7.0");
+        }
+
         String apkName = baseApk.getName();
         System.out.println("------ File " + apkName + " generate v1 channel apk  , begin ------");
 
-        if (!V1SchemeUtil.containV1Signature(baseApk)) {
-            System.out.println("File " + baseApk.getName() + " not signed by v1 , please check your signingConfig , if not have v1 signature , you can't install Apk below 7.0");
+        //判断基础包是否已经包含渠道信息
+        try {
+            String testChannel = V1SchemeUtil.readChannel(baseApk);
+            if (testChannel != null) {
+                System.out.println("baseApk : " + baseApk.getAbsolutePath() + " has a channel : " + testChannel + ", only ignore");
+                return;
+            }
+        } catch (Exception e) {
+            //e.printStackTrace();
+            System.out.println("baseApk : " + baseApk.getAbsolutePath() + " not have channel info , so can add a channel info");
         }
 
         for (String channel : channelList) {
@@ -121,17 +138,16 @@ public class Util {
             System.out.println("generateV1ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
             File destFile = new File(outputDir, apkChannelName);
             try {
-                long before =System.currentTimeMillis();
+                long before = System.currentTimeMillis();
                 System.out.println("before copy");
-                copyFile(baseApk, destFile);
-                System.out.println("after copy  "+(System.currentTimeMillis()-before) +"millis");
-
+                copyFileUsingStream(baseApk, destFile);
+                System.out.println("after copy , copy cost :  " + (System.currentTimeMillis() - before) + "millis");
                 V1SchemeUtil.writeChannel(destFile, channel);
                 //verify channel info
                 if (V1SchemeUtil.verifyChannel(destFile, channel)) {
-                    System.out.println("generateV1ChannelApk , +" + destFile + " add channel success");
+                    System.out.println("generateV1ChannelApk , " + destFile + " add channel success");
                 } else {
-                    System.out.println("generateV1ChannelApk ,  +" + destFile + " add channel failure");
+                    System.out.println("generateV1ChannelApk , " + destFile + " add channel failure");
                 }
                 //verify v1 signature
                 if (VerifyApk.verifyV1Signature(destFile)) {
@@ -141,7 +157,7 @@ public class Util {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("generateV2ChannelApk , after add channel , apk " + apkName + " v2 verify failure");
+                System.out.println("generateV1ChannelApk , after add channel , apk " + apkName + " v1 verify failure");
             }
 
         }
@@ -149,13 +165,13 @@ public class Util {
     }
 
     /**
-     *  V2方式写入渠道
+     * V2方式写入渠道
+     *
      * @param baseApk
      * @param channelList
      * @param outputDir
      */
     private static void generateV2ChannelApk(File baseApk, List<String> channelList, File outputDir) {
-
         String apkName = baseApk.getName();
         System.out.println("------ File " + apkName + " generate v2 channel apk  , begin ------");
 
@@ -166,8 +182,7 @@ public class Util {
             for (String channel : channelList) {
                 String apkChannelName = getChannelApkName(apkName, channel);
                 System.out.println("generateV2ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
-                File destFile= new File(outputDir, apkChannelName);
-                copyFile(baseApk, destFile);
+                File destFile = new File(outputDir, apkChannelName);
                 ChannelWriter.addChannel(apkSectionInfo, destFile, channel);
 
                 //verify channel info
@@ -198,25 +213,28 @@ public class Util {
 
     /**
      * 配置添加渠道信息之后的apk名称
-     * 由于是命令行的方式
      *
      * @param baseApkName
      * @param channel
      * @return
      */
     private static String getChannelApkName(String baseApkName, String channel) {
+        if (baseApkName.contains("base")) {
+            return baseApkName.replace("base", channel);
+        }
         return channel + "-" + baseApkName;
     }
 
 
     /**
      * 通过调用cp命令来加快文件复制
+     *
      * @param baseApk
      * @param destApk
      */
-    private static void copyFile(File baseApk,File destApk) {
+    private static void copyFileByCp(File baseApk, File destApk) {
         try {
-            String command = "cp "+baseApk.getAbsolutePath()+" "+destApk.getAbsolutePath();
+            String command = "cp " + baseApk.getAbsolutePath() + " " + destApk.getAbsolutePath();
             Runtime.getRuntime().exec(command);
         } catch (IOException e) {
             e.printStackTrace();
@@ -224,18 +242,57 @@ public class Util {
     }
 
     /**
+     * 使用文件流copy文件
+     *
+     * @param source
+     * @param dest
+     * @throws IOException
+     */
+    public static void copyFileUsingStream(File source, File dest) throws IOException {
+        FileInputStream is = null;
+        FileOutputStream os = null;
+        File parent = dest.getParentFile();
+        if (parent != null && (!parent.exists())) {
+            parent.mkdirs();
+        }
+        try {
+            is = new FileInputStream(source);
+            os = new FileOutputStream(dest, false);
+
+            byte[] buffer = new byte[4096];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+            if (os != null) {
+                os.close();
+            }
+        }
+    }
+
+    /**
      * 读取渠道文件
+     *
      * @param channelFile
      * @return
      */
-    public static List<String> readChannelFile(File channelFile){
+    public static List<String> readChannelFile(File channelFile) {
         ArrayList<String> channelList = new ArrayList<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(channelFile));
-            String s;
+            String line;
             try {
-                while ((s = br.readLine()) != null) {
-                    channelList.add(s);
+                while ((line = br.readLine()) != null) {
+                    String[] array = line.split("#");
+                    if (array != null && array.length > 0 && array[0] != null && array[0].trim().length() > 0) {
+                        channelList.add(array[0].trim());
+                    } else {
+                        System.out.println("skip invalid channel line : " + line);
+                    }
                 }
                 return channelList;
             } finally {

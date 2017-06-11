@@ -58,6 +58,7 @@ public class V1SchemeUtil {
 
             if (containV1Magic(file)) {
                 String existChannel = readChannel(file);
+                file.delete();
                 throw new ChannelExistException("file : " + file.getAbsolutePath() + " has a channel : " + existChannel + ", only ignore");
             }
 

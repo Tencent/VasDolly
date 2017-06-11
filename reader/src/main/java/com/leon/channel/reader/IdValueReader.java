@@ -36,8 +36,6 @@ public class IdValueReader {
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
         return null;
@@ -103,7 +101,8 @@ public class IdValueReader {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ApkSignatureSchemeV2Verifier.SignatureNotFoundException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            System.out.println("APK : " + channelFile.getAbsolutePath() + " not have apk signature block");
         }
 
         return null;

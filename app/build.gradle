@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: 'channel'
+//apply plugin: 'channel'
 
 
 buildscript {
@@ -10,14 +10,14 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.leon.channel:plugin:1.0.4'
+        classpath 'com.leon.channel:plugin:1.0.5'
     }
 }
 
-rebuildChannel {
-    baseDebugApk = new File(project.projectDir, "baseApk/v1-base-debug.apk")
-    baseReleaseApk = new File(project.projectDir, "baseApk/v2-base-debug.apk")
-}
+//rebuildChannel {
+//    baseDebugApk = new File(project.projectDir, "baseApk/v1-base-debug.apk")
+//    baseReleaseApk = new File(project.projectDir, "baseApk/v2-base-debug.apk")
+//}
 
 android {
     compileSdkVersion 25
@@ -76,6 +76,9 @@ android {
 
 }
 
+targetCompatibility = '1.7'
+sourceCompatibility = '1.7'
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -83,6 +86,6 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.leon.channel:helper:1.0.4'
+    compile 'com.leon.channel:helper:1.0.5'
     testCompile 'junit:junit:4.12'
 }

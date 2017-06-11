@@ -7,7 +7,7 @@ import com.leon.channel.common.V1SchemeUtil
 import com.leon.channel.common.V2SchemeUtil
 import com.leon.channel.reader.ChannelReader
 import com.leon.channel.writer.ChannelWriter
-import com.leon.plugin.verifier.VerifyApk
+import com.com.leon.channel.verify.VerifyApk;
 import com.leon.plugin.extension.ChannelConfigurationExtension
 import groovy.text.SimpleTemplateEngine
 import org.gradle.api.GradleException

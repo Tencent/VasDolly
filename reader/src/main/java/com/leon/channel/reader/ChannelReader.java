@@ -12,7 +12,7 @@ import java.io.File;
 public class ChannelReader {
 
     /**
-     * get channel value
+     * get channel value from apk signature block
      *
      * @param channelFile
      * @return
@@ -47,7 +47,8 @@ public class ChannelReader {
         try {
             return V1SchemeUtil.readChannel(channelFile);
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            System.out.println("APK : " + channelFile.getAbsolutePath() + " not have channel info from Zip Comment");
         }
         return null;
     }

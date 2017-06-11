@@ -1,4 +1,4 @@
-package com.leon.channel.command;
+package com.com.leon.channel.verify;
 
 import com.android.apksig.ApkVerifier;
 import com.android.apksig.apk.ApkFormatException;
@@ -9,11 +9,10 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * 转移到这里主要是防止打包jar的时候过多的依赖android包
+ * Created by leontli on 17/6/11.
  */
 
 public class VerifyApk {
-
     /**
      * verify V2 signature
      *
@@ -66,3 +65,4 @@ public class VerifyApk {
         return false;
     }
 }
+

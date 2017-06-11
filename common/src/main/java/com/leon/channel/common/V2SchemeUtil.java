@@ -248,7 +248,7 @@ public class V2SchemeUtil {
      * @param apk
      * @return
      */
-    public static boolean containV2Signature(File apk,boolean isCommand) {
+    public static boolean containV2Signature(File apk, boolean isCommand) {
         try {
             ByteBuffer apkSigningBlock = getApkSigningBlock(apk);
             Map<Integer, ByteBuffer> idValueMap = getAllIdValue(apkSigningBlock);
@@ -261,6 +261,7 @@ public class V2SchemeUtil {
             if (!isCommand) {
                 e.printStackTrace();
             }
+            System.out.println("APK : " + apk.getAbsolutePath() + " not have apk signature block");
         }
 
         return false;

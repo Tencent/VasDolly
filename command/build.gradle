@@ -14,20 +14,25 @@ jar {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':common')
     compile project(':reader')
     compile project(':writer')
-    compile 'com.android.tools.build:apksig:2.3.0-alpha3'
-
+    compile project(':verify')
 }
 
 sourceCompatibility = "1.7"
 targetCompatibility = "1.7"
 
 task generateJar(type: Copy, dependsOn: build) {
-    from ('build/libs'){
+    from('build/libs') {
         include 'command.jar'
     }
     into('jar')
-    rename('command.jar','ApkChannelPackage.jar')
+    rename('command.jar', 'ApkChannelPackage.jar')
 }
+build.finalizedBy generateJar
+
+
+task deleteJar(type: Delete, dependsOn: clean) {
+    delete 'jar'
+}
+clean.finalizedBy deleteJar

@@ -5,8 +5,8 @@ import com.leon.channel.common.V1SchemeUtil
 import com.leon.channel.common.V2SchemeUtil
 import com.leon.channel.reader.ChannelReader
 import com.leon.channel.writer.ChannelWriter;
+import com.com.leon.channel.verify.VerifyApk;
 import com.leon.plugin.extension.RebuildChannelConfigurationExtension
-import com.leon.plugin.verifier.VerifyApk;
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.tasks.Input
@@ -41,11 +41,12 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
 
     void generateChannelApk(File baseApk, File outputDir) {
         int mode = judgeChannelPackageMode(baseApk)
-        println("${baseApk} , ChannelPackageMode = ${mode == ChannelPackageTask.V2_MODE ? "V2 Mode" : "V1 Mode"}")
 
         if (mode == ChannelPackageTask.V1_MODE) {
+            println("${baseApk} , ChannelPackageMode = V1 Mode");
             generateV1ChannelApk(baseApk, outputDir)
         } else if (mode == ChannelPackageTask.V2_MODE) {
+            println("${baseApk} , ChannelPackageMode = V2 Mode");
             generateV2ChannelApk(baseApk, outputDir)
         } else {
             throw new GradleException("not have precise channel package mode");
@@ -53,7 +54,7 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
     }
 
     int judgeChannelPackageMode(File baseApk) {
-        if (V2SchemeUtil.containV2Signature(baseApk,false)) {
+        if (V2SchemeUtil.containV2Signature(baseApk, false)) {
             return ChannelPackageTask.V2_MODE
         } else if (V1SchemeUtil.containV1Signature(baseApk)) {
             return ChannelPackageTask.V1_MODE
@@ -64,12 +65,24 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
 
     void generateV1ChannelApk(File baseApk, File outputDir) {
         //check v1 signature , if not have v1 signature , you can't install Apk below 7.0
-        println("------ Task ${name} generate v1 channel apk  , begin ------")
-
         if (!V1SchemeUtil.containV1Signature(baseApk)) {
             throw new GradleException("Task ${name} " +
                     "apk ${apkPath} not signed by v1 , please check your signingConfig , if not have v1 signature , you can't install Apk below 7.0")
         }
+        println("------ Task ${name} generate v1 channel apk  , begin ------")
+
+        try {
+            //判断基础包是否已经包含渠道信息
+            String testChannel = V1SchemeUtil.readChannel(baseApk);
+            if (testChannel != null) {
+                println("baseApk : " + baseApk.getAbsolutePath() + " has a channel : " + testChannel + ", only ignore");
+                return;
+            }
+        } catch (Exception e) {
+            //e.printStackTrace()
+            println("baseApk : " + baseApk.getAbsolutePath() + " not have channel info , so can add a channel info")
+        }
+
         String baseReleaseApkName = baseApk.name;
         mChannelList.each { channel ->
             String apkChannelName = getChannelApkName(baseReleaseApkName, channel)

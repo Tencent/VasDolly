@@ -1,6 +1,7 @@
 package com.leon.channel.command;
 
 import com.com.leon.channel.verify.VerifyApk;
+import com.leon.channel.command.copy.CopyUtil;
 import com.leon.channel.common.ApkSectionInfo;
 import com.leon.channel.common.V1SchemeUtil;
 import com.leon.channel.common.V2SchemeUtil;
@@ -22,6 +23,8 @@ import java.util.List;
  */
 
 public class Util {
+
+    private static final Object LOCK = new Object();
 
     private static final String V1 = "V1";
     private static final String V2 = "V2";
@@ -118,7 +121,7 @@ public class Util {
             System.out.println("File " + baseApk.getName() + " not signed by v1 , please check your signingConfig , if not have v1 signature , you can't install Apk below 7.0");
         }
 
-        String apkName = baseApk.getName();
+        final String apkName = baseApk.getName();
         System.out.println("------ File " + apkName + " generate v1 channel apk  , begin ------");
 
         //判断基础包是否已经包含渠道信息
@@ -133,33 +136,44 @@ public class Util {
             System.out.println("baseApk : " + baseApk.getAbsolutePath() + " not have channel info , so can add a channel info");
         }
 
-        for (String channel : channelList) {
-            String apkChannelName = getChannelApkName(apkName, channel);
-            System.out.println("generateV1ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
-            File destFile = new File(outputDir, apkChannelName);
-            try {
+        for (final String channel : channelList) {
+            synchronized (LOCK) {
+                String apkChannelName = getChannelApkName(apkName, channel);
+                System.out.println("generateV1ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
+                final File destFile = new File(outputDir, apkChannelName);
                 long before = System.currentTimeMillis();
                 System.out.println("before copy");
-                copyFileUsingStream(baseApk, destFile);
-                System.out.println("after copy , copy cost :  " + (System.currentTimeMillis() - before) + "millis");
-                V1SchemeUtil.writeChannel(destFile, channel);
-                //verify channel info
-                if (V1SchemeUtil.verifyChannel(destFile, channel)) {
-                    System.out.println("generateV1ChannelApk , " + destFile + " add channel success");
-                } else {
-                    System.out.println("generateV1ChannelApk , " + destFile + " add channel failure");
-                }
-                //verify v1 signature
-                if (VerifyApk.verifyV1Signature(destFile)) {
-                    System.out.println("generateV1ChannelApk , after add channel , apk " + destFile + " v1 verify success");
-                } else {
-                    System.out.println("generateV1ChannelApk , after add channel , apk " + destFile + " v1 verify failure");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("generateV1ChannelApk , after add channel , apk " + apkName + " v1 verify failure");
-            }
+                //copyFileUsingStream(baseApk, destFile);
+                CopyUtil.copyFile(baseApk, destFile, new CopyUtil.CopyFileListener() {
+                    @Override
+                    public void onSuccess() {
+                        try {
+                            V1SchemeUtil.writeChannel(destFile, channel);
+                            //verify channel info
+                            if (V1SchemeUtil.verifyChannel(destFile, channel)) {
+                                System.out.println("generateV1ChannelApk , " + destFile + " add channel success");
+                            } else {
+                                System.out.println("generateV1ChannelApk , " + destFile + " add channel failure");
+                            }
+                            //verify v1 signature
+                            if (VerifyApk.verifyV1Signature(destFile)) {
+                                System.out.println("generateV1ChannelApk , after add channel , apk " + destFile + " v1 verify success");
+                            } else {
+                                System.out.println("generateV1ChannelApk , after add channel , apk " + destFile + " v1 verify failure");
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            System.out.println("generateV1ChannelApk , after add channel , apk " + apkName + " v1 verify failure");
+                        }
+                    }
 
+                    @Override
+                    public void onFailed(Exception e) {
+                        System.out.println("Add channel , apk " + apkName + " v1 v failure");
+                    }
+                });
+                System.out.println("after copy , copy cost :  " + (System.currentTimeMillis() - before) + "millis");
+            }
         }
         System.out.println("------ File " + apkName + " generate v1 channel apk , end ------");
     }

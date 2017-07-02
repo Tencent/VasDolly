@@ -69,8 +69,6 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
             throw new GradleException("Task ${name} " +
                     "apk ${apkPath} not signed by v1 , please check your signingConfig , if not have v1 signature , you can't install Apk below 7.0")
         }
-        println("------ Task ${name} generate v1 channel apk  , begin ------")
-
         try {
             //判断基础包是否已经包含渠道信息
             String testChannel = V1SchemeUtil.readChannel(baseApk);
@@ -82,6 +80,8 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
             //e.printStackTrace()
             println("baseApk : " + baseApk.getAbsolutePath() + " not have channel info , so can add a channel info")
         }
+
+        println("------ Task ${name} generate v1 channel apk  , begin ------")
 
         String baseReleaseApkName = baseApk.name;
         mChannelList.each { channel ->
@@ -98,9 +98,9 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
             }
             //verify v1 signature
             if (VerifyApk.verifyV1Signature(destFile)) {
-                println "generateV1ChannelApk , after add channel , apk ${destFile} v1 verify success"
+                println "generateV1ChannelApk , after add channel , apk : ${destFile} v1 verify success"
             } else {
-                throw new GradleException("generateV1ChannelApk , after add channel , apk ${destFile} v1 verify failure")
+                throw new GradleException("generateV1ChannelApk , after add channel , apk : ${destFile} v1 verify failure")
             }
         }
 
@@ -127,9 +127,9 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
             //boolean success = V2SchemeUtil.verifyChannelApk(destFile.getAbsolutePath())
             boolean success = VerifyApk.verifyV2Signature(destFile)
             if (success) {
-                println "generateV2ChannelApk , after add channel , apk ${destFile} v2 verify success"
+                println "generateV2ChannelApk , after add channel , apk : ${destFile} v2 verify success"
             } else {
-                throw new GradleException("generateV2ChannelApk , after add channel , apk ${destFile} v2 verify failure")
+                throw new GradleException("generateV2ChannelApk , after add channel , apk : ${destFile} v2 verify failure")
             }
 //            if (!verifyV2Signature(destFile.getAbsolutePath())) {
 //                throw new GradleException("verify error")

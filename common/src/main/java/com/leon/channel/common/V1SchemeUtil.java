@@ -55,11 +55,16 @@ public class V1SchemeUtil {
             raf.close();
         } else {
             System.out.println("file : " + file.getAbsolutePath() + " , has comment");
-
             if (containV1Magic(file)) {
-                String existChannel = readChannel(file);
-                file.delete();
-                throw new ChannelExistException("file : " + file.getAbsolutePath() + " has a channel : " + existChannel + ", only ignore");
+                try {
+                    String existChannel = readChannel(file);
+                    if (existChannel != null){
+                        file.delete();
+                        throw new ChannelExistException("file : " + file.getAbsolutePath() + " has a channel : " + existChannel + ", only ignore");
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
 
             int existCommentLength = ZipUtils.getUnsignedInt16(eocdAndOffsetInFile.getFirst(), ZipUtils.ZIP_EOCD_REC_MIN_SIZE - ChannelConstants.SHORT_LENGTH);

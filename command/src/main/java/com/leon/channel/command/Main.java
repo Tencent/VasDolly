@@ -17,6 +17,7 @@ public class Main {
         String cmdPut = "put";//插入
         String cmdSignMode = "-s";//签名方式
         String cmdChannel = "-c";//渠道信息
+        String cmdMultiThreadChannel = "-mtc";//基于V1签名生成多渠道包时，使用多线程模式
         String cmdHelp = "help";
 
         String help = "The commands are:\n" +
@@ -26,13 +27,16 @@ public class Main {
                 "    " + cmdPut + "                put channel information\n" +
                 "    " + cmdHelp + "               get help\n\n" +
                 "general args:\n\n" +
-                "    " + cmdSignMode + " [arg]                 signature mode\n" +
-                "    " + cmdChannel + " [arg]                 channel information\n\n" +
+                "    " + cmdSignMode + " [arg]                 signature mode , only fit 'get'\n" +
+                "    " + cmdChannel + " [arg]                 channel information\n" +
+                "    " + cmdMultiThreadChannel + " [arg]               multithread to v1 , only fit 'put'\n\n" +
                 "for example:\n\n" +
                 "    java -jar ApkChannelPackage.jar get -s /home/user/test.apk\n" +
                 "    java -jar ApkChannelPackage.jar get -c /home/user/test.apk\n" +
                 "    java -jar ApkChannelPackage.jar put -c \"channel1,channel2\" /home/user/base.apk /home/user/\n" +
-                "    java -jar ApkChannelPackage.jar put -c channel.txt /home/user/base.apk /home/user/\n\n" +
+                "    java -jar ApkChannelPackage.jar put -mtc \"channel1,channel2\" /home/user/base.apk /home/user/\n" +
+                "    java -jar ApkChannelPackage.jar put -c channel.txt /home/user/base.apk /home/user/\n" +
+                "    java -jar ApkChannelPackage.jar put -mtc channel.txt /home/user/base.apk /home/user/\n\n" +
                 "Use commas to write multiple channels , you can also use channel file.\n";
 
         if (args.length == 0 || args[0] == null || args[0].trim().length() == 0) {
@@ -72,7 +76,8 @@ public class Main {
                     }
 
                 } else if (command0.equals(cmdPut)) { //插入
-                    if (command1.equals(cmdChannel)) { //插入渠道信息
+                    if (command1.equals(cmdChannel) || command1.equals(cmdMultiThreadChannel)) { //插入渠道信息
+                        boolean isMultiThread = command1.equals(cmdMultiThreadChannel);
                         if (args.length >= 5) {
                             //baseApk
                             String baseApkPath = args[3].trim();
@@ -102,7 +107,7 @@ public class Main {
                                 String[] channelArray = channels.split(",");
                                 channelList = Arrays.asList(channelArray);
                             }
-                            Util.writeChannel(baseApk, channelList, outPutDir);
+                            Util.writeChannel(baseApk, channelList, outPutDir,isMultiThread);
                         } else {
                             System.out.print("\n\nPlease enter the correct command!");
                         }

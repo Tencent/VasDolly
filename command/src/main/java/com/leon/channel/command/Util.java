@@ -139,6 +139,7 @@ public class Util {
             System.out.println("baseApk : " + baseApk.getAbsolutePath() + " not have channel info , so can add a channel info");
         }
 
+        long startTime = System.currentTimeMillis();
         System.out.println("------ File " + apkName + " generate v1 channel apk  , begin ------");
 
         try {
@@ -167,6 +168,8 @@ public class Util {
         }
 
         System.out.println("------ File " + apkName + " generate v1 channel apk , end ------");
+        long cost = System.currentTimeMillis() - startTime;
+        System.out.println("------ total " + channelList.size() + " channel apk , cost : " + cost + " ------");
     }
 
     /**
@@ -195,11 +198,14 @@ public class Util {
             System.out.println("baseApk : " + baseApk.getAbsolutePath() + " not have channel info , so can add a channel info");
         }
 
+        long startTime = System.currentTimeMillis();
         System.out.println("------ File " + apkName + " generate v1 channel apk  , begin ------");
         //多线程生成渠道包
         ThreadManager.getInstance().generateV1Channel(baseApk, channelList, outputDir);
         ThreadManager.getInstance().destory();
         System.out.println("------ File " + apkName + " generate v1 channel apk , end ------");
+        long cost = System.currentTimeMillis() - startTime;
+        System.out.println("------ total " + channelList.size() + " channel apk , cost : " + cost + " ------");
     }
 
     /**
@@ -211,6 +217,7 @@ public class Util {
      */
     private static void generateV2ChannelApk(File baseApk, List<String> channelList, File outputDir) {
         String apkName = baseApk.getName();
+        long startTime = System.currentTimeMillis();
         System.out.println("------ File " + apkName + " generate v2 channel apk  , begin ------");
 
         try {
@@ -240,6 +247,8 @@ public class Util {
         }
 
         System.out.println("------ File " + apkName + " generate v2 channel apk , end ------");
+        long cost = System.currentTimeMillis() - startTime;
+        System.out.println("------ total " + channelList.size() + " channel apk , cost : " + cost + " ------");
     }
 
     /**

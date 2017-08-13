@@ -11,3 +11,7 @@ ApkChannelPackage是一种快速多渠道打包工具，同时支持基于V1签�
 目前已更新到1.0.5版本
 
 在1.0.4的基础上添加了命令行工具，在command/jar目录下，具体使用可参考[使用文档](https://github.com/ltlovezh/ApkChannelPackage/blob/master/command/README.md)
+
+---
+
+遇到任何问题，可以QQ（1031747903）联系我 ！

@@ -22,3 +22,7 @@
  ``` java
  java -jar ApkChannelPackage.jar put -c channel.txt /home/user/base.apk /home/user/
  ```
+ ### 为基于V1的多渠道打包添加了多线程支持，满足渠道较多的使用场景
+ ``` java
+ java -jar ApkChannelPackage.jar put -mtc channel.txt /home/user/base.apk /home/user/
+ ```

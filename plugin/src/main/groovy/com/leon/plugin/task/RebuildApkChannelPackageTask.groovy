@@ -28,7 +28,7 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
     @TaskAction
     public void channel() {
         //1.check all params
-        checkParameter();
+        checkParameter()
 
         if (mRebuildChannelExtension.isNeedRebuildDebugApk()) {
             generateChannelApk(mRebuildChannelExtension.baseDebugApk, mRebuildChannelExtension.debugOutputDir)
@@ -143,6 +143,8 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
      * check necessary parameters
      */
     void checkParameter() {
+        //merge channel list
+        mergeExtensionChannelList()
         //1.check channel List
         if (mChannelList == null || mChannelList.isEmpty()) {
             throw new InvalidUserDataException("Task ${name} channel list is empty , please check it")
@@ -156,5 +158,13 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
 
     String getChannelApkName(String baseApkName, String channel) {
         return baseApkName.replace("base", channel)
+    }
+
+    @Override
+    List<String> getExtensionChannelList(){
+        if (mRebuildChannelExtension != null){
+            return mRebuildChannelExtension.getExtensionChannelList()
+        }
+        return null
     }
 }

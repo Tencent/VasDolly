@@ -57,29 +57,21 @@ class ApkChannelPackagePlugin implements org.gradle.api.Plugin<Project> {
      * @return
      */
     List<String> getChannelListInfo() {
-        if (!mProject.hasProperty(CHANNEL_FILE)) {
-            println "not assign channel file Property"
-            return null
-        }
-
-        def channelFilePath = mProject.property(CHANNEL_FILE).toString()
-        if (!channelFilePath) {
-            println("the channel file Property is invalid")
-            return null
-        }
-
-        File channelFile = mProject.rootProject.file(channelFilePath)
-        if (!channelFile.exists() || !channelFile.isFile()) {
-            throw new IllegalArgumentException("the Channel file is invalid : ${channelFile.absolutePath}")
-        }
-
         List<String> channelList = []
-        channelFile.eachLine { line, num ->
-            String[] array = line.split('#')
-            if (array && array[0]) {
-                channelList.add(array[0].trim())
-            } else {
-                println("skip invalid channel line , line num is ${num} , content is ${line}")
+        if (mProject.hasProperty(CHANNEL_FILE)){
+            def channelFilePath = mProject.property(CHANNEL_FILE).toString()
+            if (channelFilePath) {
+                File channelFile = mProject.rootProject.file(channelFilePath)
+                if (channelFile.exists() && channelFile.isFile()){
+                    channelFile.eachLine { line, num ->
+                        String[] array = line.split('#')
+                        if (array && array[0]) {
+                            channelList.add(array[0].trim())
+                        } else {
+                            println("skip invalid channel line , line num is ${num} , content is ${line}")
+                        }
+                    }
+                }
             }
         }
 

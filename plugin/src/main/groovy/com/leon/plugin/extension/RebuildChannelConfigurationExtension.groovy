@@ -4,11 +4,10 @@ import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 
 /**
- * Created by leonrli on 17/2/18.
+ * Created by leontli on 17/2/18.
  */
 
-public class RebuildChannelConfigurationExtension {
-    Project mProject;
+public class RebuildChannelConfigurationExtension extends ConfigurationExtension{
     /**
      * debug base APK path
      */

@@ -7,13 +7,26 @@ import org.gradle.process.ExecResult
 /**
  * Created by leontli on 17/2/19.
  */
-class ChannelPackageTask extends DefaultTask {
+abstract class ChannelPackageTask extends DefaultTask {
     public static final int DEFAULT_MODE = -1;
     public static final int V1_MODE = 1;
     public static final int V2_MODE = 2;
 
     @Input
     public List<String> mChannelList;
+
+    protected mergeExtensionChannelList(){
+        List<String> extensionChannelList = getExtensionChannelList()
+        if (extensionChannelList != null && !extensionChannelList.isEmpty()){
+            if (mChannelList == null){
+                mChannelList = extensionChannelList
+            }else {
+                mChannelList.addAll(extensionChannelList)
+            }
+        }
+    }
+
+    abstract List<String> getExtensionChannelList()
 
     /**
      * verify apk by apksigner.jar

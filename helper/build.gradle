@@ -24,9 +24,9 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(path: ':reader')
-    testCompile 'junit:junit:4.12'
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api project(path: ':reader')
+    testImplementation 'junit:junit:4.12'
 }
 
 targetCompatibility = '1.7'

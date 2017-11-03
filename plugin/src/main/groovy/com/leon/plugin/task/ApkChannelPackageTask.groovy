@@ -57,6 +57,8 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
      * check necessary parameters
      */
     void checkParameter() {
+        //merge channel list
+        mergeExtensionChannelList()
         //1.check channel List
         if (mChannelList == null || mChannelList.isEmpty()) {
             throw new InvalidUserDataException("Task ${name} channel list is empty , please check it")
@@ -99,10 +101,6 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
             throw new GradleException("SigningConfig is null , please check it")
         }
 
-//        if (signingConfig.hasProperty("v1SigningEnabled") && !signingConfig.v1SigningEnabled) {
-//            throw new GradleException("you must assign V1 Mode")
-//        }
-
         if (signingConfig.hasProperty("v2SigningEnabled") && signingConfig.v2SigningEnabled) {
             if (signingConfig.hasProperty("v1SigningEnabled") && !signingConfig.v1SigningEnabled) {
                 throw new GradleException("you only assign V2 Mode , but not assign V1 Mode , you can't install Apk below 7.0")
@@ -122,7 +120,22 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
      */
     SigningConfig getSigningConfig() {
         //return mVariant.buildType.signingConfig == null ? mVariant.mergedFlavor.signingConfig : mVariant.buildType.signingConfig
-        return mVariant.apkVariantData.variantConfiguration.signingConfig
+        SigningConfig config = null
+        try{
+            config = mVariant.variantData.variantConfiguration.signingConfig
+        } catch (Throwable e){
+            config = mVariant.apkVariantData.variantConfiguration.signingConfig
+          //  e.printStackTrace()
+        }
+        return config
+    }
+
+    @Override
+    List<String> getExtensionChannelList(){
+        if (mChannelExtension != null){
+            return mChannelExtension.getExtensionChannelList()
+        }
+        return null
     }
 
     /**

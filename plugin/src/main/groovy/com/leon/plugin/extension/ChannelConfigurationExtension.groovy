@@ -3,11 +3,9 @@ package com.leon.plugin.extension
 import org.gradle.api.GradleException;
 import org.gradle.api.Project
 
-public class ChannelConfigurationExtension {
+public class ChannelConfigurationExtension extends ConfigurationExtension{
     static
     final String DEFAULT_APK_NAME_FORMAT = '${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}'
-
-    Project mProject;
 
     /**
      * 渠道包输出目录
@@ -20,7 +18,7 @@ public class ChannelConfigurationExtension {
     String apkNameFormat
 
     ChannelConfigurationExtension(Project project) {
-        this.mProject = project
+        mProject = project
         baseOutputDir = new File(project.buildDir, "channel");
         apkNameFormat = DEFAULT_APK_NAME_FORMAT;
     }

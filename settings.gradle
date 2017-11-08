@@ -1,1 +1,1 @@
-include ':app', ':plugin', ':writer', ':reader', ':helper', ':common', ':command', ':verify'
+include ':app', ':plugin', ':writer', ':reader', ':common', ':command', ':helper' , ':verify'

@@ -5,6 +5,6 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-targetCompatibility = '1.7'
-sourceCompatibility = '1.7'
+targetCompatibility = rootProject.javaVersion
+sourceCompatibility = rootProject.javaVersion
 

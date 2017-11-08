@@ -19,8 +19,8 @@ dependencies {
     compile project(':verify')
 }
 
-sourceCompatibility = "1.7"
-targetCompatibility = "1.7"
+sourceCompatibility = rootProject.javaVersion
+targetCompatibility = rootProject.javaVersion
 
 task generateJar(type: Copy, dependsOn: build) {
     from('build/libs') {

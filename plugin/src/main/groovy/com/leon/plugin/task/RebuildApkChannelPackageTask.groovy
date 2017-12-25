@@ -157,7 +157,11 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
     }
 
     String getChannelApkName(String baseApkName, String channel) {
-        return baseApkName.replace("base", channel)
+        if (baseApkName.contains("base")){
+            return baseApkName.replace("base", channel)
+        }else {
+            return channel + "-" + baseApkName;
+        }
     }
 
     @Override

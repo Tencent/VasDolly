@@ -1,5 +1,5 @@
 # 最新版
-目前已更新到`V1.1.5`版本，主要是支持了`Android Gradle Plugin 3.0`
+目前已更新到`V1.1.6`版本，主要是支持了`Android Gradle Plugin 3.0`
 
 # 简介
 ApkChannelPackage是一种快速多渠道打包工具，同时支持基于V1签名和V2签名进行多渠道打包。插件本身会自动检测Apk使用的签名类别，并选择合适的多渠道打包方式，对使用者来说完全透明。 `V1.1.5`版本已支持Android Gradle Plugin 3.0，欢迎使用！

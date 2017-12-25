@@ -9,7 +9,7 @@ ext {
 
 
     GROUP = 'com.leon.channel'
-    VERSION = '1.1.5'
+    VERSION = '1.1.6'
 
     //POM_PACKAGING = "pom"
     POM_DESCRIPTION = "ApkChannelPackage"

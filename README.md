@@ -2,7 +2,7 @@
 目前已更新到`V1.1.6`版本，主要是支持了`Android Gradle Plugin 3.0`
 
 # 简介
-ApkChannelPackage是一种快速多渠道打包工具，同时支持基于V1签名和V2签名进行多渠道打包。插件本身会自动检测Apk使用的签名类别，并选择合适的多渠道打包方式，对使用者来说完全透明。 `V1.1.5`版本已支持Android Gradle Plugin 3.0，欢迎使用！
+VasDolly是一种快速多渠道打包工具，同时支持基于V1签名和V2签名进行多渠道打包。插件本身会自动检测Apk使用的签名类别，并选择合适的多渠道打包方式，对使用者来说完全透明。 `V1.1.6`版本已支持Android Gradle Plugin 3.0，欢迎使用！
 
 目前Gradle Plugin 2.2以上默认开启V2签名，所以如果想关闭V2签名，可将下面的v2SigningEnabled设置为false。
 ``` groovy
@@ -23,24 +23,24 @@ signingConfigs {
 
 # 接入流程
 
-## 添加对ApkChannelPackage Plugin的依赖
+## 添加对VasDolly Plugin的依赖
 在根工程的`build.gradle`中，添加对打包Plugin的依赖：
 ``` groovy
 dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0'
-        classpath 'com.leon.channel:plugin:1.1.5'
+        classpath 'com.leon.channel:plugin:1.1.6'
 }
 ```
-## 引用ApkChannelPackage Plugin
-在主App工程的`build.gradle`中，添加对ApkChannelPackage Plugin的引用：
+## 引用VasDolly Plugin
+在主App工程的`build.gradle`中，添加对VasDolly Plugin的引用：
 ``` groovy
 apply plugin: 'channel'
 ```
-## 添加对ApkChannelPackage helper类库的依赖
+## 添加对VasDolly helper类库的依赖
 在主App工程的`build.gradle`中，添加读取渠道信息的helper类库依赖：
 ``` groovy
 dependencies {
-    api 'com.leon.channel:helper:1.1.5'
+    api 'com.leon.channel:helper:1.1.6'
 }
 ```
 ## 配置渠道列表

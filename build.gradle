@@ -12,11 +12,11 @@ ext {
     VERSION = '1.1.6'
 
     //POM_PACKAGING = "pom"
-    POM_DESCRIPTION = "ApkChannelPackage"
+    POM_DESCRIPTION = "VasDolly"
 
-    POM_URL = "https://github.com/ltlovezh/ApkChannelPackage"
-    POM_SCM_URL = "https://github.com/ltlovezh/ApkChannelPackage.git"
-    POM_ISSUE_URL = 'https://github.com/ltlovezh/ApkChannelPackage/issues'
+    POM_URL = "https://github.com/Tencent/VasDolly"
+    POM_SCM_URL = "https://github.com/Tencent/VasDolly.git"
+    POM_ISSUE_URL = 'https://github.com/Tencent/VasDolly/issues'
 
     POM_LICENCE_NAME = "BSD License"
     POM_LICENCE_URL = "https://opensource.org/licenses/BSD-3-Clause"

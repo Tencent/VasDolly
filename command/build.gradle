@@ -27,7 +27,7 @@ task generateJar(type: Copy, dependsOn: build) {
         include 'command.jar'
     }
     into('jar')
-    rename('command.jar', 'ApkChannelPackage.jar')
+    rename('command.jar', 'VasDolly.jar')
 }
 build.finalizedBy generateJar
 

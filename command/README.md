@@ -1,28 +1,28 @@
-## ApkChannelPackage命令行
- 命令行工具即：jar文件下`ApkChannelPackage.jar`，可以通过help查看具体命令：
+## VasDolly命令行
+ 命令行工具即：jar文件下`VasDolly.jar`，可以通过help查看具体命令：
  ``` java
- java -jar ApkChannelPackage.jar help
+ java -jar VasDolly.jar help
  ```
 
  目前支持以下操作：
 
  ### 获取指定APK的签名方式
  ``` java
- java -jar ApkChannelPackage.jar get -s /home/user/test.apk
+ java -jar VasDolly.jar get -s /home/user/test.apk
  ```
  ### 获取指定APK的渠道信息
  ``` java
- java -jar ApkChannelPackage.jar get -c /home/user/test.apk
+ java -jar VasDolly.jar get -c /home/user/test.apk
  ```
  ### 通过指定渠道字符串添加渠道信息
  ``` java
- java -jar ApkChannelPackage.jar put -c "channel1,channel2" /home/user/base.apk /home/user/
+ java -jar VasDolly.jar put -c "channel1,channel2" /home/user/base.apk /home/user/
  ```
  ### 通过指定渠道文件添加渠道信息
  ``` java
- java -jar ApkChannelPackage.jar put -c channel.txt /home/user/base.apk /home/user/
+ java -jar VasDolly.jar put -c channel.txt /home/user/base.apk /home/user/
  ```
  ### 为基于V1的多渠道打包添加了多线程支持，满足渠道较多的使用场景
  ``` java
- java -jar ApkChannelPackage.jar put -mtc channel.txt /home/user/base.apk /home/user/
+ java -jar VasDolly.jar put -mtc channel.txt /home/user/base.apk /home/user/
  ```

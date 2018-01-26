@@ -1,6 +1,3 @@
-# 最新版
-目前已更新到`V1.1.6`版本，主要是支持了`Android Gradle Plugin 3.0`
-
 # 简介
 VasDolly是一种快速多渠道打包工具，同时支持基于V1签名和V2签名进行多渠道打包。插件本身会自动检测Apk使用的签名类别，并选择合适的多渠道打包方式，对使用者来说完全透明。 `V1.1.6`版本已支持Android Gradle Plugin 3.0，欢迎使用！
 
@@ -111,8 +108,8 @@ String channel = ChannelReaderUtil.getChannel(getApplicationContext());
 如果没有渠道信息，那么这里返回`null`，开发者需要自己判断。
 
 # 实现原理
-具体原理可参考[Android新一代多渠道打包神器](http://ltlovezh.com/2017/04/09/Android%E6%96%B0%E4%B8%80%E4%BB%A3%E5%A4%9A%E6%B8%A0%E9%81%93%E6%89%93%E5%8C%85%E7%A5%9E%E5%99%A8/)
+具体原理可参考[VasDolly实现原理](https://github.com/Tencent/VasDolly/wiki/VasDolly%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86)
 
----
 
-遇到任何问题，可以QQ（1031747903）联系我 ！
+# License
+VasDolly is under the BSD license. See the [LICENSE](https://github.com/Tencent/VasDolly/blob/master/LICENSE) file for details.

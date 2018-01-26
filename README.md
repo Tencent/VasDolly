@@ -1,5 +1,6 @@
 # 简介
-VasDolly是一种快速多渠道打包工具，同时支持基于V1签名和V2签名进行多渠道打包。插件本身会自动检测Apk使用的签名类别，并选择合适的多渠道打包方式，对使用者来说完全透明。 `V1.1.6`版本已支持Android Gradle Plugin 3.0，欢迎使用！
+VasDolly是一种快速多渠道打包工具，同时支持基于V1签名和V2签名进行多渠道打包。插件本身会自动检测Apk使用的签名类别，并选择合适的多渠道打包方式，对使用者来说完全透明。 
+`V1.1.6`版本已支持Android Gradle Plugin 3.0，欢迎使用！
 
 目前Gradle Plugin 2.2以上默认开启V2签名，所以如果想关闭V2签名，可将下面的v2SigningEnabled设置为false。
 ``` groovy
@@ -98,7 +99,7 @@ rebuildChannel {
 然后，通过`gradle rebuildChannel`命令生成多渠道包。
 
 ## 通过命令行生成渠道包、读取渠道信息
-从`1.0.5`版本开始支持命令行，具体使用文档可参考`command`目录下的`README`。
+从`V1.0.5`版本开始支持命令行，具体使用文档可参考`command`目录下的[README](https://github.com/Tencent/VasDolly/blob/master/command/README.md)。
 
 ### 读取渠道信息
 通过helper类库中的`ChannelReaderUtil`类读取渠道信息。

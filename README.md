@@ -115,6 +115,9 @@ String channel = ChannelReaderUtil.getChannel(getApplicationContext());
 ```
 如果没有渠道信息，那么这里返回`null`，开发者需要自己判断。
 
+# Demo参考
+详细的接入范式，也可参考[Demo](https://github.com/Tencent/VasDolly/tree/master/app)
+
 # 实现原理
 具体原理可参考[VasDolly实现原理](https://github.com/Tencent/VasDolly/wiki/VasDolly%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86)
 

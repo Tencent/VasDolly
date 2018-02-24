@@ -33,7 +33,7 @@ signingConfigs {
 ``` groovy
 dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0'
-        classpath 'com.leon.channel:plugin:1.1.6'
+        classpath 'com.leon.channel:plugin:1.1.7'
 }
 ```
 ## 引用VasDolly Plugin
@@ -45,7 +45,7 @@ apply plugin: 'channel'
 在主App工程的`build.gradle`中，添加读取渠道信息的helper类库依赖：
 ``` groovy
 dependencies {
-    api 'com.leon.channel:helper:1.1.6'
+    api 'com.leon.channel:helper:1.1.7'
 }
 ```
 ## 配置渠道列表
@@ -76,6 +76,8 @@ channel{
     baseOutputDir = new File(project.buildDir,"xxx")
     //多渠道包的命名规则，默认为：${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}
     apkNameFormat ='${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}'
+    //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上）
+    isFastMode = false
 }
 ```
 其中，多渠道包的命名规则中，可使用以下字段：
@@ -101,6 +103,8 @@ rebuildChannel {
   debugOutputDir = Debug渠道包输出目录   
   //默认为new File(project.buildDir, "rebuildChannel/release")
   releaseOutputDir = Release渠道包输出目录
+  //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上）
+  isFastMode = false
 }
 ```
 然后，通过`gradle rebuildChannel`命令生成多渠道包。

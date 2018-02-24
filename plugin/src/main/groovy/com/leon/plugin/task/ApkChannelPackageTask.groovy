@@ -60,6 +60,7 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
 
 
     void generateChannelApk() {
+        println("generateChannelApk , ChannelPackageMode : ${mChannelPackageMode == ChannelPackageTask.V2_MODE ? "V2 Mode" : "V1 Mode"} , isFastMode : ${mChannelExtension.isFastMode}")
         if (mChannelPackageMode == ChannelPackageTask.V1_MODE) {
             generateV1ChannelApk()
         } else if (mChannelPackageMode == ChannelPackageTask.V2_MODE) {
@@ -189,17 +190,19 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
             File destFile = new File(mOutputDir, apkChannelName)
             copyTo(mBaseApk, destFile)
             V1SchemeUtil.writeChannel(destFile, channel)
-            //verify channel info
-            if (V1SchemeUtil.verifyChannel(destFile, channel)) {
-                println("generateV1ChannelApk , ${destFile} add channel success")
-            } else {
-                throw new GradleException("generateV1ChannelApk , ${destFile} add channel failure")
-            }
-            //verify v1 signature
-            if (VerifyApk.verifyV1Signature(destFile)) {
-                println "generateV1ChannelApk , after add channel , apk ${destFile} v1 verify success"
-            } else {
-                throw new GradleException("generateV1ChannelApk , after add channel , apk ${destFile} v1 verify failure")
+            if (!mChannelExtension.isFastMode){
+                //1. verify channel info
+                if (V1SchemeUtil.verifyChannel(destFile, channel)) {
+                    println("generateV1ChannelApk , ${destFile} add channel success")
+                } else {
+                    throw new GradleException("generateV1ChannelApk , ${destFile} add channel failure")
+                }
+                //2. verify v1 signature
+                if (VerifyApk.verifyV1Signature(destFile)) {
+                    println "generateV1ChannelApk , after add channel , apk ${destFile} v1 verify success"
+                } else {
+                    throw new GradleException("generateV1ChannelApk , after add channel , apk ${destFile} v1 verify failure")
+                }
             }
         }
 
@@ -215,23 +218,25 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
             println "generateV2ChannelApk , channel = ${channel} , apkChannelName = ${apkChannelName}"
             File destFile = new File(mOutputDir, apkChannelName)
             ChannelWriter.addChannel(apkSectionInfo, destFile, channel)
-            //verify channel info
-            if (ChannelReader.verifyChannel(destFile, channel)) {
-                println("generateV2ChannelApk , ${destFile} add channel success")
-            } else {
-                throw new GradleException("generateV2ChannelApk , ${destFile} add channel failure")
-            }
-            //verify v2 signature
-            //boolean success = V2SchemeUtil.verifyChannelApk(destFile.getAbsolutePath())
-            boolean success = VerifyApk.verifyV2Signature(destFile)
-            if (success) {
-                println "generateV2ChannelApk , after add channel , apk ${destFile} v2 verify success"
-            } else {
-                throw new GradleException("generateV2ChannelApk , after add channel , apk ${destFile} v2 verify failure")
-            }
+            if (!mChannelExtension.isFastMode){
+                //1. verify channel info
+                if (ChannelReader.verifyChannel(destFile, channel)) {
+                    println("generateV2ChannelApk , ${destFile} add channel success")
+                } else {
+                    throw new GradleException("generateV2ChannelApk , ${destFile} add channel failure")
+                }
+                //2. verify v2 signature
+                //boolean success = V2SchemeUtil.verifyChannelApk(destFile.getAbsolutePath())
+                boolean success = VerifyApk.verifyV2Signature(destFile)
+                if (success) {
+                    println "generateV2ChannelApk , after add channel , apk ${destFile} v2 verify success"
+                } else {
+                    throw new GradleException("generateV2ChannelApk , after add channel , apk ${destFile} v2 verify failure")
+                }
 //            if (!verifyV2Signature(destFile.getAbsolutePath())) {
 //                throw new GradleException("verify error")
 //            }
+            }
         }
 
         println("------ ${project.name}:${name} generate v2 channel apk , end ------")

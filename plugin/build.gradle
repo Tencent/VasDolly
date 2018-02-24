@@ -20,7 +20,7 @@ compileGroovy {
 
 //uploadArchives {
 //    repositories.mavenDeployer {
-//        repository(url: "file:///Users/zhangkaqi/localMaven")
+//        repository(url: "file:///Users/leontli/localMaven")
 //        pom.groupId = "channel"
 //        pom.artifactId = "v2"
 //        pom.version = "2.0"

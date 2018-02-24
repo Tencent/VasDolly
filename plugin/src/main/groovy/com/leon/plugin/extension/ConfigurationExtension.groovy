@@ -24,6 +24,14 @@ public class ConfigurationExtension {
 
     public File channelFile;
 
+    //fast mode : generate channel apk without checking(speed can be increased by up to 10 times)
+    public boolean isFastMode;
+
+    public ConfigurationExtension(Project project){
+        this.mProject = project
+        isFastMode = false
+    }
+
     public List<String> getExtensionChannelList() {
         if (channelFile != null && channelFile.isFile() && channelFile.exists()) {
             List<String> channelList = []

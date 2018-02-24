@@ -33,10 +33,10 @@ public class ChannelConfigurationExtension extends ConfigurationExtension{
      */
     String apkNameFormat
 
-    ChannelConfigurationExtension(Project project) {
-        mProject = project
-        baseOutputDir = new File(project.buildDir, "channel");
-        apkNameFormat = DEFAULT_APK_NAME_FORMAT;
+    public ChannelConfigurationExtension(Project project) {
+        super(project)
+        baseOutputDir = new File(project.buildDir, "channel")
+        apkNameFormat = DEFAULT_APK_NAME_FORMAT
     }
 
     public void checkParamters() {

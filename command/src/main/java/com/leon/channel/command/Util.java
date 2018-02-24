@@ -29,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,22 +91,22 @@ public class Util {
      * @param channelList
      * @param outputDir
      */
-    public static void writeChannel(File baseApk, List<String> channelList, File outputDir, boolean isMultiThread) {
+    public static void writeChannel(File baseApk, List<String> channelList, File outputDir, boolean isMultiThread, boolean isFastMode) {
         if (channelList.isEmpty()) {
             System.out.println("channel list is empty , please set channel list");
             return;
         }
         int mode = judgeChannelPackageMode(baseApk);
         if (mode == V1_MODE) {
-            System.out.println("baseApk : " + baseApk.getAbsolutePath() + " , ChannelPackageMode : V1 Mode , isMultiThread : " + isMultiThread);
+            System.out.println("baseApk : " + baseApk.getAbsolutePath() + " , ChannelPackageMode : V1 Mode , isMultiThread : " + isMultiThread + " , isFastMode : " + isFastMode);
             if (isMultiThread) {
-                generateV1ChannelApkMultiThread(baseApk, channelList, outputDir);
+                generateV1ChannelApkMultiThread(baseApk, channelList, outputDir, isFastMode);
             } else {
-                generateV1ChannelApk(baseApk, channelList, outputDir);
+                generateV1ChannelApk(baseApk, channelList, outputDir, isFastMode);
             }
         } else if (mode == V2_MODE) {
-            System.out.println("baseApk : " + baseApk.getAbsolutePath() + " , ChannelPackageMode : V2 Mode");
-            generateV2ChannelApk(baseApk, channelList, outputDir);
+            System.out.println("baseApk : " + baseApk.getAbsolutePath() + " , ChannelPackageMode : V2 Mode" + " , isFastMode : " + isFastMode);
+            generateV2ChannelApk(baseApk, channelList, outputDir, isFastMode);
         } else {
             throw new IllegalStateException("not have precise channel package mode");
         }
@@ -136,7 +137,7 @@ public class Util {
      * @param channelList
      * @param outputDir
      */
-    private static void generateV1ChannelApk(File baseApk, List<String> channelList, File outputDir) {
+    private static void generateV1ChannelApk(File baseApk, List<String> channelList, File outputDir, boolean isFastMode) {
         if (!V1SchemeUtil.containV1Signature(baseApk)) {
             System.out.println("File " + baseApk.getName() + " not signed by v1 , please check your signingConfig , if not have v1 signature , you can't install Apk below 7.0");
             return;
@@ -163,19 +164,21 @@ public class Util {
                 String apkChannelName = getChannelApkName(apkName, channel);
                 System.out.println("generateV1ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
                 File destFile = new File(outputDir, apkChannelName);
-                copyFileUsingStream(baseApk, destFile);
+                copyFileUsingNio(baseApk, destFile);
                 V1SchemeUtil.writeChannel(destFile, channel);
-                //verify channel info
-                if (V1SchemeUtil.verifyChannel(destFile, channel)) {
-                    System.out.println("generateV1ChannelApk , " + destFile + " add channel success");
-                } else {
-                    throw new RuntimeException("generateV1ChannelApk , " + destFile + " add channel failure");
-                }
-                //verify v1 signature
-                if (VerifyApk.verifyV1Signature(destFile)) {
-                    System.out.println("generateV1ChannelApk , after add channel , " + destFile + " v1 verify success");
-                } else {
-                    throw new RuntimeException("generateV1ChannelApk , after add channel , " + destFile + " v1 verify failure");
+                if (!isFastMode) {
+                    //1. verify channel info
+                    if (V1SchemeUtil.verifyChannel(destFile, channel)) {
+                        System.out.println("generateV1ChannelApk , " + destFile + " add channel success");
+                    } else {
+                        throw new RuntimeException("generateV1ChannelApk , " + destFile + " add channel failure");
+                    }
+                    //2. verify v1 signature
+                    if (VerifyApk.verifyV1Signature(destFile)) {
+                        System.out.println("generateV1ChannelApk , after add channel , " + destFile + " v1 verify success");
+                    } else {
+                        throw new RuntimeException("generateV1ChannelApk , after add channel , " + destFile + " v1 verify failure");
+                    }
                 }
             }
         } catch (Exception e) {
@@ -195,7 +198,7 @@ public class Util {
      * @param channelList
      * @param outputDir
      */
-    private static void generateV1ChannelApkMultiThread(File baseApk, List<String> channelList, File outputDir) {
+    private static void generateV1ChannelApkMultiThread(File baseApk, List<String> channelList, File outputDir, boolean isFastMode) {
         if (!V1SchemeUtil.containV1Signature(baseApk)) {
             System.out.println("File " + baseApk.getName() + " not signed by v1 , please check your signingConfig , if not have v1 signature , you can't install Apk below 7.0");
             return;
@@ -217,7 +220,7 @@ public class Util {
         long startTime = System.currentTimeMillis();
         System.out.println("------ File " + apkName + " generate v1 channel apk  , begin ------");
         //多线程生成渠道包
-        ThreadManager.getInstance().generateV1Channel(baseApk, channelList, outputDir);
+        ThreadManager.getInstance().generateV1Channel(baseApk, channelList, outputDir, isFastMode);
         ThreadManager.getInstance().destory();
         System.out.println("------ File " + apkName + " generate v1 channel apk , end ------");
         long cost = System.currentTimeMillis() - startTime;
@@ -231,7 +234,7 @@ public class Util {
      * @param channelList
      * @param outputDir
      */
-    private static void generateV2ChannelApk(File baseApk, List<String> channelList, File outputDir) {
+    private static void generateV2ChannelApk(File baseApk, List<String> channelList, File outputDir, boolean isFastMode) {
         String apkName = baseApk.getName();
         long startTime = System.currentTimeMillis();
         System.out.println("------ File " + apkName + " generate v2 channel apk  , begin ------");
@@ -243,18 +246,20 @@ public class Util {
                 System.out.println("generateV2ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
                 File destFile = new File(outputDir, apkChannelName);
                 ChannelWriter.addChannel(apkSectionInfo, destFile, channel);
-                //1. verify channel info
-                if (ChannelReader.verifyChannel(destFile, channel)) {
-                    System.out.println("generateV2ChannelApk , " + destFile + " add channel success");
-                } else {
-                    throw new RuntimeException("generateV2ChannelApk , " + destFile + " add channel failure");
-                }
+                if (!isFastMode) {
+                    //1. verify channel info
+                    if (ChannelReader.verifyChannel(destFile, channel)) {
+                        System.out.println("generateV2ChannelApk , " + destFile + " add channel success");
+                    } else {
+                        throw new RuntimeException("generateV2ChannelApk , " + destFile + " add channel failure");
+                    }
 
-                //2. verify v2 signature
-                if (VerifyApk.verifyV2Signature(destFile)) {
-                    System.out.println("generateV2ChannelApk , after add channel ,  " + destFile + " v2 verify success");
-                } else {
-                    throw new RuntimeException("generateV2ChannelApk , after add channel , " + destFile + " v1 verify failure");
+                    //2. verify v2 signature
+                    if (VerifyApk.verifyV2Signature(destFile)) {
+                        System.out.println("generateV2ChannelApk , after add channel ,  " + destFile + " v2 verify success");
+                    } else {
+                        throw new RuntimeException("generateV2ChannelApk , after add channel , " + destFile + " v1 verify failure");
+                    }
                 }
             }
         } catch (Exception e) {
@@ -326,6 +331,39 @@ public class Util {
             }
             if (os != null) {
                 os.close();
+            }
+        }
+    }
+
+    public static void copyFileUsingNio(File source, File dest) throws IOException {
+        FileChannel in = null;
+        FileChannel out = null;
+        FileInputStream inStream = null;
+        FileOutputStream outStream = null;
+        File parent = dest.getParentFile();
+        if (parent != null && (!parent.exists())) {
+            parent.mkdirs();
+        }
+        try {
+            inStream = new FileInputStream(source);
+            outStream = new FileOutputStream(dest, false);
+            in = inStream.getChannel();
+            out = outStream.getChannel();
+            in.transferTo(0, in.size(), out);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (inStream != null) {
+                inStream.close();
+            }
+            if (outStream != null) {
+                outStream.close();
+            }
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
             }
         }
     }

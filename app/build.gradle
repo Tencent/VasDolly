@@ -5,7 +5,7 @@ apply plugin: 'channel'
 buildscript {
     repositories {
         maven {
-            url "file:///Users/zhangkaqi/localMaven"
+            url "file:///Users/leontli/localMaven"
         }
         google()
         jcenter()
@@ -15,16 +15,21 @@ buildscript {
     }
 }
 
-//rebuildChannel {
-//    baseDebugApk = new File(project.projectDir, "baseApk/v1-base-debug.apk")
-//    baseReleaseApk = new File(project.projectDir, "baseApk/v2-base-debug.apk")
-//}
+channel{
+    //isFastMode = true
+}
+
+rebuildChannel {
+    baseDebugApk = new File(project.projectDir, "baseApk/v1-base-debug.apk")
+    baseReleaseApk = new File(project.projectDir, "baseApk/v2-base-debug.apk")
+    //isFastMode = true
+}
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
     buildToolsVersion rootProject.buildToolsVersion
     defaultConfig {
-        applicationId "leon.com.apkchannelpackage"
+        applicationId "com.leon.dolly"
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
         versionCode 1

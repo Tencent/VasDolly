@@ -25,7 +25,6 @@ import com.leon.plugin.task.ApkChannelPackageTask
 import org.gradle.api.Task
 
 class ApkChannelPackagePlugin implements org.gradle.api.Plugin<Project> {
-    static final TAG = "ApkChannelPackagePlugin"
     static final String CHANNEL_FILE = "channel_file"
     Project mProject;
     ChannelConfigurationExtension mChannelConfigurationExtension;
@@ -41,7 +40,6 @@ class ApkChannelPackagePlugin implements org.gradle.api.Plugin<Project> {
         }
 
         //@todo 这里要根据打包模式，进行gradle版本和配置的校验
-
         mChannelConfigurationExtension = project.extensions.create('channel', ChannelConfigurationExtension, project)
         mRebuildChannelConfigurationExtension = project.extensions.create('rebuildChannel', RebuildChannelConfigurationExtension, project)
         //get the channel list

@@ -9,7 +9,7 @@ ext {
 
 
     GROUP = 'com.leon.channel'
-    VERSION = '1.1.6'
+    VERSION = '1.1.7'
 
     //POM_PACKAGING = "pom"
     POM_DESCRIPTION = "VasDolly"
@@ -28,7 +28,7 @@ ext {
 buildscript {
     repositories {
         maven {
-            url "file:///Users/zhangkaqi/localMaven"
+            url "file:///Users/leontli/localMaven"
         }
         google()
         jcenter()
@@ -43,7 +43,7 @@ buildscript {
 allprojects {
     repositories {
         maven {
-            url "file:///Users/zhangkaqi/localMaven"
+            url "file:///Users/leontli/localMaven"
         }
         google()
         jcenter()

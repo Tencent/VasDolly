@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package leon.com.apkchannelpackage;
+package com.leon.dolly;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 import com.leon.channel.helper.ChannelReaderUtil;
+import com.leon.dolly.R;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";

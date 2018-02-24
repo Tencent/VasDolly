@@ -4,6 +4,9 @@ apply plugin: 'com.jfrog.bintray'
 //apply plugin: 'signing'
 //apply plugin: 'maven'
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 group = project.rootProject.GROUP
 version = project.rootProject.VERSION
 //javadocJar sourcesJar
@@ -45,7 +48,16 @@ install {
     }
 
     repositories.mavenDeployer {
-        repository(url: "file:///Users/zhangkaqi/localMaven")
+        repository(url: "file:///Users/leontli/localMaven")
+    }
+
+    repositories.mavenDeployer {
+        repository(url: properties.getProperty("rdm_url")) {
+            authentication(userName: properties.getProperty("userName"), password: properties.getProperty("password"))
+            pom.groupId = GROUP
+            pom.artifactId = POM_ARTIFACT_ID
+            pom.version = VERSION
+        }
     }
 }
 
@@ -99,9 +111,7 @@ install {
 //    archives sourcesJar
 //}
 
-//解析用户名和密码，上传到jcenter
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 bintray { //BintrayExtension
     user = properties.getProperty("bintray.user")
     key = properties.getProperty("bintray.apikey")
@@ -119,5 +129,3 @@ bintray { //BintrayExtension
         dryRun = false
     }
 }
-
-

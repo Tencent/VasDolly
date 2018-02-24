@@ -273,9 +273,9 @@ public class V2SchemeUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ApkSignatureSchemeV2Verifier.SignatureNotFoundException e) {
-            if (!isCommand) {
-                e.printStackTrace();
-            }
+//            if (!isCommand) {
+//                e.printStackTrace();
+//            }
             System.out.println("APK : " + apk.getAbsolutePath() + " not have apk signature block");
         }
 

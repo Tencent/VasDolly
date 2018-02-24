@@ -26,3 +26,7 @@
  ``` java
  java -jar VasDolly.jar put -mtc channel.txt /home/user/base.apk /home/user/
  ```
+ ### 提供了FastMode，生成渠道包时不进行强校验，速度可提升10倍以上
+ ``` java
+ java -jar VasDolly.jar put -c channel.txt -f /home/user/base.apk /home/user/
+ ```

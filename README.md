@@ -125,6 +125,8 @@ String channel = ChannelReaderUtil.getChannel(getApplicationContext());
 # 实现原理
 具体原理可参考[VasDolly实现原理](https://github.com/Tencent/VasDolly/wiki/VasDolly%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86)
 
+# 问题反馈
+遇到任何问题或者有好的建议，欢迎提[issues](https://github.com/Tencent/VasDolly/issues)，或者QQ（1031747903）联系。
 
 # License
 VasDolly is under the BSD license. See the [LICENSE](https://github.com/Tencent/VasDolly/blob/master/LICENSE) file for details.

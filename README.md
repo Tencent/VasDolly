@@ -88,6 +88,7 @@ channel{
 * buildType ： 当前Variant的buildType，即debug or release
 * flavorName ： 当前的渠道名称
 * appId ： 当前Variant的applicationId
+* buildTime ： 当前编译构建日期时间，格式 yyyyMMdd-HHmmss
 
 然后，通过`gradle channelDebug`、`gradle channelRelease`命令分别生成Debug和Release的多渠道包。
 

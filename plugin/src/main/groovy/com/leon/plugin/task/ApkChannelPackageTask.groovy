@@ -31,6 +31,8 @@ import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
+import java.text.SimpleDateFormat
+
 public class ApkChannelPackageTask extends ChannelPackageTask {
     int mChannelPackageMode = DEFAULT_MODE;
 
@@ -161,13 +163,15 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
      * @return
      */
     String getChannelApkName(String channel) {
+        def buildTime = new SimpleDateFormat('yyyyMMdd-HHmmss').format(new Date())
         def keyValue = [
                 'appName'    : project.name,
                 'flavorName' : channel,
                 'buildType'  : mVariant.buildType.name,
                 'versionName': mVariant.versionName,
                 'versionCode': mVariant.versionCode,
-                'appId'      : mVariant.applicationId
+                'appId'      : mVariant.applicationId,
+                'buildTime'  : buildTime
         ]
 
         def templateEngine = new SimpleTemplateEngine()

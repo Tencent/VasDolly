@@ -31,6 +31,7 @@ public class Main {
     public static void main(String[] args) {
         String cmdGet = "get";//获取
         String cmdPut = "put";//插入
+        String cmdRemove = "remove";//删除
         String cmdSignMode = "-s";//签名方式
         String cmdChannel = "-c";//渠道信息
         String cmdFast = "-f";//极速模式：生成渠道包不进行校验（速度可以提升10倍以上）
@@ -42,6 +43,7 @@ public class Main {
                 "global options:\n\n" +
                 "    " + cmdGet + "                get apk information\n" +
                 "    " + cmdPut + "                put channel information\n" +
+                "    " + cmdRemove + "             remove channel information\n" +
                 "    " + cmdHelp + "               get help\n\n" +
                 "general args:\n\n" +
                 "    " + cmdSignMode + "                        signature mode , only fit 'get'\n" +
@@ -51,6 +53,7 @@ public class Main {
                 "for example:\n\n" +
                 "    java -jar VasDolly.jar get -s /home/user/test.apk\n" +
                 "    java -jar VasDolly.jar get -c /home/user/test.apk\n" +
+                "    java -jar VasDolly.jar remove -c /home/user/channel.apk\n" +
                 "    java -jar VasDolly.jar put -c \"channel1,channel2\" /home/user/base.apk /home/user/\n" +
                 "    java -jar VasDolly.jar put -mtc \"channel1,channel2\" /home/user/base.apk /home/user/\n" +
                 "    java -jar VasDolly.jar put -c channel.txt /home/user/base.apk /home/user/\n" +
@@ -175,6 +178,27 @@ public class Main {
                         }
                     } else {
                         System.out.print("\n\n'put' only support -c or -mtc arg!");
+                    }
+                } else if (command0.equals(cmdRemove)) {
+                    if (args.length >= 3) {
+                        String filePath = args[2].trim();
+                        File file = new File(filePath);
+                        if (!file.exists()) {
+                            System.out.print("\n\nApk file does not exist!");
+                            return;
+                        } else if (file.isDirectory()) {
+                            System.out.print("\n\nThe file path cannot be a directory!");
+                            return;
+                        }
+                        if (command1.equals(cmdChannel)) { //删除渠道信息
+                            if (Util.removeChannel(file)) {
+                                System.out.print("\n\nremove channel success");
+                            }
+                        } else {
+                            System.out.print("\n\nPlease enter the correct command!");
+                        }
+                    } else {
+                        System.out.print("\n\nPlease enter the correct command!");
                     }
                 } else {
                     System.out.print("\n\nPlease enter the correct command!");

@@ -1,4 +1,4 @@
-## VasDolly命令行
+\## VasDolly命令行
  命令行工具即：jar文件下`VasDolly.jar`，可以通过help查看具体命令：
  ``` java
  java -jar VasDolly.jar help
@@ -13,6 +13,10 @@
  ### 获取指定APK的渠道信息
  ``` java
  java -jar VasDolly.jar get -c /home/user/test.apk
+ ```
+ ### 删除指定APK的渠道信息
+ ``` java
+ java -jar VasDolly.jar remove -c /home/user/test.apk
  ```
  ### 通过指定渠道字符串添加渠道信息
  ``` java

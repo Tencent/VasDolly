@@ -19,30 +19,37 @@ package com.leon.plugin.extension
 import org.gradle.api.GradleException;
 import org.gradle.api.Project
 
-public class ChannelConfigurationExtension extends ConfigurationExtension{
+public class ChannelConfigurationExtension extends ConfigurationExtension {
     static
-    final String DEFAULT_APK_NAME_FORMAT = '${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}'
+    final String DEFAULT_APK_NAME_FORMAT = '${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}-${buildTime}'
+    public static final String DEFAULT_DATE_FORMAT = 'yyyyMMdd-HHmmss'
 
     /**
      * 渠道包输出目录
      */
-    File baseOutputDir;
+    File baseOutputDir
 
     /**
      * 渠道包的命名格式
      */
     String apkNameFormat
 
+    /**
+     * buildTime的时间格式
+     */
+    public String buildTimeDateFormat
+
     public ChannelConfigurationExtension(Project project) {
         super(project)
         baseOutputDir = new File(project.buildDir, "channel")
         apkNameFormat = DEFAULT_APK_NAME_FORMAT
+        buildTimeDateFormat = DEFAULT_DATE_FORMAT
     }
 
     public void checkParamters() {
-        if (mProject == null || baseOutputDir == null || apkNameFormat.isEmpty()) {
+        if (mProject == null || baseOutputDir == null || apkNameFormat.isEmpty() || buildTimeDateFormat.isEmpty()) {
             throw new GradleException("ChannelConfigurationExtension params invalid , " +
-                    "mProject = ${mProject} , baseOutputDir = ${baseOutputDir} , apkNameFormat = ${apkNameFormat}")
+                    "mProject = ${mProject} , baseOutputDir = ${baseOutputDir} , apkNameFormat = ${apkNameFormat} , buildTimeDateFormat = ${buildTimeDateFormat}")
         }
 
         if (!baseOutputDir.exists()) {

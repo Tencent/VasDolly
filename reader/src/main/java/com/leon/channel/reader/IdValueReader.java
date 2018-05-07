@@ -16,6 +16,7 @@
 
 package com.leon.channel.reader;
 
+import com.leon.channel.common.ApkSectionInfo;
 import com.leon.channel.common.ChannelConstants;
 import com.leon.channel.common.V2SchemeUtil;
 import com.leon.channel.common.verify.ApkSignatureSchemeV2Verifier;
@@ -29,6 +30,8 @@ import java.util.Map;
 
 /**
  * Created by leontli on 17/1/19.
+ * <p>
+ * 针对V2签名块的Id-Value序列进行读取操作
  */
 
 public class IdValueReader {
@@ -123,4 +126,5 @@ public class IdValueReader {
 
         return null;
     }
+
 }

@@ -49,34 +49,34 @@ public class ChannelReaderUtil {
     }
 
     /**
-     * if apk use v2 signature , please use this mathod to get channel info
+     * if apk use v2 signature , please use this method to get channel info
      *
      * @param context
      * @return
      */
     public static String getChannelByV2(Context context) {
         String apkPath = getApkPath(context);
-        String channel = ChannelReader.getChannel(new File(apkPath));
+        String channel = ChannelReader.getChannelByV2(new File(apkPath));
         Log.i(TAG, "getChannelByV2 , channel = " + channel);
         return channel;
     }
 
     /**
-     * if apk only use v1 signature , please use this mathod to get channel info
+     * if apk only use v1 signature , please use this method to get channel info
      *
      * @param context
      * @return
      */
     public static String getChannelByV1(Context context) {
         String apkPath = getApkPath(context);
-        String channel = ChannelReader.getChannelByZipComment(new File(apkPath));
+        String channel = ChannelReader.getChannelByV1(new File(apkPath));
         Log.i(TAG, "getChannelByV1 , channel = " + channel);
         return channel;
     }
 
 
     /**
-     * get String value from apk by id
+     * get String value from apk by id in the v2 signature mode
      *
      * @param context
      * @param id
@@ -90,7 +90,7 @@ public class ChannelReaderUtil {
     }
 
     /**
-     * get byte[] from apk by id
+     * get byte[] from apk by id in the v2 signature mode
      *
      * @param context
      * @param id
@@ -102,7 +102,7 @@ public class ChannelReaderUtil {
     }
 
     /**
-     * find all Id-Value Pair from Apk
+     * find all Id-Value Pair from Apk in the v2 signature mode
      *
      * @param context
      * @return

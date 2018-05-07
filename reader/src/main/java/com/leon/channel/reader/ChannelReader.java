@@ -18,6 +18,7 @@ package com.leon.channel.reader;
 
 import com.leon.channel.common.ChannelConstants;
 import com.leon.channel.common.V1SchemeUtil;
+import com.leon.channel.common.V2SchemeUtil;
 
 import java.io.File;
 
@@ -28,46 +29,84 @@ import java.io.File;
 public class ChannelReader {
 
     /**
-     * get channel value from apk signature block
+     * get channel value from apk in the v2 signature mode
      *
      * @param channelFile
      * @return
      */
-    public static String getChannel(File channelFile) {
+    public static String getChannelByV2(File channelFile) {
         System.out.println("try to read channel info from apk : " + channelFile.getAbsolutePath());
         return IdValueReader.getStringValueById(channelFile, ChannelConstants.CHANNEL_BLOCK_ID);
     }
 
     /**
-     * verify channel info
-     *
-     * @param file
-     * @param channel
-     * @return
-     */
-    public static boolean verifyChannel(File file, String channel) {
-        if (channel != null) {
-            return channel.equals(getChannel(file));
-        }
-        return false;
-    }
-
-    /**
-     * get channel info from apk comment field
+     * get channel info from apk in the v1 signature mode
      *
      * @param channelFile
      * @return
      * @throws Exception
      */
-    public static String getChannelByZipComment(File channelFile) {
+    public static String getChannelByV1(File channelFile) {
         try {
             return V1SchemeUtil.readChannel(channelFile);
         } catch (Exception e) {
-            //e.printStackTrace();
             System.out.println("APK : " + channelFile.getAbsolutePath() + " not have channel info from Zip Comment");
         }
         return null;
     }
 
+    /**
+     * verify channel info in the v2 signature mode
+     *
+     * @param file
+     * @param channel
+     * @return
+     */
+    public static boolean verifyChannelByV2(File file, String channel) {
+        if (channel != null) {
+            return channel.equals(getChannelByV2(file));
+        }
+        return false;
+    }
+
+    /**
+     * verify channel info in the v1 signature mode
+     *
+     * @param file
+     * @param channel
+     * @return
+     */
+    public static boolean verifyChannelByV1(File file, String channel) {
+        if (channel != null) {
+            return channel.equals(getChannelByV1(file));
+        }
+        return false;
+    }
+
+    /**
+     * judge whether apk contain v1 signature
+     *
+     * @param file
+     * @return
+     */
+    public static boolean containV1Signature(File file) {
+        if (file == null || !file.exists() || !file.isFile()) {
+            return false;
+        }
+        return V1SchemeUtil.containV1Signature(file);
+    }
+
+    /**
+     * judge whether apk contain v2 signature block
+     *
+     * @param file
+     * @return
+     */
+    public static boolean containV2Signature(File file) {
+        if (file == null || !file.exists() || !file.isFile()) {
+            return false;
+        }
+        return V2SchemeUtil.containV2Signature(file);
+    }
 
 }

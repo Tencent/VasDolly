@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by leontli on 17/1/17.
@@ -35,7 +37,7 @@ import java.nio.ByteOrder;
 public class ChannelWriter {
 
     /**
-     * add channel to apk file
+     * add channel to apk in the v2 signature mode
      *
      * @param apkSectionInfo
      * @param destApk
@@ -43,15 +45,21 @@ public class ChannelWriter {
      * @throws IOException
      * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
      */
-    public static void addChannel(ApkSectionInfo apkSectionInfo, File destApk, String channel) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
-        System.out.println("destApk = " + destApk.getAbsolutePath() + " , channel = " + channel);
+    public static void addChannelByV2(ApkSectionInfo apkSectionInfo, File destApk, String channel) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
         if (destApk == null || channel == null || channel.length() <= 0) {
-            throw new RuntimeException("addChannel , param invalid, channel = " + channel + " , destApk = " + destApk);
+            throw new RuntimeException("addChannelByV2 , param invalid, channel = " + channel + " , destApk = " + destApk);
         }
 
-        if (!destApk.getParentFile().exists()) {
-            destApk.getParentFile().mkdirs();
+        if (apkSectionInfo.lowMemory) {
+            if (!destApk.exists() || !destApk.isFile() || destApk.length() <= 0) {
+                throw new RuntimeException("addChannelByV2 , destApk invalid in the lowMemory mode");
+            }
+        } else {
+            if (!destApk.getParentFile().exists()) {
+                destApk.getParentFile().mkdirs();
+            }
         }
+
 
         byte[] buffer = channel.getBytes(ChannelConstants.CONTENT_CHARSET);
         ByteBuffer channelByteBuffer = ByteBuffer.wrap(buffer);
@@ -62,19 +70,19 @@ public class ChannelWriter {
     }
 
     /**
-     * add channel to apk file
+     * add channel to apk in the v2 signature mode
      *
      * @param apkFile
      * @param channel
      * @throws IOException
      * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
      */
-    public static void addChannel(File apkFile, String channel) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
-        addChannel(apkFile, apkFile, channel);
+    public static void addChannelByV2(File apkFile, String channel, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+        addChannelByV2(apkFile, apkFile, channel, lowMemory);
     }
 
     /**
-     * add channel to apk file
+     * add channel to apk in the v2 signature mode
      *
      * @param srcApk  source apk
      * @param destApk dest apk
@@ -82,33 +90,57 @@ public class ChannelWriter {
      * @throws IOException
      * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
      */
-    public static void addChannel(File srcApk, File destApk, String channel) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
-        ApkSectionInfo apkSectionInfo = V2SchemeUtil.getApkSectionInfo(srcApk);
-        addChannel(apkSectionInfo, destApk, channel);
+    public static void addChannelByV2(File srcApk, File destApk, String channel, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+        ApkSectionInfo apkSectionInfo = IdValueWriter.getApkSectionInfo(srcApk, lowMemory);
+        addChannelByV2(apkSectionInfo, destApk, channel);
     }
 
     /**
-     * add channel info to zip comment field . if you use v1 signature , not necessary to again to signature after add channel info
+     * add channel to apk in the v1 signature mode . if you use v1 signature , not necessary to again to signature after add channel info
      *
      * @param srcApk
      * @param destApk
      * @param channel
      * @throws Exception
      */
-    public static void addChannelToZipComment(File srcApk, File destApk, String channel) throws Exception {
+    public static void addChannelByV1(File srcApk, File destApk, String channel) throws Exception {
         V1SchemeUtil.copyFile(srcApk, destApk);
-        V1SchemeUtil.writeChannel(destApk, channel);
+        addChannelByV1(destApk, channel);
     }
 
     /**
-     * add channel info to zip comment field . if you use v1 signature , not necessary to again to signature after add channel info
+     * add channel to apk in the v1 signature mode . if you use v1 signature , not necessary to again to signature after add channel info
      *
      * @param apkFile
      * @param channel
      * @throws Exception
      */
-    public static void addChannelToZipComment(File apkFile, String channel) throws Exception {
+    public static void addChannelByV1(File apkFile, String channel) throws Exception {
         V1SchemeUtil.writeChannel(apkFile, channel);
+    }
+
+    /**
+     * remove channel from apk in the v2 signature mode
+     *
+     * @param destApk
+     * @param lowMemory
+     * @throws IOException
+     * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
+     */
+    public static void removeChannelByV2(File destApk, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+        if (destApk == null || !destApk.isFile() || !destApk.exists()) {
+            return;
+        }
+        ApkSectionInfo apkSectionInfo = IdValueWriter.getApkSectionInfo(destApk, lowMemory);
+        List<Integer> idList = new ArrayList<>();
+        idList.add(ChannelConstants.CHANNEL_BLOCK_ID);
+        IdValueWriter.removeIdValue(apkSectionInfo, destApk, idList);
+        apkSectionInfo.checkParamters();
+    }
+
+
+    public static void removeChannelByV1(File destApk) {
+
     }
 
 }

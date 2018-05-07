@@ -126,7 +126,7 @@ public class V2SchemeUtil {
      * @throws IOException
      * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException not have v2 sinature
      */
-    public static ApkSectionInfo getApkSectionInfo(File baseApk) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static ApkSectionInfo getApkSectionInfo(File baseApk, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
         RandomAccessFile apk = new RandomAccessFile(baseApk, "r");
         //1.find the EOCD and offset
         Pair<ByteBuffer, Long> eocdAndOffsetInFile = ApkSignatureSchemeV2Verifier.getEocd(apk);
@@ -139,21 +139,26 @@ public class V2SchemeUtil {
 
         //2.find the APK Signing Block. The block immediately precedes the Central Directory.
         long centralDirOffset = ApkSignatureSchemeV2Verifier.getCentralDirOffset(eocd, eocdOffset);//通过eocd找到中央目录的偏移量
-        Pair<ByteBuffer, Long> apkSchemeV2Block =
-                ApkSignatureSchemeV2Verifier.findApkSigningBlock(apk, centralDirOffset);//找到V2签名块的内容和偏移量
+        Pair<ByteBuffer, Long> apkSchemeV2Block = ApkSignatureSchemeV2Verifier.findApkSigningBlock(apk, centralDirOffset);//找到V2签名块的内容和偏移量
 
         //3.find the centralDir
         Pair<ByteBuffer, Long> centralDir = findCentralDir(apk, centralDirOffset, (int) (eocdOffset - centralDirOffset));
-        //4.find the contentEntry
-        Pair<ByteBuffer, Long> contentEntry = findContentEntry(apk, (int) apkSchemeV2Block.getSecond().longValue());
 
         ApkSectionInfo apkSectionInfo = new ApkSectionInfo();
-        apkSectionInfo.mContentEntry = contentEntry;
-        apkSectionInfo.mSchemeV2Block = apkSchemeV2Block;
-        apkSectionInfo.mCentralDir = centralDir;
-        apkSectionInfo.mEocd = eocdAndOffsetInFile;
+        apkSectionInfo.lowMemory = lowMemory;
+        apkSectionInfo.apkSize = baseApk.length();
+        if (!lowMemory) {
+            //4.find the contentEntry
+            apkSectionInfo.contentEntry = findContentEntry(apk, (int) apkSchemeV2Block.getSecond().longValue());
+        }
+        apkSectionInfo.schemeV2Block = apkSchemeV2Block;
+        apkSectionInfo.centralDir = centralDir;
+        apkSectionInfo.eocd = eocdAndOffsetInFile;
 
-        System.out.println("baseApk : " + baseApk.getAbsolutePath() + " , ApkSectionInfo = " + apkSectionInfo);
+        //5. check Paramters
+        apkSectionInfo.checkParamters();
+
+        System.out.println("baseApk : " + baseApk.getAbsolutePath() + "\nApkSectionInfo = " + apkSectionInfo);
         return apkSectionInfo;
     }
 
@@ -263,7 +268,7 @@ public class V2SchemeUtil {
      * @param apk
      * @return
      */
-    public static boolean containV2Signature(File apk, boolean isCommand) {
+    public static boolean containV2Signature(File apk) {
         try {
             ByteBuffer apkSigningBlock = getApkSigningBlock(apk);
             Map<Integer, ByteBuffer> idValueMap = getAllIdValue(apkSigningBlock);
@@ -273,9 +278,6 @@ public class V2SchemeUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ApkSignatureSchemeV2Verifier.SignatureNotFoundException e) {
-//            if (!isCommand) {
-//                e.printStackTrace();
-//            }
             System.out.println("APK : " + apk.getAbsolutePath() + " not have apk signature block");
         }
 

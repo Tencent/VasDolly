@@ -51,66 +51,15 @@ install {
         repository(url: "file:///Users/leontli/localMaven")
     }
 
-    repositories.mavenDeployer {
-        repository(url: properties.getProperty("rdm_url")) {
-            authentication(userName: properties.getProperty("userName"), password: properties.getProperty("password"))
-            pom.groupId = GROUP
-            pom.artifactId = POM_ARTIFACT_ID
-            pom.version = VERSION
-        }
-    }
-}
-
-////添加生成任务
-//task sourcesJar(type: Jar) {
-//    from sourceSets.main.java.srcDirs
-//    classifier = 'sources'
-//}
-//
-////task javadoc(type: Javadoc) {
-////    options { // 设置编码，否则中文可能会提示出错 , java doc采用utf-8编码否则会报“GBK的不可映射字符”错误
-////        encoding "UTF-8"
-////        charSet 'UTF-8'
-////    }
-////    source = sourceSets.main.java.srcDirs
-////    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-////}
-//
-//javadoc { //java doc采用utf-8编码否则会报“GBK的不可映射字符”错误
-//    options {
-//        encoding "UTF-8"
-//        charSet 'UTF-8'
+//    repositories.mavenDeployer {
+//        repository(url: properties.getProperty("rdm_url")) {
+//            authentication(userName: properties.getProperty("userName"), password: properties.getProperty("password"))
+//            pom.groupId = GROUP
+//            pom.artifactId = POM_ARTIFACT_ID
+//            pom.version = VERSION
+//        }
 //    }
-//}
-//
-//task javadocJar(type: Jar, dependsOn: javadoc) {
-//    classifier = 'javadoc'
-//    from javadoc.destinationDir
-//}
-//
-//artifacts {
-//    archives javadocJar
-//    archives sourcesJar
-//}
-
-//task sourcesJar(type: Jar) {
-//    from android.sourceSets.main.java.srcDirs
-//    classifier = 'sources'
-//}
-//task javadoc(type: Javadoc) {
-//    options.encoding = "UTF-8" // 设置编码，否则中文可能会提示出错
-//    source = android.sourceSets.main.java.srcDirs
-//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-//}
-//task javadocJar(type: Jar, dependsOn: javadoc) {
-//    classifier = 'javadoc'
-//    from javadoc.destinationDir
-//}
-//artifacts {
-//    archives javadocJar
-//    archives sourcesJar
-//}
-
+}
 
 bintray { //BintrayExtension
     user = properties.getProperty("bintray.user")
@@ -129,3 +78,53 @@ bintray { //BintrayExtension
         dryRun = false
     }
 }
+
+//添加生成任务
+//task sourcesJar(type: Jar) {
+//    from sourceSets.main.java.srcDirs
+//    classifier = 'sources'
+//}
+//
+//task javadoc(type: Javadoc) {
+//    options { // 设置编码，否则中文可能会提示出错 , java doc采用utf-8编码否则会报“GBK的不可映射字符”错误
+//        encoding "UTF-8"
+//        charSet 'UTF-8'
+//    }
+//    source = sourceSets.main.java.srcDirs
+//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//}
+//
+//javadoc { //java doc采用utf-8编码否则会报“GBK的不可映射字符”错误
+//    options {
+//        encoding "UTF-8"
+//        charSet 'UTF-8'
+//    }
+//}
+//
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    classifier = 'javadoc'
+//    from javadoc.destinationDir
+//}
+//
+//artifacts {
+//    archives javadocJar
+//    archives sourcesJar
+//}
+//
+//task sourcesJar(type: Jar) {
+//    from android.sourceSets.main.java.srcDirs
+//    classifier = 'sources'
+//}
+//task javadoc(type: Javadoc) {
+//    options.encoding = "UTF-8" // 设置编码，否则中文可能会提示出错
+//    source = android.sourceSets.main.java.srcDirs
+//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//}
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    classifier = 'javadoc'
+//    from javadoc.destinationDir
+//}
+//artifacts {
+//    archives javadocJar
+//    archives sourcesJar
+//}

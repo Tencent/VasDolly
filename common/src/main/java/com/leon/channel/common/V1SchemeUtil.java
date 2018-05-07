@@ -145,22 +145,6 @@ public class V1SchemeUtil {
         }
     }
 
-    /**
-     * verify channel info
-     *
-     * @param file
-     * @param channel
-     * @return
-     * @throws Exception
-     */
-    public static boolean verifyChannel(File file, String channel) throws Exception {
-        if (channel != null) {
-            return channel.equals(readChannel(file));
-        }
-        return false;
-    }
-
-
     private static void writeShort(int i, DataOutput out) throws IOException {
         ByteBuffer bb = ByteBuffer.allocate(ChannelConstants.SHORT_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
         bb.putShort((short) i);

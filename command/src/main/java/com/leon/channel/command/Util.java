@@ -19,9 +19,10 @@ package com.leon.channel.command;
 import com.com.leon.channel.verify.VerifyApk;
 import com.leon.channel.common.ApkSectionInfo;
 import com.leon.channel.common.V1SchemeUtil;
-import com.leon.channel.common.V2SchemeUtil;
+import com.leon.channel.common.verify.ApkSignatureSchemeV2Verifier;
 import com.leon.channel.reader.ChannelReader;
 import com.leon.channel.writer.ChannelWriter;
+import com.leon.channel.writer.IdValueWriter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -56,14 +57,14 @@ public class Util {
      */
     public static String getSignMode(File apkFile) {
 
-        if (V2SchemeUtil.containV2Signature(apkFile, true)) {
+        if (ChannelReader.containV2Signature(apkFile)) {
             //如果有V2签名段，并且没有CERT.SF，那么一定是仅仅V2签名,否则就是V1和V2一起签名的
-            if (!V1SchemeUtil.containV1Signature(apkFile)) {
+            if (!ChannelReader.containV1Signature(apkFile)) {
                 return V2;
             } else {
                 return V1_V2;
             }
-        } else if (V1SchemeUtil.containV1Signature(apkFile)) { //如果没有V2签名段，并且有CERT.SF，那么一定是仅仅V1签名
+        } else if (ChannelReader.containV1Signature(apkFile)) { //如果没有V2签名段，并且有CERT.SF，那么一定是仅仅V1签名
             return V1;
         } else {
             return "Apk was not signed";
@@ -77,9 +78,9 @@ public class Util {
      * @return
      */
     public static String readChannel(File apkFile) {
-        String channel = ChannelReader.getChannel(apkFile);
+        String channel = ChannelReader.getChannelByV2(apkFile);
         if (channel == null) {
-            channel = ChannelReader.getChannelByZipComment(apkFile);
+            channel = ChannelReader.getChannelByV1(apkFile);
         }
         return channel;
     }
@@ -121,9 +122,9 @@ public class Util {
      * @link https://source.android.com/security/apksigning/v2
      */
     private static int judgeChannelPackageMode(File baseApk) {
-        if (V2SchemeUtil.containV2Signature(baseApk, true)) {
+        if (ChannelReader.containV2Signature(baseApk)) {
             return V2_MODE;
-        } else if (V1SchemeUtil.containV1Signature(baseApk)) {
+        } else if (ChannelReader.containV1Signature(baseApk)) {
             return V1_MODE;
         } else {
             return DEFAULT_MODE;
@@ -138,7 +139,7 @@ public class Util {
      * @param outputDir
      */
     private static void generateV1ChannelApk(File baseApk, List<String> channelList, File outputDir, boolean isFastMode) {
-        if (!V1SchemeUtil.containV1Signature(baseApk)) {
+        if (!ChannelReader.containV1Signature(baseApk)) {
             System.out.println("File " + baseApk.getName() + " not signed by v1 , please check your signingConfig , if not have v1 signature , you can't install Apk below 7.0");
             return;
         }
@@ -168,7 +169,7 @@ public class Util {
                 V1SchemeUtil.writeChannel(destFile, channel);
                 if (!isFastMode) {
                     //1. verify channel info
-                    if (V1SchemeUtil.verifyChannel(destFile, channel)) {
+                    if (ChannelReader.verifyChannelByV1(destFile, channel)) {
                         System.out.println("generateV1ChannelApk , " + destFile + " add channel success");
                     } else {
                         throw new RuntimeException("generateV1ChannelApk , " + destFile + " add channel failure");
@@ -199,7 +200,7 @@ public class Util {
      * @param outputDir
      */
     private static void generateV1ChannelApkMultiThread(File baseApk, List<String> channelList, File outputDir, boolean isFastMode) {
-        if (!V1SchemeUtil.containV1Signature(baseApk)) {
+        if (!ChannelReader.containV1Signature(baseApk)) {
             System.out.println("File " + baseApk.getName() + " not signed by v1 , please check your signingConfig , if not have v1 signature , you can't install Apk below 7.0");
             return;
         }
@@ -240,15 +241,18 @@ public class Util {
         System.out.println("------ File " + apkName + " generate v2 channel apk  , begin ------");
 
         try {
-            ApkSectionInfo apkSectionInfo = V2SchemeUtil.getApkSectionInfo(baseApk);
+            ApkSectionInfo apkSectionInfo = IdValueWriter.getApkSectionInfo(baseApk, false);
             for (String channel : channelList) {
                 String apkChannelName = getChannelApkName(apkName, channel);
                 System.out.println("generateV2ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
                 File destFile = new File(outputDir, apkChannelName);
-                ChannelWriter.addChannel(apkSectionInfo, destFile, channel);
+                if (apkSectionInfo.lowMemory) {
+                    copyFileUsingNio(baseApk, destFile);
+                }
+                ChannelWriter.addChannelByV2(apkSectionInfo, destFile, channel);
                 if (!isFastMode) {
                     //1. verify channel info
-                    if (ChannelReader.verifyChannel(destFile, channel)) {
+                    if (ChannelReader.verifyChannelByV2(destFile, channel)) {
                         System.out.println("generateV2ChannelApk , " + destFile + " add channel success");
                     } else {
                         throw new RuntimeException("generateV2ChannelApk , " + destFile + " add channel failure");
@@ -261,6 +265,10 @@ public class Util {
                         throw new RuntimeException("generateV2ChannelApk , after add channel , " + destFile + " v1 verify failure");
                     }
                 }
+                apkSectionInfo.rewind();
+                if (!isFastMode){
+                    apkSectionInfo.checkEocdCentralDirOffset();
+                }
             }
         } catch (Exception e) {
             System.out.println("generateV2ChannelApk error , please check it and fix it ，and that you should generate all V2 Channel Apk again!");
@@ -270,6 +278,26 @@ public class Util {
         System.out.println("------ File " + apkName + " generate v2 channel apk , end ------");
         long cost = System.currentTimeMillis() - startTime;
         System.out.println("------ total " + channelList.size() + " channel apk , cost : " + cost + " ------");
+    }
+
+
+    public static boolean removeChannel(File channelApk) {
+        int mode = judgeChannelPackageMode(channelApk);
+        if (mode == V1_MODE) {
+            System.out.println("Now we dissupport to remove channel info from apk in the v1 signature mode , we will achieve it soon! ");
+        } else if (mode == V2_MODE) {
+            try {
+                ChannelWriter.removeChannelByV2(channelApk, true);
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ApkSignatureSchemeV2Verifier.SignatureNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else {
+            throw new IllegalStateException("not have precise channel package mode");
+        }
+        return false;
     }
 
     /**

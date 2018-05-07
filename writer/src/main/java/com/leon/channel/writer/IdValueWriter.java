@@ -22,11 +22,13 @@ import com.leon.channel.common.verify.ApkSignatureSchemeV2Verifier;
 import com.leon.channel.common.verify.ZipUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,6 +57,73 @@ public class IdValueWriter {
         addIdValueByteBufferMap(apkSectionInfo, destApk, idValueMap);
     }
 
+    public static void removeIdValue(ApkSectionInfo apkSectionInfo, File destApk, List<Integer> idList) throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException, IOException {
+        if (apkSectionInfo == null || destApk == null || !destApk.isFile() || !destApk.exists() || idList == null || idList.isEmpty()) {
+            return;
+        }
+        Map<Integer, ByteBuffer> existentIdValueMap = V2SchemeUtil.getAllIdValue(apkSectionInfo.schemeV2Block.getFirst());
+        int existentIdValueSize = existentIdValueMap.size();
+        if (!existentIdValueMap.containsKey(ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID)) {
+            throw new ApkSignatureSchemeV2Verifier.SignatureNotFoundException(
+                    "No APK V2 Signature Scheme block in APK Signing Block");
+        }
+        System.out.println("removeIdValue , existed IdValueMap = " + existentIdValueMap);
+
+        for (Integer id : idList) {
+            if (id.intValue() != ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID) {
+                existentIdValueMap.remove(id);
+            }
+        }
+        int remainderIdValueSize = existentIdValueMap.size();
+        if (existentIdValueSize == remainderIdValueSize) {
+            System.out.println("removeIdValue , No idValue was deleted");
+        } else {
+            System.out.println("removeIdValue , final IdValueMap = " + existentIdValueMap);
+            ByteBuffer newApkSigningBlock = V2SchemeUtil.generateApkSigningBlock(existentIdValueMap);
+            System.out.println("removeIdValue , oldApkSigningBlock size = " + apkSectionInfo.schemeV2Block.getFirst().remaining() + " , newApkSigningBlock size = " + newApkSigningBlock.remaining());
+
+            ByteBuffer centralDir = apkSectionInfo.centralDir.getFirst();
+            ByteBuffer eocd = apkSectionInfo.eocd.getFirst();
+            long centralDirOffset = apkSectionInfo.centralDir.getSecond();
+            int apkChangeSize = newApkSigningBlock.remaining() - apkSectionInfo.schemeV2Block.getFirst().remaining();
+            //update the offset of centralDir
+            ZipUtils.setZipEocdCentralDirectoryOffset(eocd, centralDirOffset + apkChangeSize);//修改了EOCD中保存的中央目录偏移量
+
+            long apkLength = apkSectionInfo.apkSize + apkChangeSize;
+            RandomAccessFile fIn = null;
+            try {
+                fIn = new RandomAccessFile(destApk, "rw");
+                if (apkSectionInfo.lowMemory) {
+                    fIn.seek(apkSectionInfo.schemeV2Block.getSecond());
+                } else {
+                    ByteBuffer contentEntry = apkSectionInfo.contentEntry.getFirst();
+                    fIn.seek(apkSectionInfo.contentEntry.getSecond());
+                    //1. write real content Entry block
+                    fIn.write(contentEntry.array(), contentEntry.arrayOffset() + contentEntry.position(), contentEntry.remaining());
+                }
+
+                //2. write new apk v2 scheme block
+                fIn.write(newApkSigningBlock.array(), newApkSigningBlock.arrayOffset() + newApkSigningBlock.position(), newApkSigningBlock.remaining());
+                //3. write central dir block
+                fIn.write(centralDir.array(), centralDir.arrayOffset() + centralDir.position(), centralDir.remaining());
+                //4. write eocd block
+                fIn.write(eocd.array(), eocd.arrayOffset() + eocd.position(), eocd.remaining());
+                //5. modify the length of apk file
+                if (fIn.getFilePointer() != apkLength) {
+                    throw new RuntimeException("after removeIdValue , file size wrong , FilePointer : " + fIn.getFilePointer() + ", apkLength : " + apkLength);
+                }
+                fIn.setLength(apkLength);
+                System.out.println("removeIdValue , after remove channel , apk is " + destApk.getAbsolutePath() + " , length = " + destApk.length());
+            } finally {
+                //恢复EOCD中保存的中央目录偏移量，满足基础包的APK结构
+                ZipUtils.setZipEocdCentralDirectoryOffset(eocd, centralDirOffset);
+                if (fIn != null) {
+                    fIn.close();
+                }
+            }
+        }
+    }
+
     /**
      * add id-value pairs to apk
      *
@@ -71,43 +140,60 @@ public class IdValueWriter {
         if (idValueMap.containsKey(ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID)) { //不能和系统V2签名块的ID冲突
             idValueMap.remove(ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID);
         }
-        System.out.println("addIdValueByteBufferMap , idValueMap = " + idValueMap);
+        System.out.println("addIdValueByteBufferMap , new IdValueMap = " + idValueMap);
 
-        Map<Integer, ByteBuffer> existentIdValueMap = V2SchemeUtil.getAllIdValue(apkSectionInfo.mSchemeV2Block.getFirst());
+        Map<Integer, ByteBuffer> existentIdValueMap = V2SchemeUtil.getAllIdValue(apkSectionInfo.schemeV2Block.getFirst());
         if (!existentIdValueMap.containsKey(ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID)) {
             throw new ApkSignatureSchemeV2Verifier.SignatureNotFoundException(
                     "No APK V2 Signature Scheme block in APK Signing Block");
         }
-        System.out.println("addIdValueByteBufferMap , existentIdValueMap = " + existentIdValueMap);
+        System.out.println("addIdValueByteBufferMap , existed IdValueMap = " + existentIdValueMap);
 
         existentIdValueMap.putAll(idValueMap);
-        System.out.println("addIdValueByteBufferMap , finalIdValueMap = " + existentIdValueMap);
+        System.out.println("addIdValueByteBufferMap , final IdValueMap = " + existentIdValueMap);
 
         ByteBuffer newApkSigningBlock = V2SchemeUtil.generateApkSigningBlock(existentIdValueMap);
-        System.out.println("addIdValueByteBufferMap , oldApkSigningBlock size = " + apkSectionInfo.mSchemeV2Block.getFirst().remaining()
-                + " , newApkSigningBlock size = " + newApkSigningBlock.remaining());
+        System.out.println("addIdValueByteBufferMap , oldApkSigningBlock size = " + apkSectionInfo.schemeV2Block.getFirst().remaining() + " , newApkSigningBlock size = " + newApkSigningBlock.remaining());
 
-        ByteBuffer contentEntry = apkSectionInfo.mContentEntry.getFirst();
-        ByteBuffer centralDir = apkSectionInfo.mCentralDir.getFirst();
-        ByteBuffer eocd = apkSectionInfo.mEocd.getFirst();
-        long centralDirOffset = apkSectionInfo.mCentralDir.getSecond();
+        ByteBuffer centralDir = apkSectionInfo.centralDir.getFirst();
+        ByteBuffer eocd = apkSectionInfo.eocd.getFirst();
+        long centralDirOffset = apkSectionInfo.centralDir.getSecond();
+        int apkChangeSize = newApkSigningBlock.remaining() - apkSectionInfo.schemeV2Block.getFirst().remaining();
         //update the offset of centralDir
-        centralDirOffset += (newApkSigningBlock.remaining() - apkSectionInfo.mSchemeV2Block.getFirst().remaining());
-        ZipUtils.setZipEocdCentralDirectoryOffset(eocd, centralDirOffset);//修改了apkSectionInfo中eocd的原始数据
+        ZipUtils.setZipEocdCentralDirectoryOffset(eocd, centralDirOffset + apkChangeSize);//修改了EOCD中保存的中央目录偏移量
 
-        RandomAccessFile fIn = new RandomAccessFile(destApk, "rw");
-        long apkLength = contentEntry.remaining() + newApkSigningBlock.remaining() + centralDir.remaining() + eocd.remaining();
-        fIn.seek(0l);
-        //1. write real content Entry block
-        fIn.write(contentEntry.array(), contentEntry.arrayOffset() + contentEntry.position(), contentEntry.remaining());
-        //2. write new apk v2 scheme block
-        fIn.write(newApkSigningBlock.array(), newApkSigningBlock.arrayOffset() + newApkSigningBlock.position(), newApkSigningBlock.remaining());
-        //3. write central dir block
-        fIn.write(centralDir.array(), centralDir.arrayOffset() + centralDir.position(), centralDir.remaining());
-        //4. write eocd block
-        fIn.write(eocd.array(), eocd.arrayOffset() + eocd.position(), eocd.remaining());
-        fIn.setLength(apkLength);
-        System.out.println("addIdValueByteBufferMap , after add channel , new apk is " + destApk.getAbsolutePath() + " , length = " + apkLength);
+        long apkLength = apkSectionInfo.apkSize + apkChangeSize;
+        RandomAccessFile fIn = null;
+        try {
+            fIn = new RandomAccessFile(destApk, "rw");
+            if (apkSectionInfo.lowMemory) {
+                fIn.seek(apkSectionInfo.schemeV2Block.getSecond());
+            } else {
+                ByteBuffer contentEntry = apkSectionInfo.contentEntry.getFirst();
+                fIn.seek(apkSectionInfo.contentEntry.getSecond());
+                //1. write real content Entry block
+                fIn.write(contentEntry.array(), contentEntry.arrayOffset() + contentEntry.position(), contentEntry.remaining());
+            }
+
+            //2. write new apk v2 scheme block
+            fIn.write(newApkSigningBlock.array(), newApkSigningBlock.arrayOffset() + newApkSigningBlock.position(), newApkSigningBlock.remaining());
+            //3. write central dir block
+            fIn.write(centralDir.array(), centralDir.arrayOffset() + centralDir.position(), centralDir.remaining());
+            //4. write eocd block
+            fIn.write(eocd.array(), eocd.arrayOffset() + eocd.position(), eocd.remaining());
+            //5. modify the length of apk file
+            if (fIn.getFilePointer() != apkLength) {
+                throw new RuntimeException("after addIdValueByteBufferMap , file size wrong , FilePointer : " + fIn.getFilePointer() + ", apkLength : " + apkLength);
+            }
+            fIn.setLength(apkLength);
+            System.out.println("addIdValueByteBufferMap , after add channel , new apk is " + destApk.getAbsolutePath() + " , length = " + destApk.length());
+        } finally {
+            //恢复EOCD中保存的中央目录偏移量，满足基础包的APK结构
+            ZipUtils.setZipEocdCentralDirectoryOffset(eocd, centralDirOffset);
+            if (fIn != null) {
+                fIn.close();
+            }
+        }
     }
 
 
@@ -118,8 +204,8 @@ public class IdValueWriter {
      * @param id
      * @param buffer  please ensure utf-8 charset
      */
-    public static void addIdValue(File srcApk, File destApk, int id, byte[] buffer) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
-        ApkSectionInfo apkSectionInfo = V2SchemeUtil.getApkSectionInfo(srcApk);
+    public static void addIdValue(File srcApk, File destApk, int id, byte[] buffer, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+        ApkSectionInfo apkSectionInfo = getApkSectionInfo(srcApk, lowMemory);
         ByteBuffer channelByteBuffer = ByteBuffer.wrap(buffer);
         //apk中所有字节都是小端模式
         channelByteBuffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -136,8 +222,8 @@ public class IdValueWriter {
      * @throws IOException
      * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
      */
-    public static void addIdValue(File apkFile, int id, byte[] buffer) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
-        addIdValue(apkFile, apkFile, id, buffer);
+    public static void addIdValue(File apkFile, int id, byte[] buffer, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+        addIdValue(apkFile, apkFile, id, buffer, lowMemory);
     }
 
 
@@ -150,11 +236,11 @@ public class IdValueWriter {
      * @throws IOException
      * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
      */
-    public static void addIdValueByteMap(File srcApk, File destApk, Map<Integer, byte[]> idValueByteMap) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static void addIdValueByteMap(File srcApk, File destApk, Map<Integer, byte[]> idValueByteMap, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
         if (idValueByteMap == null || idValueByteMap.isEmpty()) {
             throw new RuntimeException("addIdValueByteMap , idValueByteMap is empty");
         }
-        ApkSectionInfo apkSectionInfo = V2SchemeUtil.getApkSectionInfo(srcApk);
+        ApkSectionInfo apkSectionInfo = getApkSectionInfo(srcApk, lowMemory);
         Map<Integer, ByteBuffer> idValues = new LinkedHashMap<Integer, ByteBuffer>(); // keep order
 
         for (Integer integer : idValueByteMap.keySet()) {
@@ -175,7 +261,18 @@ public class IdValueWriter {
      * @throws IOException
      * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
      */
-    public static void addIdValueByteMap(File apkFile, Map<Integer, byte[]> idValueByteMap) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
-        addIdValueByteMap(apkFile, apkFile, idValueByteMap);
+    public static void addIdValueByteMap(File apkFile, Map<Integer, byte[]> idValueByteMap, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+        addIdValueByteMap(apkFile, apkFile, idValueByteMap, lowMemory);
+    }
+
+    public static void removeIdValue(File apk, int id) {
+
+    }
+
+    public static ApkSectionInfo getApkSectionInfo(File baseApk, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+        if (baseApk == null || !baseApk.exists() || !baseApk.isFile()) {
+            return null;
+        }
+        return V2SchemeUtil.getApkSectionInfo(baseApk, lowMemory);
     }
 }

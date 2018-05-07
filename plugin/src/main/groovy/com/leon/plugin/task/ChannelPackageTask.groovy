@@ -24,20 +24,24 @@ import org.gradle.process.ExecResult
  * Created by leontli on 17/2/19.
  */
 abstract class ChannelPackageTask extends DefaultTask {
-    public static final int DEFAULT_MODE = -1;
-    public static final int V1_MODE = 1;
-    public static final int V2_MODE = 2;
+    public static final int DEFAULT_MODE = -1
+    public static final int V1_MODE = 1
+    public static final int V2_MODE = 2
+
 
     @Input
-    public List<String> mChannelList;
+    public boolean isMergeExtensionChannelList = true
+
+    @Input
+    public List<String> channelList
 
     protected mergeExtensionChannelList(){
         List<String> extensionChannelList = getExtensionChannelList()
         if (extensionChannelList != null && !extensionChannelList.isEmpty()){
-            if (mChannelList == null){
-                mChannelList = extensionChannelList
+            if (channelList == null){
+                channelList = extensionChannelList
             }else {
-                mChannelList.addAll(extensionChannelList)
+                channelList.addAll(extensionChannelList)
             }
         }
     }

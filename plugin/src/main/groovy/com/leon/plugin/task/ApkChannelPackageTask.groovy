@@ -19,11 +19,10 @@ package com.leon.plugin.task
 import com.android.build.gradle.api.BaseVariant
 import com.android.builder.model.SigningConfig
 import com.leon.channel.common.ApkSectionInfo
-import com.leon.channel.common.V1SchemeUtil
-import com.leon.channel.common.V2SchemeUtil
 import com.leon.channel.reader.ChannelReader
 import com.leon.channel.writer.ChannelWriter
-import com.com.leon.channel.verify.VerifyApk;
+import com.com.leon.channel.verify.VerifyApk
+import com.leon.channel.writer.IdValueWriter
 import com.leon.plugin.extension.ChannelConfigurationExtension
 import groovy.text.SimpleTemplateEngine
 import org.gradle.api.GradleException
@@ -34,17 +33,17 @@ import org.gradle.api.tasks.TaskAction
 import java.text.SimpleDateFormat
 
 public class ApkChannelPackageTask extends ChannelPackageTask {
-    int mChannelPackageMode = DEFAULT_MODE;
+    int mChannelPackageMode = DEFAULT_MODE
 
     @Input
-    BaseVariant mVariant;
+    BaseVariant mVariant
 
     File mBaseApk
 
-    File mOutputDir;
+    File mOutputDir
 
     @Input
-    ChannelConfigurationExtension mChannelExtension;
+    ChannelConfigurationExtension mChannelExtension
 
     ApkChannelPackageTask() {
         group = 'channel'
@@ -77,11 +76,16 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
      */
     void checkParameter() {
         //merge channel list
-        mergeExtensionChannelList()
+        if (isMergeExtensionChannelList){
+            mergeExtensionChannelList()
+        }
+
         //1.check channel List
-        if (mChannelList == null || mChannelList.isEmpty()) {
+        if (channelList == null || channelList.isEmpty()) {
             throw new InvalidUserDataException("Task ${name} channel list is empty , please check it")
         }
+
+        println("Task ${name} , channelList : ${channelList}")
 
         //2.check output dir
         if (mOutputDir == null) {
@@ -163,7 +167,14 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
      * @return
      */
     String getChannelApkName(String channel) {
-        def buildTime = new SimpleDateFormat('yyyyMMdd-HHmmss').format(new Date())
+        def buildTime
+        try {
+            buildTime = new SimpleDateFormat(mChannelExtension.buildTimeDateFormat).format(new Date())
+        }catch (Exception e){
+            println("Task ${name} , getChannelApkName Exception : ${e.toString()}")
+            buildTime = new SimpleDateFormat(ChannelConfigurationExtension.DEFAULT_DATE_FORMAT).format(new Date())
+        }
+
         def keyValue = [
                 'appName'    : project.name,
                 'flavorName' : channel,
@@ -183,20 +194,20 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
         //check v1 signature , if not have v1 signature , you can't install Apk below 7.0
         println("------ ${project.name}:${name} generate v1 channel apk  , begin ------")
 
-        if (!V1SchemeUtil.containV1Signature(mBaseApk)) {
+        if (!ChannelReader.containV1Signature(mBaseApk)) {
             throw new GradleException(":${name} " +
                     "apk ${apkPath} not signed by v1 , please check your signingConfig , if not have v1 signature , you can't install Apk below 7.0")
         }
 
-        mChannelList.each { channel ->
+        channelList.each { channel ->
             String apkChannelName = getChannelApkName(channel)
             println "generateV1ChannelApk , channel = ${channel} , apkChannelName = ${apkChannelName}"
             File destFile = new File(mOutputDir, apkChannelName)
             copyTo(mBaseApk, destFile)
-            V1SchemeUtil.writeChannel(destFile, channel)
+            ChannelWriter.addChannelByV1(destFile, channel)
             if (!mChannelExtension.isFastMode){
                 //1. verify channel info
-                if (V1SchemeUtil.verifyChannel(destFile, channel)) {
+                if (ChannelReader.verifyChannelByV1(destFile, channel)) {
                     println("generateV1ChannelApk , ${destFile} add channel success")
                 } else {
                     throw new GradleException("generateV1ChannelApk , ${destFile} add channel failure")
@@ -216,30 +227,33 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
     void generateV2ChannelApk() {
         println("------ ${project.name}:${name} generate v2 channel apk  , begin ------")
 
-        ApkSectionInfo apkSectionInfo = V2SchemeUtil.getApkSectionInfo(mBaseApk)
-        mChannelList.each { channel ->
+        ApkSectionInfo apkSectionInfo = IdValueWriter.getApkSectionInfo(mBaseApk, mChannelExtension.lowMemory)
+        channelList.each { channel ->
             String apkChannelName = getChannelApkName(channel)
             println "generateV2ChannelApk , channel = ${channel} , apkChannelName = ${apkChannelName}"
             File destFile = new File(mOutputDir, apkChannelName)
-            ChannelWriter.addChannel(apkSectionInfo, destFile, channel)
+            if (apkSectionInfo.lowMemory){
+                copyTo(mBaseApk, destFile)
+            }
+            ChannelWriter.addChannelByV2(apkSectionInfo, destFile, channel)
             if (!mChannelExtension.isFastMode){
                 //1. verify channel info
-                if (ChannelReader.verifyChannel(destFile, channel)) {
+                if (ChannelReader.verifyChannelByV2(destFile, channel)) {
                     println("generateV2ChannelApk , ${destFile} add channel success")
                 } else {
                     throw new GradleException("generateV2ChannelApk , ${destFile} add channel failure")
                 }
                 //2. verify v2 signature
-                //boolean success = V2SchemeUtil.verifyChannelApk(destFile.getAbsolutePath())
                 boolean success = VerifyApk.verifyV2Signature(destFile)
                 if (success) {
                     println "generateV2ChannelApk , after add channel , apk ${destFile} v2 verify success"
                 } else {
                     throw new GradleException("generateV2ChannelApk , after add channel , apk ${destFile} v2 verify failure")
                 }
-//            if (!verifyV2Signature(destFile.getAbsolutePath())) {
-//                throw new GradleException("verify error")
-//            }
+            }
+            apkSectionInfo.rewind()
+            if (!mChannelExtension.isFastMode){
+                apkSectionInfo.checkEocdCentralDirOffset()
             }
         }
 

@@ -33,7 +33,7 @@ signingConfigs {
 ``` groovy
 dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0'
-        classpath 'com.leon.channel:plugin:1.1.7'
+        classpath 'com.leon.channel:plugin:2.0.0'
 }
 ```
 ## 引用VasDolly Plugin
@@ -45,7 +45,7 @@ apply plugin: 'channel'
 在主App工程的`build.gradle`中，添加读取渠道信息的helper类库依赖：
 ``` groovy
 dependencies {
-    api 'com.leon.channel:helper:1.1.7'
+    api 'com.leon.channel:helper:2.0.0'
 }
 ```
 ## 配置渠道列表
@@ -76,8 +76,12 @@ channel{
     baseOutputDir = new File(project.buildDir,"xxx")
     //多渠道包的命名规则，默认为：${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}
     apkNameFormat ='${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}'
-    //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上）
+    //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上，默认为false）
     isFastMode = false
+    //buildTime的时间格式，默认格式：yyyyMMdd-HHmmss
+    buildTimeDateFormat = 'yyyyMMdd-HH:mm:ss'
+    //低内存模式（仅针对V2签名，默认为false）：只把签名块、中央目录和EOCD读取到内存，不把最大头的内容块读取到内存，在手机上合成APK时，可以使用该模式
+    lowMemory = false
 }
 ```
 其中，多渠道包的命名规则中，可使用以下字段：
@@ -88,9 +92,11 @@ channel{
 * buildType ： 当前Variant的buildType，即debug or release
 * flavorName ： 当前的渠道名称
 * appId ： 当前Variant的applicationId
-* buildTime ： 当前编译构建日期时间，格式 yyyyMMdd-HHmmss
+* buildTime ： 当前编译构建日期时间，时间格式可以自定义，默认格式：yyyyMMdd-HHmmss
 
 然后，通过`gradle channelDebug`、`gradle channelRelease`命令分别生成Debug和Release的多渠道包。
+
+为了方便临时生成渠道包进行测试，我们从`v2.0.0`开始支持添加渠道参数：`gradle channelDebug(channelRelease) -Pchannels=yingyongbao,gamecenter`，这里通过属性`channels`指定的渠道列表拥有更高的优先级，且和原始的文件方式是互斥的。
 
 ### 根据已有基础包重新生成多渠道包
 若是根据已有基础包重新生成多渠道包，首先要配置渠道文件、基础包的路径和渠道包的输出目录：
@@ -104,11 +110,15 @@ rebuildChannel {
   debugOutputDir = Debug渠道包输出目录   
   //默认为new File(project.buildDir, "rebuildChannel/release")
   releaseOutputDir = Release渠道包输出目录
-  //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上）
+  //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上，默认为false）
   isFastMode = false
+  //低内存模式（仅针对V2签名，默认为false）：只把签名块、中央目录和EOCD读取到内存，不把最大头的内容块读取到内存，在手机上合成APK时，可以使用该模式
+  lowMemory = false
 }
 ```
 然后，通过`gradle rebuildChannel`命令生成多渠道包。
+
+为了方便临时生成渠道包进行测试，我们从`v2.0.0`开始支持添加渠道参数：`gradle rebuildChannel -Pchannels=yingyongbao,gamecenter`，这里通过属性`channels`指定的渠道列表拥有更高的优先级，且和原始的文件方式是互斥的。
 
 ## 通过命令行生成渠道包、读取渠道信息
 从`V1.0.5`版本开始支持命令行，具体使用文档可参考`command`目录下的[README](https://github.com/Tencent/VasDolly/blob/master/command/README.md)。

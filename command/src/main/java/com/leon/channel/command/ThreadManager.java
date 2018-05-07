@@ -18,6 +18,7 @@ package com.leon.channel.command;
 
 import com.com.leon.channel.verify.VerifyApk;
 import com.leon.channel.common.V1SchemeUtil;
+import com.leon.channel.reader.ChannelReader;
 
 import java.io.File;
 import java.util.List;
@@ -135,7 +136,7 @@ public class ThreadManager {
                     System.out.println("Thread : " + threadName + " , generateV1Channel , " + mDestFile + " fastMode success");
                 } else {
                     //1. verify channel info
-                    if (V1SchemeUtil.verifyChannel(mDestFile, mChannel)) {
+                    if (ChannelReader.verifyChannelByV1(mDestFile, mChannel)) {
                         System.out.println("Thread : " + threadName + " , generateV1Channel , " + mDestFile + " add channel success");
                     } else {
                         throw new RuntimeException("Thread : " + threadName + " , generateV1Channel , " + mDestFile + " add channel failure");

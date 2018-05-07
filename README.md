@@ -1,5 +1,5 @@
 [![license](http://img.shields.io/badge/license-BSD3-brightgreen.svg?style=flat)](https://github.com/Tencent/VasDolly/blob/master/LICENSE)
-[![Release Version](https://img.shields.io/badge/release-1.1.6-red.svg)](https://github.com/Tencent/VasDolly/releases)
+[![Release Version](https://img.shields.io/badge/release-2.0.0-red.svg)](https://github.com/Tencent/VasDolly/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/VasDolly/pulls)
 [![wiki](https://img.shields.io/badge/Wiki-open-brightgreen.svg)](https://github.com/Tencent/VasDolly/wiki)
 ---
@@ -138,6 +138,12 @@ String channel = ChannelReaderUtil.getChannel(getApplicationContext());
 
 # 问题反馈
 遇到任何问题或者有好的建议，欢迎提[issues](https://github.com/Tencent/VasDolly/issues)，或者QQ（1031747903）联系。
+
+# TODO
+
+1. 增加单元测试
+2. 防渠道信息篡改
+3. 提供Python脚本
 
 # License
 VasDolly is under the BSD license. See the [LICENSE](https://github.com/Tencent/VasDolly/blob/master/LICENSE) file for details.

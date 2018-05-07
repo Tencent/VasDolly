@@ -22,7 +22,6 @@ import com.leon.channel.common.verify.ApkSignatureSchemeV2Verifier;
 import com.leon.channel.common.verify.ZipUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;

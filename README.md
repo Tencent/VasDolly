@@ -1,5 +1,5 @@
 [![license](http://img.shields.io/badge/license-BSD3-brightgreen.svg?style=flat)](https://github.com/Tencent/VasDolly/blob/master/LICENSE)
-[![Release Version](https://img.shields.io/badge/release-2.0.0-red.svg)](https://github.com/Tencent/VasDolly/releases)
+[![Release Version](https://img.shields.io/badge/release-2.0.1-red.svg)](https://github.com/Tencent/VasDolly/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/VasDolly/pulls)
 [![wiki](https://img.shields.io/badge/Wiki-open-brightgreen.svg)](https://github.com/Tencent/VasDolly/wiki)
 ---
@@ -33,7 +33,7 @@ signingConfigs {
 ``` groovy
 dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0'
-        classpath 'com.leon.channel:plugin:2.0.0'
+        classpath 'com.leon.channel:plugin:2.0.1'
 }
 ```
 ## 引用VasDolly Plugin
@@ -45,7 +45,7 @@ apply plugin: 'channel'
 在主App工程的`build.gradle`中，添加读取渠道信息的helper类库依赖：
 ``` groovy
 dependencies {
-    api 'com.leon.channel:helper:2.0.0'
+    api 'com.leon.channel:helper:2.0.1'
 }
 ```
 ## 配置渠道列表

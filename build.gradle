@@ -9,7 +9,7 @@ ext {
 
 
     GROUP = 'com.leon.channel'
-    VERSION = '2.0.0'
+    VERSION = '2.0.1'
 
     //POM_PACKAGING = "pom"
     POM_DESCRIPTION = "VasDolly"

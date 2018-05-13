@@ -18,7 +18,6 @@ package com.leon.channel.command;
 
 import com.com.leon.channel.verify.VerifyApk;
 import com.leon.channel.common.ApkSectionInfo;
-import com.leon.channel.common.V1SchemeUtil;
 import com.leon.channel.common.verify.ApkSignatureSchemeV2Verifier;
 import com.leon.channel.reader.ChannelReader;
 import com.leon.channel.writer.ChannelWriter;
@@ -47,7 +46,6 @@ public class Util {
     public static final int DEFAULT_MODE = -1;
     public static final int V1_MODE = 1;
     public static final int V2_MODE = 2;
-
 
     /**
      * 获取APK的签名方式
@@ -146,15 +144,11 @@ public class Util {
 
         String apkName = baseApk.getName();
         //判断基础包是否已经包含渠道信息
-        try {
-            String testChannel = V1SchemeUtil.readChannel(baseApk);
-            if (testChannel != null) {
-                System.out.println("baseApk : " + baseApk.getAbsolutePath() + " has a channel : " + testChannel + ", only ignore");
-                return;
-            }
-        } catch (Exception e) {
-            //e.printStackTrace();
-            System.out.println("baseApk : " + baseApk.getAbsolutePath() + " not have channel info , so can add a channel info");
+
+        String testChannel = ChannelReader.getChannelByV1(baseApk);
+        if (testChannel != null) {
+            System.out.println("baseApk : " + baseApk.getAbsolutePath() + " has a channel : " + testChannel + ", only ignore");
+            return;
         }
 
         long startTime = System.currentTimeMillis();
@@ -166,7 +160,7 @@ public class Util {
                 System.out.println("generateV1ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
                 File destFile = new File(outputDir, apkChannelName);
                 copyFileUsingNio(baseApk, destFile);
-                V1SchemeUtil.writeChannel(destFile, channel);
+                ChannelWriter.addChannelByV1(destFile, channel);
                 if (!isFastMode) {
                     //1. verify channel info
                     if (ChannelReader.verifyChannelByV1(destFile, channel)) {
@@ -207,15 +201,10 @@ public class Util {
 
         String apkName = baseApk.getName();
         //判断基础包是否已经包含渠道信息
-        try {
-            String testChannel = V1SchemeUtil.readChannel(baseApk);
-            if (testChannel != null) {
-                System.out.println("baseApk : " + baseApk.getAbsolutePath() + " has a channel : " + testChannel + ", only ignore");
-                return;
-            }
-        } catch (Exception e) {
-            //e.printStackTrace();
-            System.out.println("baseApk : " + baseApk.getAbsolutePath() + " not have channel info , so can add a channel info");
+        String testChannel = ChannelReader.getChannelByV1(baseApk);
+        if (testChannel != null) {
+            System.out.println("baseApk : " + baseApk.getAbsolutePath() + " has a channel : " + testChannel + ", only ignore");
+            return;
         }
 
         long startTime = System.currentTimeMillis();
@@ -266,7 +255,7 @@ public class Util {
                     }
                 }
                 apkSectionInfo.rewind();
-                if (!isFastMode){
+                if (!isFastMode) {
                     apkSectionInfo.checkEocdCentralDirOffset();
                 }
             }

@@ -17,8 +17,8 @@
 package com.leon.channel.command;
 
 import com.com.leon.channel.verify.VerifyApk;
-import com.leon.channel.common.V1SchemeUtil;
 import com.leon.channel.reader.ChannelReader;
+import com.leon.channel.writer.ChannelWriter;
 
 import java.io.File;
 import java.util.List;
@@ -129,7 +129,7 @@ public class ThreadManager {
             String threadName = Thread.currentThread().getName();
             try {
                 Util.copyFileUsingNio(mBaseApk, mDestFile);
-                V1SchemeUtil.writeChannel(mDestFile, mChannel);
+                ChannelWriter.addChannelByV1(mDestFile, mChannel);
                 if (mIsFastMode) {
                     mChannelSuccessNum.incrementAndGet();//表示生成渠道包成功
                     mChannelSuccessList.add(mDestFile.getName());

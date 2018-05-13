@@ -17,7 +17,6 @@
 package com.leon.plugin.task
 
 import com.leon.channel.common.ApkSectionInfo
-import com.leon.channel.common.V1SchemeUtil
 import com.leon.channel.reader.ChannelReader
 import com.leon.channel.writer.ChannelWriter
 import com.com.leon.channel.verify.VerifyApk
@@ -85,16 +84,12 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
             throw new GradleException("Task ${name} " +
                     "apk ${apkPath} not signed by v1 , please check your signingConfig , if not have v1 signature , you can't install Apk below 7.0")
         }
-        try {
-            //判断基础包是否已经包含渠道信息
-            String testChannel = V1SchemeUtil.readChannel(baseApk);
-            if (testChannel != null) {
-                println("baseApk : " + baseApk.getAbsolutePath() + " has a channel : " + testChannel + ", only ignore");
-                return;
-            }
-        } catch (Exception e) {
-            //e.printStackTrace()
-            println("baseApk : " + baseApk.getAbsolutePath() + " not have channel info , so can add a channel info")
+
+        //判断基础包是否已经包含渠道信息
+        String testChannel = ChannelReader.getChannelByV1(baseApk)
+        if (testChannel != null) {
+            println("baseApk : " + baseApk.getAbsolutePath() + " has a channel : " + testChannel + ", only ignore");
+            return
         }
 
         println("------ Task ${name} generate v1 channel apk  , begin ------")
@@ -105,7 +100,7 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
             println "generateV1ChannelApk , channel = ${channel} , apkChannelName = ${apkChannelName}"
             File destFile = new File(outputDir, apkChannelName)
             copyTo(baseApk, destFile)
-            V1SchemeUtil.writeChannel(destFile, channel)
+            ChannelWriter.addChannelByV1(destFile, channel)
             if (!mRebuildChannelExtension.isFastMode) {
                 //1. verify channel info
                 if (ChannelReader.verifyChannelByV1(destFile, channel)) {
@@ -154,7 +149,7 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
                 }
             }
             apkSectionInfo.rewind()
-            if (!mRebuildChannelExtension.isFastMode){
+            if (!mRebuildChannelExtension.isFastMode) {
                 apkSectionInfo.checkEocdCentralDirOffset()
             }
         }

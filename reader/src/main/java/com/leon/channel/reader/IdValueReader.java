@@ -16,7 +16,6 @@
 
 package com.leon.channel.reader;
 
-import com.leon.channel.common.ApkSectionInfo;
 import com.leon.channel.common.ChannelConstants;
 import com.leon.channel.common.V2SchemeUtil;
 import com.leon.channel.common.verify.ApkSignatureSchemeV2Verifier;

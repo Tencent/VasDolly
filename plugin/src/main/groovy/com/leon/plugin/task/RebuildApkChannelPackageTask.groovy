@@ -19,7 +19,7 @@ package com.leon.plugin.task
 import com.leon.channel.common.ApkSectionInfo
 import com.leon.channel.reader.ChannelReader
 import com.leon.channel.writer.ChannelWriter
-import com.com.leon.channel.verify.VerifyApk
+import com.leon.channel.verify.VerifyApk
 import com.leon.channel.writer.IdValueWriter
 import com.leon.plugin.extension.RebuildChannelConfigurationExtension
 import org.gradle.api.GradleException

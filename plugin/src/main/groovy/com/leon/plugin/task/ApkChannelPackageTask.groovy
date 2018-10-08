@@ -21,7 +21,7 @@ import com.android.builder.model.SigningConfig
 import com.leon.channel.common.ApkSectionInfo
 import com.leon.channel.reader.ChannelReader
 import com.leon.channel.writer.ChannelWriter
-import com.com.leon.channel.verify.VerifyApk
+import com.leon.channel.verify.VerifyApk
 import com.leon.channel.writer.IdValueWriter
 import com.leon.plugin.extension.ChannelConfigurationExtension
 import groovy.text.SimpleTemplateEngine

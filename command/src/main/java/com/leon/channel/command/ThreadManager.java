@@ -16,7 +16,7 @@
 
 package com.leon.channel.command;
 
-import com.com.leon.channel.verify.VerifyApk;
+import com.leon.channel.verify.VerifyApk;
 import com.leon.channel.reader.ChannelReader;
 import com.leon.channel.writer.ChannelWriter;
 

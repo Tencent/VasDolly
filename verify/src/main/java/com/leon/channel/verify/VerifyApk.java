@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.com.leon.channel.verify;
+package com.leon.channel.verify;
 
 import com.android.apksig.ApkVerifier;
 import com.android.apksig.apk.ApkFormatException;

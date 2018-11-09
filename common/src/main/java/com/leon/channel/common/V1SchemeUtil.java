@@ -51,55 +51,63 @@ public class V1SchemeUtil {
         if (file == null || !file.exists() || !file.isFile() || channel == null || channel.isEmpty()) {
             throw new Exception("param error , file : " + file + " , channel : " + channel);
         }
-
+        RandomAccessFile raf = null;
         byte[] comment = channel.getBytes(ChannelConstants.CONTENT_CHARSET);
         Pair<ByteBuffer, Long> eocdAndOffsetInFile = getEocd(file);
         if (eocdAndOffsetInFile.getFirst().remaining() == ZipUtils.ZIP_EOCD_REC_MIN_SIZE) {
             System.out.println("file : " + file.getAbsolutePath() + " , has no comment");
-
-            RandomAccessFile raf = new RandomAccessFile(file, "rw");
-            //1.locate comment length field
-            raf.seek(file.length() - ChannelConstants.SHORT_LENGTH);
-            //2.write zip comment length (content field length + length field length + magic field length)
-            writeShort(comment.length + ChannelConstants.SHORT_LENGTH + ChannelConstants.V1_MAGIC.length, raf);
-            //3.write content
-            raf.write(comment);
-            //4.write content length
-            writeShort(comment.length, raf);
-            //5. write magic bytes
-            raf.write(ChannelConstants.V1_MAGIC);
-            raf.close();
+            try {
+                raf = new RandomAccessFile(file, "rw");
+                //1.locate comment length field
+                raf.seek(file.length() - ChannelConstants.SHORT_LENGTH);
+                //2.write zip comment length (content field length + length field length + magic field length)
+                writeShort(comment.length + ChannelConstants.SHORT_LENGTH + ChannelConstants.V1_MAGIC.length, raf);
+                //3.write content
+                raf.write(comment);
+                //4.write content length
+                writeShort(comment.length, raf);
+                //5. write magic bytes
+                raf.write(ChannelConstants.V1_MAGIC);
+            } finally {
+                if (raf != null) {
+                    raf.close();
+                }
+            }
         } else {
             System.out.println("file : " + file.getAbsolutePath() + " , has comment");
             if (containV1Magic(file)) {
                 try {
                     String existChannel = readChannel(file);
-                    if (existChannel != null){
+                    if (existChannel != null) {
                         file.delete();
                         throw new ChannelExistException("file : " + file.getAbsolutePath() + " has a channel : " + existChannel + ", only ignore");
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
 
             int existCommentLength = ZipUtils.getUnsignedInt16(eocdAndOffsetInFile.getFirst(), ZipUtils.ZIP_EOCD_REC_MIN_SIZE - ChannelConstants.SHORT_LENGTH);
             int newCommentLength = existCommentLength + comment.length + ChannelConstants.SHORT_LENGTH + ChannelConstants.V1_MAGIC.length;
-            RandomAccessFile raf = new RandomAccessFile(file, "rw");
-            //1.locate comment length field
-            raf.seek(eocdAndOffsetInFile.getSecond() + ZipUtils.ZIP_EOCD_REC_MIN_SIZE - ChannelConstants.SHORT_LENGTH);
-            //2.write zip comment length (existCommentLength + content field length + length field length + magic field length)
-            writeShort(newCommentLength, raf);
-            //3.locate where channel should begin
-            raf.seek(eocdAndOffsetInFile.getSecond() + ZipUtils.ZIP_EOCD_REC_MIN_SIZE + existCommentLength);
-            //4.write content
-            raf.write(comment);
-            //5.write content length
-            writeShort(comment.length, raf);
-            //6.write magic bytes
-            raf.write(ChannelConstants.V1_MAGIC);
-            raf.close();
-
+            try {
+                raf = new RandomAccessFile(file, "rw");
+                //1.locate comment length field
+                raf.seek(eocdAndOffsetInFile.getSecond() + ZipUtils.ZIP_EOCD_REC_MIN_SIZE - ChannelConstants.SHORT_LENGTH);
+                //2.write zip comment length (existCommentLength + content field length + length field length + magic field length)
+                writeShort(newCommentLength, raf);
+                //3.locate where channel should begin
+                raf.seek(eocdAndOffsetInFile.getSecond() + ZipUtils.ZIP_EOCD_REC_MIN_SIZE + existCommentLength);
+                //4.write content
+                raf.write(comment);
+                //5.write content length
+                writeShort(comment.length, raf);
+                //6.write magic bytes
+                raf.write(ChannelConstants.V1_MAGIC);
+            } finally {
+                if (raf != null) {
+                    raf.close();
+                }
+            }
         }
     }
 
@@ -144,22 +152,6 @@ public class V1SchemeUtil {
             }
         }
     }
-
-    /**
-     * verify channel info
-     *
-     * @param file
-     * @param channel
-     * @return
-     * @throws Exception
-     */
-    public static boolean verifyChannel(File file, String channel) throws Exception {
-        if (channel != null) {
-            return channel.equals(readChannel(file));
-        }
-        return false;
-    }
-
 
     private static void writeShort(int i, DataOutput out) throws IOException {
         ByteBuffer bb = ByteBuffer.allocate(ChannelConstants.SHORT_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
@@ -229,14 +221,22 @@ public class V1SchemeUtil {
         if (apk == null || !apk.exists() || !apk.isFile()) {
             return null;
         }
-        RandomAccessFile raf = new RandomAccessFile(apk, "r");
-        //find the EOCD
-        Pair<ByteBuffer, Long> eocdAndOffsetInFile = ApkSignatureSchemeV2Verifier.getEocd(raf);
-        if (ZipUtils.isZip64EndOfCentralDirectoryLocatorPresent(raf, eocdAndOffsetInFile.getSecond())) {
-            throw new ApkSignatureSchemeV2Verifier.SignatureNotFoundException("ZIP64 APK not supported");
+        RandomAccessFile raf = null;
+        try {
+            raf = new RandomAccessFile(apk, "r");
+            //find the EOCD
+            Pair<ByteBuffer, Long> eocdAndOffsetInFile = ApkSignatureSchemeV2Verifier.getEocd(raf);
+            if (ZipUtils.isZip64EndOfCentralDirectoryLocatorPresent(raf, eocdAndOffsetInFile.getSecond())) {
+                throw new ApkSignatureSchemeV2Verifier.SignatureNotFoundException("ZIP64 APK not supported");
+            }
+
+            return eocdAndOffsetInFile;
+        }finally {
+            if (raf != null){
+                raf.close();
+            }
         }
 
-        return eocdAndOffsetInFile;
     }
 
     /**

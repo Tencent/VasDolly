@@ -1,4 +1,4 @@
-package leon.com.apkchannelpackage;
+package com.leon.dolly;
 
 import org.junit.Test;
 

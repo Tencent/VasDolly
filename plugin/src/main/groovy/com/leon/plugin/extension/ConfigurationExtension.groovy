@@ -20,9 +20,21 @@ import org.gradle.api.Project
 
 public class ConfigurationExtension {
 
-    public Project mProject;
+    public Project mProject
 
-    public File channelFile;
+    public File channelFile
+
+    //fast mode : generate channel apk without checking(speed can be increased by up to 10 times)
+    public boolean isFastMode
+
+    //only fit v2 signature
+    public boolean lowMemory
+
+    public ConfigurationExtension(Project project){
+        this.mProject = project
+        isFastMode = false
+        lowMemory = false
+    }
 
     public List<String> getExtensionChannelList() {
         if (channelFile != null && channelFile.isFile() && channelFile.exists()) {
@@ -35,7 +47,7 @@ public class ConfigurationExtension {
                     println("Extension skip invalid channel line , line num is ${num} , content is ${line}")
                 }
             }
-            println("${mProject.name} ExtensionChannelList is ${channelList}")
+            println("${mProject.name} extension channel list is ${channelList}")
             return channelList
         }
         return null

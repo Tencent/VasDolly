@@ -50,11 +50,17 @@ public class ApkSignatureSchemeV2Verifier {
      * <p><b>NOTE: This method does not verify the signature.</b>
      */
     public static boolean hasSignature(String apkFile) throws IOException {
-        try (RandomAccessFile apk = new RandomAccessFile(apkFile, "r")) {
+        RandomAccessFile apk = null;
+        try {
+            apk = new RandomAccessFile(apkFile, "r");
             findSignature(apk);
             return true;
         } catch (SignatureNotFoundException e) {
             return false;
+        }finally {
+            if (apk != null){
+                apk.close();
+            }
         }
     }
 

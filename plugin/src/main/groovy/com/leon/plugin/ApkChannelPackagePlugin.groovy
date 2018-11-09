@@ -18,6 +18,7 @@ package com.leon.plugin
 
 import com.leon.plugin.extension.RebuildChannelConfigurationExtension
 import com.leon.plugin.task.RebuildApkChannelPackageTask
+import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
 import com.leon.plugin.extension.ChannelConfigurationExtension
@@ -25,27 +26,40 @@ import com.leon.plugin.task.ApkChannelPackageTask
 import org.gradle.api.Task
 
 class ApkChannelPackagePlugin implements org.gradle.api.Plugin<Project> {
-    static final TAG = "ApkChannelPackagePlugin"
     static final String CHANNEL_FILE = "channel_file"
-    Project mProject;
-    ChannelConfigurationExtension mChannelConfigurationExtension;
-    RebuildChannelConfigurationExtension mRebuildChannelConfigurationExtension;
-    List<String> mChanneInfolList;
+    static final String PROPERTY_CHANNELS = "channels"
+    Project mProject
+    ChannelConfigurationExtension mChannelConfigurationExtension
+    RebuildChannelConfigurationExtension mRebuildChannelConfigurationExtension
+    private List<String> mChanneInfolList
 
 
     @Override
     void apply(Project project) {
-        this.mProject = project;
+        this.mProject = project
         if (!project.plugins.hasPlugin("com.android.application")) {
-            throw new ProjectConfigurationException("plugin 'com.android.application' must be apply", null);
+            throw new ProjectConfigurationException("plugin 'com.android.application' must be apply", null)
         }
 
         //@todo 这里要根据打包模式，进行gradle版本和配置的校验
-
         mChannelConfigurationExtension = project.extensions.create('channel', ChannelConfigurationExtension, project)
         mRebuildChannelConfigurationExtension = project.extensions.create('rebuildChannel', RebuildChannelConfigurationExtension, project)
-        //get the channel list
-        mChanneInfolList = getChannelListInfo()
+
+        if (mProject.hasProperty(PROPERTY_CHANNELS)){
+            mChanneInfolList = []
+            def tempChannelsProperty = mProject.getProperties().get(PROPERTY_CHANNELS)
+            if (tempChannelsProperty != null && tempChannelsProperty.trim().length() > 0) {
+                tempChannelsProperty.split(",").each {
+                    mChanneInfolList.add(it.trim())
+                }
+            }
+            if (mChanneInfolList.isEmpty()){
+                throw new InvalidUserDataException("Property(${PROPERTY_CHANNELS}) channel list is empty , please fix it")
+            }
+        }else {
+            //get the channel list
+            mChanneInfolList = getChannelListInfo()
+        }
 
         project.afterEvaluate {
             project.android.applicationVariants.all { variant ->
@@ -56,14 +70,16 @@ class ApkChannelPackagePlugin implements org.gradle.api.Plugin<Project> {
                     mVariant = variant;
                     mChannelExtension = mChannelConfigurationExtension;
                     mOutputDir = new File(mChannelConfigurationExtension.baseOutputDir, dirName)
-                    mChannelList = mChanneInfolList
+                    isMergeExtensionChannelList = !mProject.hasProperty(PROPERTY_CHANNELS)
+                    channelList = mChanneInfolList
                     dependsOn variant.assemble
                 }
             }
         }
 
         project.task("reBuildChannel", type: RebuildApkChannelPackageTask) {
-            mChannelList = mChanneInfolList
+            isMergeExtensionChannelList = !mProject.hasProperty(PROPERTY_CHANNELS)
+            channelList = mChanneInfolList
             mRebuildChannelExtension = mRebuildChannelConfigurationExtension
         }
     }

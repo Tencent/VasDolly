@@ -41,10 +41,10 @@ public class RebuildChannelConfigurationExtension extends ConfigurationExtension
      */
     File releaseOutputDir;
 
-    RebuildChannelConfigurationExtension(Project project) {
-        mProject = project;
-        debugOutputDir = new File(project.buildDir, "rebuildChannel/debug");
-        releaseOutputDir = new File(project.buildDir, "rebuildChannel/release");
+    public RebuildChannelConfigurationExtension(Project project) {
+        super(project)
+        debugOutputDir = new File(project.buildDir, "rebuildChannel/debug")
+        releaseOutputDir = new File(project.buildDir, "rebuildChannel/release")
     }
 
 

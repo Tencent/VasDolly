@@ -439,6 +439,13 @@ public class ApkSignatureSchemeV2Verifier {
     private static final int APK_SIG_BLOCK_MIN_SIZE = 32;
 
     public static final int APK_SIGNATURE_SCHEME_V2_BLOCK_ID = 0x7109871a;
+    /**
+     * The padding in APK SIG BLOCK (V3 scheme introduced)
+     * See https://android.googlesource.com/platform/tools/apksig/+/master/src/main/java/com/android/apksig/internal/apk/ApkSigningBlockUtils.java
+     */
+    public static final int VERITY_PADDING_BLOCK_ID = 0x42726577;
+
+    public static final int ANDROID_COMMON_PAGE_ALIGNMENT_BYTES = 4096;
 
     public static Pair<ByteBuffer, Long> findApkSigningBlock(
             RandomAccessFile apk, long centralDirOffset)

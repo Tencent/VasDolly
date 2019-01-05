@@ -56,20 +56,20 @@ public class V2SchemeUtil {
             entryCount++;
             if (pairs.remaining() < 8) {
                 throw new ApkSignatureSchemeV2Verifier.SignatureNotFoundException(
-                        "Insufficient data to read size of APK Signing Block entry #" + entryCount);
+                    "Insufficient data to read size of APK Signing Block entry #" + entryCount);
             }
             long lenLong = pairs.getLong();
             if ((lenLong < 4) || (lenLong > Integer.MAX_VALUE)) {
                 throw new ApkSignatureSchemeV2Verifier.SignatureNotFoundException(
-                        "APK Signing Block entry #" + entryCount
-                                + " size out of range: " + lenLong);
+                    "APK Signing Block entry #" + entryCount
+                        + " size out of range: " + lenLong);
             }
             int len = (int) lenLong;
             int nextEntryPos = pairs.position() + len;
             if (len > pairs.remaining()) {
                 throw new ApkSignatureSchemeV2Verifier.SignatureNotFoundException(
-                        "APK Signing Block entry #" + entryCount + " size out of range: " + len
-                                + ", available: " + pairs.remaining());
+                    "APK Signing Block entry #" + entryCount + " size out of range: " + len
+                        + ", available: " + pairs.remaining());
             }
             int id = pairs.getInt();
             idValues.put(id, ApkSignatureSchemeV2Verifier.getByteBuffer(pairs, len - 4));//4 is length of id
@@ -81,7 +81,7 @@ public class V2SchemeUtil {
 
         if (idValues.isEmpty()) {
             throw new ApkSignatureSchemeV2Verifier.SignatureNotFoundException(
-                    "not have Id-Value Pair in APK Signing Block entry #" + entryCount);
+                "not have Id-Value Pair in APK Signing Block entry #" + entryCount);
         }
 
         return idValues;
@@ -116,8 +116,8 @@ public class V2SchemeUtil {
             //3. find the apk V2 signature block
             Pair<ByteBuffer, Long> apkSignatureBlock = ApkSignatureSchemeV2Verifier.findApkSigningBlock(apk, centralDirOffset);//找到V2签名块的内容和偏移量
             return apkSignatureBlock.getFirst();
-        }finally {
-            if (apk != null){
+        } finally {
+            if (apk != null) {
                 apk.close();
             }
         }
@@ -167,8 +167,8 @@ public class V2SchemeUtil {
 
             System.out.println("baseApk : " + baseApk.getAbsolutePath() + "\nApkSectionInfo = " + apkSectionInfo);
             return apkSectionInfo;
-        }finally {
-            if (apk != null){
+        } finally {
+            if (apk != null) {
                 apk.close();
             }
         }
@@ -230,11 +230,41 @@ public class V2SchemeUtil {
         //     (size - 4) bytes: value
         // uint64:  size (same as the one above)
         // uint128: magic
+//
+//        final ByteBuffer dummy = ByteBuffer.allocate(100).order(ByteOrder.LITTLE_ENDIAN);
+//        idValueMap.put(ApkSignatureSchemeV2Verifier.VERITY_PADDING_BLOCK_ID, dummy);
 
         long length = 16 + 8;//length is size (excluding this field) , 24 = 16 byte (magic) + 8 byte (length of the signing block excluding first 8 byte)
         for (Map.Entry<Integer, ByteBuffer> entry : idValueMap.entrySet()) {
             ByteBuffer byteBuffer = entry.getValue();
             length += 8 + 4 + (byteBuffer.remaining());
+        }
+
+        // If there has padding block, it needs to be update.
+        final boolean needPadding = idValueMap.containsKey(ApkSignatureSchemeV2Verifier.VERITY_PADDING_BLOCK_ID);
+        System.out.println("generateApkSigningBlock , needPadding = " + needPadding);
+        if (needPadding) {
+            int paddingBlockSize = 8 + 4 + (idValueMap.get(ApkSignatureSchemeV2Verifier.VERITY_PADDING_BLOCK_ID).remaining());
+            // update length of apk signing block
+            length -= paddingBlockSize;
+            idValueMap.remove(ApkSignatureSchemeV2Verifier.VERITY_PADDING_BLOCK_ID);
+
+            int remainder = (int) ((length + 8) % ApkSignatureSchemeV2Verifier.ANDROID_COMMON_PAGE_ALIGNMENT_BYTES);
+            if (remainder != 0) {
+                // Calculate the number of bytes that need to be filled
+                int padding = ApkSignatureSchemeV2Verifier.ANDROID_COMMON_PAGE_ALIGNMENT_BYTES - remainder;
+                // padding size must not be less than 8 + 4 bytes.
+                if (padding < 8 + 4) {
+                    padding += ApkSignatureSchemeV2Verifier.ANDROID_COMMON_PAGE_ALIGNMENT_BYTES;
+                }
+                // update length of apk signing block
+                length += padding;
+                // Calculate the buffer size of padding block
+                int bufferSize = padding - 8 - 4;//8 is the size of padding bolck, 4 is the id of padding bolck.
+                final ByteBuffer dummy = ByteBuffer.allocate(bufferSize).order(ByteOrder.LITTLE_ENDIAN);
+                idValueMap.put(ApkSignatureSchemeV2Verifier.VERITY_PADDING_BLOCK_ID, dummy);
+                System.out.println("generateApkSigningBlock , final length = " + length + " padding = " + padding + " bufferSize = " + bufferSize);
+            }
         }
 
         ByteBuffer newApkV2Scheme = ByteBuffer.allocate((int) (length + 8));

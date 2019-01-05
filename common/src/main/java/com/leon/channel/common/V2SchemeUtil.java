@@ -237,6 +237,33 @@ public class V2SchemeUtil {
             length += 8 + 4 + (byteBuffer.remaining());
         }
 
+        // If there has padding block, it needs to be update.
+        final boolean needPadding = idValueMap.containsKey(ApkSignatureSchemeV2Verifier.VERITY_PADDING_BLOCK_ID);
+        System.out.println("generateApkSigningBlock , needPadding = " + needPadding);
+        if (needPadding) {
+            int paddingBlockSize = 8 + 4 + (idValueMap.get(ApkSignatureSchemeV2Verifier.VERITY_PADDING_BLOCK_ID).remaining());
+            // update length of apk signing block
+            length -= paddingBlockSize;
+            idValueMap.remove(ApkSignatureSchemeV2Verifier.VERITY_PADDING_BLOCK_ID);
+
+            int remainder = (int) ((length + 8) % ApkSignatureSchemeV2Verifier.ANDROID_COMMON_PAGE_ALIGNMENT_BYTES);
+            if (remainder != 0) {
+                // Calculate the number of bytes that need to be filled
+                int padding = ApkSignatureSchemeV2Verifier.ANDROID_COMMON_PAGE_ALIGNMENT_BYTES - remainder;
+                // padding size must not be less than 8 + 4 bytes.
+                if (padding < 8 + 4) {
+                    padding += ApkSignatureSchemeV2Verifier.ANDROID_COMMON_PAGE_ALIGNMENT_BYTES;
+                }
+                // update length of apk signing block
+                length += padding;
+                // Calculate the buffer size of padding block
+                int bufferSize = padding - 8 - 4;//8 is the size of padding bolck, 4 is the id of padding bolck.
+                final ByteBuffer dummy = ByteBuffer.allocate(bufferSize).order(ByteOrder.LITTLE_ENDIAN);
+                idValueMap.put(ApkSignatureSchemeV2Verifier.VERITY_PADDING_BLOCK_ID, dummy);
+                System.out.println("generateApkSigningBlock , final length = " + length + " padding = " + padding + " bufferSize = " + bufferSize);
+            }
+        }
+
         ByteBuffer newApkV2Scheme = ByteBuffer.allocate((int) (length + 8));
         newApkV2Scheme.order(ByteOrder.LITTLE_ENDIAN);
         newApkV2Scheme.putLong(length);//1.write size (excluding this field)

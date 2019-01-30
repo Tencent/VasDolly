@@ -112,6 +112,37 @@ public class V1SchemeUtil {
     }
 
     /**
+     * remove channel from apk in the v1 signature mode
+     */
+    public static void removeChannelByV1(File file) throws Exception {
+        if (file == null || !file.exists() || !file.isFile()) {
+            throw new Exception("param error , file : " + file);
+        }
+        RandomAccessFile raf = null;
+        Pair<ByteBuffer, Long> eocdAndOffsetInFile = getEocd(file);
+        if (eocdAndOffsetInFile.getFirst().remaining() == ZipUtils.ZIP_EOCD_REC_MIN_SIZE) {
+            System.out.println("file : " + file.getName() + " , has no comment");
+        } else {
+            System.out.println("file : " + file.getName() + " , has comment");
+            int existCommentLength = ZipUtils.getUnsignedInt16(eocdAndOffsetInFile.getFirst(), ZipUtils.ZIP_EOCD_REC_MIN_SIZE - ChannelConstants.SHORT_LENGTH);
+            try {
+                raf = new RandomAccessFile(file, "rw");
+                //1.locate comment length field
+                raf.seek(eocdAndOffsetInFile.getSecond() + ZipUtils.ZIP_EOCD_REC_MIN_SIZE - ChannelConstants.SHORT_LENGTH);
+                //2.write zip comment length (0)
+                writeShort(0, raf);
+                //3. modify the length of apk file
+                raf.setLength(file.length() - existCommentLength);
+                System.out.println("file : " + file.getName() + " , remove comment success");
+            } finally {
+                if (raf != null) {
+                    raf.close();
+                }
+            }
+        }
+    }
+
+    /**
      * read channel from apk
      *
      * @param file

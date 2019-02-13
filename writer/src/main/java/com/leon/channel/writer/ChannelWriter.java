@@ -139,8 +139,11 @@ public class ChannelWriter {
     }
 
 
-    public static void removeChannelByV1(File destApk) {
-
+    /**
+     * remove channel from apk in the v1 signature mode
+     */
+    public static void removeChannelByV1(File destApk) throws Exception  {
+        V1SchemeUtil.removeChannelByV1(destApk);
     }
 
 }

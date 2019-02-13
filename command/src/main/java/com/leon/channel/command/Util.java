@@ -273,7 +273,11 @@ public class Util {
     public static boolean removeChannel(File channelApk) {
         int mode = judgeChannelPackageMode(channelApk);
         if (mode == V1_MODE) {
-            System.out.println("Now we dissupport to remove channel info from apk in the v1 signature mode , we will achieve it soon! ");
+            try {
+                ChannelWriter.removeChannelByV1(channelApk);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else if (mode == V2_MODE) {
             try {
                 ChannelWriter.removeChannelByV2(channelApk, true);

@@ -45,7 +45,7 @@ apply plugin: 'channel'
 在主App工程的`build.gradle`中，添加读取渠道信息的helper类库依赖：
 ``` groovy
 dependencies {
-    api 'com.leon.channel:helper:2.0.1'
+    api 'com.leon.channel:helper:2.0.2'
 }
 ```
 ## 配置渠道列表

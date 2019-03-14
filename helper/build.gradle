@@ -29,9 +29,9 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':reader')
-    testCompile 'junit:junit:4.12'
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api project(':reader')
+    testImplementation 'junit:junit:4.12'
 }
 
 /**

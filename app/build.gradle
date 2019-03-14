@@ -5,7 +5,7 @@ apply plugin: 'channel'
 buildscript {
     repositories {
         maven {
-            url "file:///Users/leontli/localMaven"
+            url "file:///Users/litao/localMaven"
         }
         google()
         jcenter()
@@ -20,9 +20,8 @@ channel{
 }
 
 rebuildChannel {
-    baseDebugApk = new File(project.projectDir, "baseApk/v1-base-debug.apk")
-    baseReleaseApk = new File(project.projectDir, "baseApk/v2-base-debug.apk")
-    //isFastMode = true
+    baseDebugApk = new File(project.projectDir, "baseApk/app-debug.apk")
+    isFastMode = true
 }
 
 android {
@@ -43,8 +42,6 @@ android {
             storePassword "123456"
             keyAlias "leon"
             keyPassword "123456"
-            v1SigningEnabled true
-            v2SigningEnabled false
         }
 
         debug {
@@ -52,8 +49,6 @@ android {
             storePassword "123456"
             keyAlias "leon"
             keyPassword "123456"
-            v1SigningEnabled true
-            v2SigningEnabled false
         }
     }
 

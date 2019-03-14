@@ -1,15 +1,15 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 ext {
     minSdkVersion = 14
-    compileSdkVersion = 26
+    compileSdkVersion = 28
     targetSdkVersion = compileSdkVersion
-    buildToolsVersion = '26.0.2'
+    buildToolsVersion = '28.0.3'
 
     javaVersion = JavaVersion.VERSION_1_7
 
 
     GROUP = 'com.leon.channel'
-    VERSION = '2.0.1'
+    VERSION = '2.0.2'
 
     //POM_PACKAGING = "pom"
     POM_DESCRIPTION = "VasDolly"
@@ -28,13 +28,13 @@ ext {
 buildscript {
     repositories {
         maven {
-            url "file:///Users/leontli/localMaven"
+            url "file:///Users/litao/localMaven"
         }
         google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath 'com.android.tools.build:gradle:3.2.0'
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3"
         classpath "com.github.dcendents:android-maven-gradle-plugin:1.5"
     }
@@ -43,7 +43,7 @@ buildscript {
 allprojects {
     repositories {
         maven {
-            url "file:///Users/leontli/localMaven"
+            url "file:///Users/litao/localMaven"
         }
         google()
         jcenter()

@@ -48,7 +48,7 @@ install {
     }
 
     repositories.mavenDeployer {
-        repository(url: "file:///Users/leontli/localMaven")
+        repository(url: "file:///Users/litao/localMaven")
     }
 
 //    repositories.mavenDeployer {

@@ -30,7 +30,7 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':reader')
+    compile project(':reader')
     testImplementation 'junit:junit:4.12'
 }
 

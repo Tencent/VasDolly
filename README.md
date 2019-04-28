@@ -1,5 +1,5 @@
 [![license](http://img.shields.io/badge/license-BSD3-brightgreen.svg?style=flat)](https://github.com/Tencent/VasDolly/blob/master/LICENSE)
-[![Release Version](https://img.shields.io/badge/release-2.0.2-red.svg)](https://github.com/Tencent/VasDolly/releases)
+[![Release Version](https://img.shields.io/badge/release-2.0.3-red.svg)](https://github.com/Tencent/VasDolly/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/VasDolly/pulls)
 [![wiki](https://img.shields.io/badge/Wiki-open-brightgreen.svg)](https://github.com/Tencent/VasDolly/wiki)
 ---

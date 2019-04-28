@@ -29,9 +29,9 @@ android {
 }
 
 dependencies {
-    api fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':reader')
-    testImplementation 'junit:junit:4.12'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':reader')
+    testCompile 'junit:junit:4.12'
 }
 
 /**
@@ -55,7 +55,6 @@ dependencies {
  *  而api和implementation引用的类库，生成的maven pom不会带类库依赖信息
  *
  *  如果没有helper类库的依赖信息，那么就会导致在使用helper类库时，只会把helper类库打包到APK，而helper依赖的类库不会打包到APK，导致运行时找不到类
- *
  */
 
 

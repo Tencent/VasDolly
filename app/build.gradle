@@ -11,7 +11,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.leon.channel:plugin:2.0.1'
+        classpath 'com.leon.channel:plugin:2.0.3'
     }
 }
 
@@ -85,7 +85,7 @@ dependencies {
     })
     api 'com.android.support:appcompat-v7:26.1.0'
     //api：同老版本compile作用一样，即本module将会向外暴露其依赖的module变化，即若'helper'库发生了改变，那么本module以及所有依赖于本module的module都要重新编译
-    api 'com.leon.channel:helper:2.0.1'
+    api 'com.leon.channel:helper:2.0.3'
     //implementation：本module不会向外暴露其依赖的module变化，即若'junit'库发生改变，只会重编译本module，不会重编依赖于本module的外部module，即不会向外传播
     testImplementation 'junit:junit:4.12'
 }

@@ -116,8 +116,8 @@ public class Main {
                             String outPutPath = args[args.length - 1].trim();
                             File outputDir = new File(outPutPath);
                             if (outputDir.exists()) {
-                                if (!outputDir.isDirectory()) {
-                                    System.out.print("\n\nThe output path must be a directory!");
+                                if (!outputDir.isDirectory() && !outputDir.getAbsolutePath().endsWith(".apk")) {
+                                    System.out.print("\n\nThe output path must be a directory or apk path!");
                                     return;
                                 }
                             } else {

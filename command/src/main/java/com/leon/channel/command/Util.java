@@ -130,6 +130,22 @@ public class Util {
     }
 
     /**
+     * 如果目标是以.apk结尾则使用该路径，否则使用默认命名的路径
+     *
+     * @param dirOrApkPath 文件目录或指定的APK位置
+     * @param apkName      原始apk名
+     * @param channel      渠道号
+     * @return
+     */
+    private static File getDestinationFile(File dirOrApkPath, String apkName, String channel) {
+        if (dirOrApkPath.getAbsolutePath().endsWith(".apk")) {
+            return dirOrApkPath;
+        } else {
+            return new File(dirOrApkPath, getChannelApkName(apkName, channel));
+        }
+    }
+
+    /**
      * V1方式写入渠道
      *
      * @param baseApk
@@ -156,9 +172,8 @@ public class Util {
 
         try {
             for (String channel : channelList) {
-                String apkChannelName = getChannelApkName(apkName, channel);
-                System.out.println("generateV1ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
-                File destFile = new File(outputDir, apkChannelName);
+                File destFile = getDestinationFile(outputDir, apkName, channel);
+                System.out.println("generatedV1ChannelApk , channel = " + channel + " , apkChannelName = " + destFile.getName());
                 copyFileUsingNio(baseApk, destFile);
                 ChannelWriter.addChannelByV1(destFile, channel);
                 if (!isFastMode) {
@@ -232,9 +247,8 @@ public class Util {
         try {
             ApkSectionInfo apkSectionInfo = IdValueWriter.getApkSectionInfo(baseApk, false);
             for (String channel : channelList) {
-                String apkChannelName = getChannelApkName(apkName, channel);
-                System.out.println("generateV2ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
-                File destFile = new File(outputDir, apkChannelName);
+                File destFile = getDestinationFile(outputDir, apkName, channel);
+                System.out.println("generatedV2ChannelApk , channel = " + channel + " , apkChannelName = " + destFile.getName());
                 if (apkSectionInfo.lowMemory) {
                     copyFileUsingNio(baseApk, destFile);
                 }
@@ -364,6 +378,10 @@ public class Util {
         File parent = dest.getParentFile();
         if (parent != null && (!parent.exists())) {
             parent.mkdirs();
+        }
+        if (source.getAbsolutePath().equals(dest.getAbsolutePath())) {
+            System.out.println("No copying induces same absolute path, dest: " + dest.getAbsolutePath());
+            return;
         }
         try {
             inStream = new FileInputStream(source);

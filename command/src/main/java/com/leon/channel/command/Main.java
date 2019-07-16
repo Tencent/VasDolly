@@ -55,6 +55,7 @@ public class Main {
                 "    java -jar VasDolly.jar get -c /home/user/test.apk\n" +
                 "    java -jar VasDolly.jar remove -c /home/user/channel.apk\n" +
                 "    java -jar VasDolly.jar put -c \"channel1,channel2\" /home/user/base.apk /home/user/\n" +
+                "    java -jar VasDolly.jar put -c \"channel1\" /home/user/base.apk /home/user/base.apk\n" +
                 "    java -jar VasDolly.jar put -mtc \"channel1,channel2\" /home/user/base.apk /home/user/\n" +
                 "    java -jar VasDolly.jar put -c channel.txt /home/user/base.apk /home/user/\n" +
                 "    java -jar VasDolly.jar put -mtc channel.txt /home/user/base.apk /home/user/\n" +

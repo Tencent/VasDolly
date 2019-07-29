@@ -39,7 +39,7 @@ public class Main {
         String cmdHelp = "help";
 
         String help = "The commands are:\n" +
-                "java -jar VasDolly.jar [global options] [general args] [input file] [output directory] \n\n" +
+                "java -jar VasDolly.jar [global options] [general args] [input file] [output directory/.apk file] \n\n" +
                 "global options:\n\n" +
                 "    " + cmdGet + "                get apk information\n" +
                 "    " + cmdPut + "                put channel information\n" +

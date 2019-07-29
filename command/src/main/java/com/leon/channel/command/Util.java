@@ -31,6 +31,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -83,6 +84,10 @@ public class Util {
         return channel;
     }
 
+    public static void main(String[] args) {
+        File f = new File("C:/Users/caikun/Desktop/222.apk");
+        writeChannel(f, Arrays.asList("10000"), f, false, false);
+    }
     /**
      * 根据不同的方式写入渠道，并生成apk
      *
@@ -125,7 +130,8 @@ public class Util {
         } else if (ChannelReader.containV1Signature(baseApk)) {
             return V1_MODE;
         } else {
-            return DEFAULT_MODE;
+            System.out.println("no signature, v1 operation.");
+            return V1_MODE;
         }
     }
 

@@ -39,7 +39,7 @@ public class Main {
         String cmdHelp = "help";
 
         String help = "The commands are:\n" +
-                "java -jar VasDolly.jar [global options] [general args] [input file] [output directory] \n\n" +
+                "java -jar VasDolly.jar [global options] [general args] [input file] [output directory/.apk file] \n\n" +
                 "global options:\n\n" +
                 "    " + cmdGet + "                get apk information\n" +
                 "    " + cmdPut + "                put channel information\n" +
@@ -55,6 +55,7 @@ public class Main {
                 "    java -jar VasDolly.jar get -c /home/user/test.apk\n" +
                 "    java -jar VasDolly.jar remove -c /home/user/channel.apk\n" +
                 "    java -jar VasDolly.jar put -c \"channel1,channel2\" /home/user/base.apk /home/user/\n" +
+                "    java -jar VasDolly.jar put -c \"channel1\" /home/user/base.apk /home/user/base.apk\n" +
                 "    java -jar VasDolly.jar put -mtc \"channel1,channel2\" /home/user/base.apk /home/user/\n" +
                 "    java -jar VasDolly.jar put -c channel.txt /home/user/base.apk /home/user/\n" +
                 "    java -jar VasDolly.jar put -mtc channel.txt /home/user/base.apk /home/user/\n" +
@@ -116,8 +117,8 @@ public class Main {
                             String outPutPath = args[args.length - 1].trim();
                             File outputDir = new File(outPutPath);
                             if (outputDir.exists()) {
-                                if (!outputDir.isDirectory()) {
-                                    System.out.print("\n\nThe output path must be a directory!");
+                                if (!outputDir.isDirectory() && !outputDir.getAbsolutePath().endsWith(".apk")) {
+                                    System.out.print("\n\nThe output path must be a directory or apk path!");
                                     return;
                                 }
                             } else {

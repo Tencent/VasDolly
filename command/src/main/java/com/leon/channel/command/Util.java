@@ -31,6 +31,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -83,6 +84,10 @@ public class Util {
         return channel;
     }
 
+    public static void main(String[] args) {
+        File f = new File("C:/Users/caikun/Desktop/222.apk");
+        writeChannel(f, Arrays.asList("10000"), f, false, false);
+    }
     /**
      * 根据不同的方式写入渠道，并生成apk
      *
@@ -125,7 +130,24 @@ public class Util {
         } else if (ChannelReader.containV1Signature(baseApk)) {
             return V1_MODE;
         } else {
-            return DEFAULT_MODE;
+            System.out.println("no signature, v1 operation.");
+            return V1_MODE;
+        }
+    }
+
+    /**
+     * 如果目标是以.apk结尾则使用该路径，否则使用默认命名的路径
+     *
+     * @param dirOrApkPath 文件目录或指定的APK位置
+     * @param apkName      原始apk名
+     * @param channel      渠道号
+     * @return
+     */
+    private static File getDestinationFile(File dirOrApkPath, String apkName, String channel) {
+        if (dirOrApkPath.getAbsolutePath().endsWith(".apk")) {
+            return dirOrApkPath;
+        } else {
+            return new File(dirOrApkPath, getChannelApkName(apkName, channel));
         }
     }
 
@@ -156,9 +178,8 @@ public class Util {
 
         try {
             for (String channel : channelList) {
-                String apkChannelName = getChannelApkName(apkName, channel);
-                System.out.println("generateV1ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
-                File destFile = new File(outputDir, apkChannelName);
+                File destFile = getDestinationFile(outputDir, apkName, channel);
+                System.out.println("generatedV1ChannelApk , channel = " + channel + " , apkChannelName = " + destFile.getName());
                 copyFileUsingNio(baseApk, destFile);
                 ChannelWriter.addChannelByV1(destFile, channel);
                 if (!isFastMode) {
@@ -232,9 +253,8 @@ public class Util {
         try {
             ApkSectionInfo apkSectionInfo = IdValueWriter.getApkSectionInfo(baseApk, false);
             for (String channel : channelList) {
-                String apkChannelName = getChannelApkName(apkName, channel);
-                System.out.println("generateV2ChannelApk , channel = " + channel + " , apkChannelName = " + apkChannelName);
-                File destFile = new File(outputDir, apkChannelName);
+                File destFile = getDestinationFile(outputDir, apkName, channel);
+                System.out.println("generatedV2ChannelApk , channel = " + channel + " , apkChannelName = " + destFile.getName());
                 if (apkSectionInfo.lowMemory) {
                     copyFileUsingNio(baseApk, destFile);
                 }
@@ -364,6 +384,10 @@ public class Util {
         File parent = dest.getParentFile();
         if (parent != null && (!parent.exists())) {
             parent.mkdirs();
+        }
+        if (source.getAbsolutePath().equals(dest.getAbsolutePath())) {
+            System.out.println("No copying induces same absolute path, dest: " + dest.getAbsolutePath());
+            return;
         }
         try {
             inStream = new FileInputStream(source);

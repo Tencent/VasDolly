@@ -22,6 +22,10 @@
  ``` java
  java -jar VasDolly.jar put -c "channel1,channel2" /home/user/base.apk /home/user/
  ```
+ ### 通过指定某个渠道字符串添加渠道信息到目标APK
+ ``` java
+ java -jar VasDolly.jar put -c "channel1" /home/user/base.apk /home/user/base.apk
+ ```
  ### 通过指定渠道文件添加渠道信息
  ``` java
  java -jar VasDolly.jar put -c channel.txt /home/user/base.apk /home/user/

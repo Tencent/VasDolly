@@ -76,7 +76,7 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
      */
     void checkParameter() {
         //merge channel list
-        if (isMergeExtensionChannelList){
+        if (isMergeExtensionChannelList) {
             mergeExtensionChannelList()
         }
 
@@ -142,20 +142,23 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
      * @return
      */
     SigningConfig getSigningConfig() {
-        //return mVariant.buildType.signingConfig == null ? mVariant.mergedFlavor.signingConfig : mVariant.buildType.signingConfig
+        def variantInfo
+        if (mVariant.variantData.hasProperty("variantConfiguration")) {
+            variantInfo = mVariant.variantData.variantConfiguration
+        } else {
+            variantInfo = mVariant.variantData.variantDslInfo
+        }
         SigningConfig config = null
-        try{
-            config = mVariant.variantData.variantConfiguration.signingConfig
-        } catch (Throwable e){
-            config = mVariant.apkVariantData.variantConfiguration.signingConfig
-          //  e.printStackTrace()
+        try {
+            config = variantInfo.signingConfig
+        } catch (Throwable e) {
         }
         return config
     }
 
     @Override
-    List<String> getExtensionChannelList(){
-        if (mChannelExtension != null){
+    List<String> getExtensionChannelList() {
+        if (mChannelExtension != null) {
             return mChannelExtension.getExtensionChannelList()
         }
         return null
@@ -170,7 +173,7 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
         def buildTime
         try {
             buildTime = new SimpleDateFormat(mChannelExtension.buildTimeDateFormat).format(new Date())
-        }catch (Exception e){
+        } catch (Exception e) {
             println("Task ${name} , getChannelApkName Exception : ${e.toString()}")
             buildTime = new SimpleDateFormat(ChannelConfigurationExtension.DEFAULT_DATE_FORMAT).format(new Date())
         }
@@ -205,7 +208,7 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
             File destFile = new File(mOutputDir, apkChannelName)
             copyTo(mBaseApk, destFile)
             ChannelWriter.addChannelByV1(destFile, channel)
-            if (!mChannelExtension.isFastMode){
+            if (!mChannelExtension.isFastMode) {
                 //1. verify channel info
                 if (ChannelReader.verifyChannelByV1(destFile, channel)) {
                     println("generateV1ChannelApk , ${destFile} add channel success")
@@ -232,11 +235,11 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
             String apkChannelName = getChannelApkName(channel)
             println "generateV2ChannelApk , channel = ${channel} , apkChannelName = ${apkChannelName}"
             File destFile = new File(mOutputDir, apkChannelName)
-            if (apkSectionInfo.lowMemory){
+            if (apkSectionInfo.lowMemory) {
                 copyTo(mBaseApk, destFile)
             }
             ChannelWriter.addChannelByV2(apkSectionInfo, destFile, channel)
-            if (!mChannelExtension.isFastMode){
+            if (!mChannelExtension.isFastMode) {
                 //1. verify channel info
                 if (ChannelReader.verifyChannelByV2(destFile, channel)) {
                     println("generateV2ChannelApk , ${destFile} add channel success")
@@ -252,7 +255,7 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
                 }
             }
             apkSectionInfo.rewind()
-            if (!mChannelExtension.isFastMode){
+            if (!mChannelExtension.isFastMode) {
                 apkSectionInfo.checkEocdCentralDirOffset()
             }
         }

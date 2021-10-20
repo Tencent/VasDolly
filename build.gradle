@@ -7,46 +7,24 @@ ext {
 
     javaVersion = JavaVersion.VERSION_1_7
 
-
-    GROUP = 'com.leon.channel'
+    GROUP = 'com.tencent.vasdolly'
     VERSION = '2.0.3'
-
-    //POM_PACKAGING = "pom"
-    POM_DESCRIPTION = "VasDolly"
-
-    POM_URL = "https://github.com/Tencent/VasDolly"
-    POM_SCM_URL = "https://github.com/Tencent/VasDolly.git"
-    POM_ISSUE_URL = 'https://github.com/Tencent/VasDolly/issues'
-
-    POM_LICENCE_NAME = "BSD License"
-    POM_LICENCE_URL = "https://opensource.org/licenses/BSD-3-Clause"
-    POM_LICENCE_DIST = "repo"
-
-    BINTRAY_LICENCE = ['BSD 3-Clause']
 }
 
 buildscript {
     repositories {
-        maven {
-            url "file:///Users/litao/localMaven"
-        }
+        mavenCentral()
         google()
-        jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0'
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:1.5"
+        classpath 'com.android.tools.build:gradle:7.0.3'
     }
 }
 
 allprojects {
     repositories {
-        maven {
-            url "file:///Users/litao/localMaven"
-        }
+        mavenCentral()
         google()
-        jcenter()
     }
 }
 

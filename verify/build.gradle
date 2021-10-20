@@ -1,9 +1,9 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply from: rootProject.file("maven.gradle")
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.tools.build:apksig:3.6.1'
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api 'com.android.tools.build:apksig:3.6.4'
 }
 
 targetCompatibility = rootProject.javaVersion

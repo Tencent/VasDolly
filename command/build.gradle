@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 
 jar {
     manifest {
@@ -13,10 +13,10 @@ jar {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':reader')
-    compile project(':writer')
-    compile project(':verify')
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api project(':reader')
+    api project(':writer')
+    api project(':verify')
 }
 
 sourceCompatibility = rootProject.javaVersion

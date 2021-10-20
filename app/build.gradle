@@ -4,14 +4,11 @@ apply plugin: 'channel'
 
 buildscript {
     repositories {
-        maven {
-            url "file:///Users/litao/localMaven"
-        }
+        mavenCentral()
         google()
-        jcenter()
     }
     dependencies {
-        classpath 'com.leon.channel:plugin:2.0.3'
+        classpath 'com.tencent.vasdolly:plugin:2.0.3'
     }
 }
 

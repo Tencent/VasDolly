@@ -23,7 +23,7 @@ import org.gradle.api.Project;
  * Created by leontli on 17/2/18.
  */
 
-public class RebuildChannelConfigurationExtension extends ConfigurationExtension{
+class RebuildChannelConfigurationExtension extends ConfigurationExtension{
     /**
      * debug base APK path
      */

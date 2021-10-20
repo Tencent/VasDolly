@@ -18,7 +18,7 @@ package com.tencent.vasdolly.plugin.extension
 
 import org.gradle.api.Project
 
-public class ConfigurationExtension {
+class ConfigurationExtension {
 
     public Project mProject
 
@@ -30,13 +30,13 @@ public class ConfigurationExtension {
     //only fit v2 signature
     public boolean lowMemory
 
-    public ConfigurationExtension(Project project){
+    ConfigurationExtension(Project project) {
         this.mProject = project
         isFastMode = false
         lowMemory = false
     }
 
-    public List<String> getExtensionChannelList() {
+    List<String> getExtensionChannelList() {
         if (channelFile != null && channelFile.isFile() && channelFile.exists()) {
             List<String> channelList = []
             channelFile.eachLine { line, num ->

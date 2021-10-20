@@ -19,7 +19,7 @@ package com.tencent.vasdolly.plugin.extension
 import org.gradle.api.GradleException;
 import org.gradle.api.Project
 
-public class ChannelConfigurationExtension extends ConfigurationExtension {
+class ChannelConfigurationExtension extends ConfigurationExtension {
     static
     final String DEFAULT_APK_NAME_FORMAT = '${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}-${buildTime}'
     public static final String DEFAULT_DATE_FORMAT = 'yyyyMMdd-HHmmss'
@@ -39,14 +39,14 @@ public class ChannelConfigurationExtension extends ConfigurationExtension {
      */
     public String buildTimeDateFormat
 
-    public ChannelConfigurationExtension(Project project) {
+    ChannelConfigurationExtension(Project project) {
         super(project)
         baseOutputDir = new File(project.buildDir, "channel")
         apkNameFormat = DEFAULT_APK_NAME_FORMAT
         buildTimeDateFormat = DEFAULT_DATE_FORMAT
     }
 
-    public void checkParamters() {
+    void checkParamters() {
         if (mProject == null || baseOutputDir == null || apkNameFormat.isEmpty() || buildTimeDateFormat.isEmpty()) {
             throw new GradleException("ChannelConfigurationExtension params invalid , " +
                     "mProject = ${mProject} , baseOutputDir = ${baseOutputDir} , apkNameFormat = ${apkNameFormat} , buildTimeDateFormat = ${buildTimeDateFormat}")

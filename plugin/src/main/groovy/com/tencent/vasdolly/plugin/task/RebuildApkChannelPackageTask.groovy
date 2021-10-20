@@ -21,7 +21,7 @@ import com.tencent.vasdolly.reader.ChannelReader
 import com.tencent.vasdolly.writer.ChannelWriter
 import com.tencent.vasdolly.verify.VerifyApk
 import com.tencent.vasdolly.writer.IdValueWriter
-import com.leon.plugin.extension.RebuildChannelConfigurationExtension
+import com.tencent.vasdolly.plugin.extension.RebuildChannelConfigurationExtension
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
@@ -31,13 +31,13 @@ import org.gradle.api.tasks.TaskAction
  * Created by leontli on 17/2/18.
  */
 
-public class RebuildApkChannelPackageTask extends ChannelPackageTask {
+class RebuildApkChannelPackageTask extends ChannelPackageTask {
 
     @Input
     RebuildChannelConfigurationExtension mRebuildChannelExtension;
 
     RebuildApkChannelPackageTask() {
-        group = 'channel'
+        group = 'com.tencent.vasdolly'
     }
 
     @TaskAction
@@ -188,7 +188,7 @@ public class RebuildApkChannelPackageTask extends ChannelPackageTask {
     }
 
     @Override
-    List<String> getExtensionChannelList() {
+    protected List<String> getExtensionChannelList() {
         if (mRebuildChannelExtension != null) {
             return mRebuildChannelExtension.getExtensionChannelList()
         }

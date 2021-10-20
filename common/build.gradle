@@ -1,10 +1,6 @@
 apply plugin: 'java-library'
 apply from: rootProject.file("maven.gradle")
 
-dependencies {
-    api fileTree(dir: 'libs', include: ['*.jar'])
-}
-
 targetCompatibility = rootProject.javaVersion
 sourceCompatibility = rootProject.javaVersion
 

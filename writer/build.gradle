@@ -2,8 +2,7 @@ apply plugin: 'java-library'
 apply from: rootProject.file("maven.gradle")
 
 dependencies {
-    api fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':common')
+    implementation project(':common')
 }
 
 targetCompatibility = rootProject.javaVersion

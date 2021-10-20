@@ -16,8 +16,8 @@
 
 package com.tencent.vasdolly.plugin.task
 
-import com.android.build.gradle.api.BaseVariant
-import com.android.builder.model.SigningConfig
+import com.android.build.api.variant.ApplicationVariant
+import com.android.build.api.variant.SigningConfig
 import com.tencent.vasdolly.reader.ChannelReader
 import com.tencent.vasdolly.verify.VerifyApk
 import com.tencent.vasdolly.writer.ChannelWriter
@@ -28,25 +28,27 @@ import groovy.text.SimpleTemplateEngine
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 import java.text.SimpleDateFormat
 
-public class ApkChannelPackageTask extends ChannelPackageTask {
+class ApkChannelPackageTask extends ChannelPackageTask {
+    @Internal
     int mChannelPackageMode = DEFAULT_MODE
-
     @Input
-    BaseVariant mVariant
-
+    ApplicationVariant mVariant
+    @InputFile
     File mBaseApk
-
+    @InputDirectory
     File mOutputDir
-
     @Input
     ChannelConfigurationExtension mChannelExtension
 
     ApkChannelPackageTask() {
-        group = 'channel'
+        group = 'com.tencent.vasdolly'
     }
 
     @TaskAction
@@ -141,7 +143,7 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
      * get the SigningConfig
      * @return
      */
-    SigningConfig getSigningConfig() {
+    private SigningConfig getSigningConfig() {
         //return mVariant.buildType.signingConfig == null ? mVariant.mergedFlavor.signingConfig : mVariant.buildType.signingConfig
         SigningConfig config = null
         if (mVariant.hasProperty("signingConfig") && mVariant.signingConfig != null) {
@@ -161,7 +163,7 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
     }
 
     @Override
-    List<String> getExtensionChannelList() {
+    protected List<String> getExtensionChannelList() {
         if (mChannelExtension != null) {
             return mChannelExtension.getExtensionChannelList()
         }

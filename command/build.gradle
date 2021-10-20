@@ -1,33 +1,42 @@
-apply plugin: 'java-library'
+buildscript {
+    repositories {
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0'
+    }
+}
 
-jar {
+plugins {
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+    id 'java'
+}
+
+shadowJar {
     manifest {
         attributes 'Main-Class': 'com.tencent.vasdolly.command.Main'
         attributes 'Version': VERSION
     }
-    from {
-        configurations.compile.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
 }
 
 dependencies {
-    api fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':reader')
-    api project(':writer')
-    api project(':verify')
+    implementation project(':common')
+    implementation project(':reader')
+    implementation project(':writer')
+    implementation project(':verify')
 }
 
-sourceCompatibility = rootProject.javaVersion
-targetCompatibility = rootProject.javaVersion
+java {
+    sourceCompatibility = rootProject.javaVersion
+    targetCompatibility = rootProject.javaVersion
+}
 
-task generateJar(type: Copy, dependsOn: build) {
+task generateJar(type: Copy, dependsOn: shadowJar) {
     from('build/libs') {
-        include 'command.jar'
+        include 'command-all.jar'
     }
     into('jar')
-    rename('command.jar', 'VasDolly.jar')
+    rename('command-all.jar', 'VasDolly.jar')
 }
 build.finalizedBy generateJar
 
@@ -36,3 +45,4 @@ task deleteJar(type: Delete, dependsOn: clean) {
     delete 'jar'
 }
 clean.finalizedBy deleteJar
+

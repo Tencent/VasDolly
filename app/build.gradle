@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: 'channel'
+//apply plugin: 'com.tencent.vasdolly'
 
 
 buildscript {
@@ -8,18 +8,19 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.tencent.vasdolly:plugin:2.0.3'
+        //classpath 'com.tencent.vasdolly:plugin:2.0.3'
     }
 }
-
+/*
 channel{
-    //isFastMode = true
+   //isFastMode = true
 }
 
-rebuildChannel {
+//rebuildChannel {
     baseDebugApk = new File(project.projectDir, "baseApk/app-debug.apk")
     isFastMode = true
 }
+*/
 
 android {
     compileSdkVersion rootProject.compileSdkVersion

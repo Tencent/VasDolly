@@ -1,14 +1,14 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 ext {
     minSdkVersion = 14
-    compileSdkVersion = 28
+    compileSdkVersion = 30
     targetSdkVersion = compileSdkVersion
-    buildToolsVersion = '28.0.3'
+    buildToolsVersion = '30.0.2'
 
-    javaVersion = JavaVersion.VERSION_1_7
+    javaVersion = JavaVersion.VERSION_11
 
     GROUP = 'com.tencent.vasdolly'
-    VERSION = '2.0.3'
+    VERSION = '2.0.4'
 }
 
 buildscript {

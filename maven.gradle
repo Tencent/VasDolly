@@ -1,3 +1,4 @@
+/*
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
@@ -11,12 +12,12 @@ afterEvaluate {
         publications {
             // Creates a Maven publication called "release".
             release(MavenPublication) {
-                from components.java
                 groupId = project.rootProject.GROUP
                 artifactId = 'plugin'
                 version = project.rootProject.VERSION
+                from components.java
             }
         }
     }
 }
-
+ */

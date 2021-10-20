@@ -18,6 +18,7 @@ package com.tencent.vasdolly.plugin.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.process.ExecResult
 
 /**
@@ -28,25 +29,32 @@ abstract class ChannelPackageTask extends DefaultTask {
     public static final int V1_MODE = 1
     public static final int V2_MODE = 2
 
-
     @Input
     public boolean isMergeExtensionChannelList = true
-
     @Input
     public List<String> channelList
 
-    protected mergeExtensionChannelList(){
+    List<String> getChannelList(){
+        return channelList
+    }
+
+    boolean getIsMergeExtensionChannelList(){
+        return isMergeExtensionChannelList
+    }
+
+    protected mergeExtensionChannelList() {
         List<String> extensionChannelList = getExtensionChannelList()
-        if (extensionChannelList != null && !extensionChannelList.isEmpty()){
-            if (channelList == null){
+        if (extensionChannelList != null && !extensionChannelList.isEmpty()) {
+            if (channelList == null) {
                 channelList = extensionChannelList
-            }else {
+            } else {
                 channelList.addAll(extensionChannelList)
             }
         }
     }
 
-    abstract List<String> getExtensionChannelList()
+    @Internal
+    protected abstract List<String> getExtensionChannelList()
 
     /**
      * verify apk by apksigner.jar

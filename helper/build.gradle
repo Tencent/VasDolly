@@ -3,7 +3,6 @@ apply from: rootProject.file("maven.gradle")
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
-    buildToolsVersion rootProject.buildToolsVersion
 
     defaultConfig {
         minSdkVersion rootProject.minSdkVersion
@@ -29,7 +28,6 @@ android {
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
     api project(':reader')
-    testImplementation 'junit:junit:4.12'
 }
 
 

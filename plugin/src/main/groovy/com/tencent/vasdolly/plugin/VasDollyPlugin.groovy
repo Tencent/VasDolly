@@ -20,13 +20,15 @@ import com.tencent.vasdolly.plugin.extension.ChannelConfigurationExtension
 import com.tencent.vasdolly.plugin.extension.RebuildChannelConfigurationExtension
 import com.tencent.vasdolly.plugin.task.ApkChannelPackageTask
 import com.tencent.vasdolly.plugin.task.RebuildApkChannelPackageTask
-import org.gradle.api.InvalidUserDataException
-import org.gradle.api.Project
-import org.gradle.api.ProjectConfigurationException
-import org.gradle.api.Task
+import org.gradle.api.*
 
-class ApkChannelPackagePlugin implements org.gradle.api.Plugin<Project> {
+/***
+ * VasDolly插件
+ */
+class VasDollyPlugin implements Plugin<Project> {
+    //渠道列表文件
     static final String CHANNEL_FILE = "channel_file"
+    //渠道列表
     static final String PROPERTY_CHANNELS = "channels"
     Project mProject
     ChannelConfigurationExtension mChannelConfigurationExtension
@@ -45,6 +47,7 @@ class ApkChannelPackagePlugin implements org.gradle.api.Plugin<Project> {
         mChannelConfigurationExtension = project.extensions.create('channel', ChannelConfigurationExtension, project)
         mRebuildChannelConfigurationExtension = project.extensions.create('rebuildChannel', RebuildChannelConfigurationExtension, project)
 
+        //检查项目是否自定义插件配置
         if (mProject.hasProperty(PROPERTY_CHANNELS)) {
             mChannelInfoList = []
             def tempChannelsProperty = mProject.getProperties().get(PROPERTY_CHANNELS)
@@ -63,12 +66,12 @@ class ApkChannelPackagePlugin implements org.gradle.api.Plugin<Project> {
 
         project.afterEvaluate {
             project.android.applicationVariants.all { variant ->
-                def variantOutput = variant.outputs.first();
+                def variantOutput = variant.outputs.first()
                 def dirName = variant.dirName;
                 def variantName = variant.name.capitalize();
                 Task channelTask = project.task("channel${variantName}", type: ApkChannelPackageTask) {
-                    mVariant = variant;
-                    mChannelExtension = mChannelConfigurationExtension;
+                    mVariant = variant
+                    mChannelExtension = mChannelConfigurationExtension
                     mOutputDir = new File(mChannelConfigurationExtension.baseOutputDir, dirName)
                     isMergeExtensionChannelList = !mProject.hasProperty(PROPERTY_CHANNELS)
                     channelList = mChannelInfoList

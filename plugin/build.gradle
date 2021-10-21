@@ -18,9 +18,10 @@ java {
     sourceCompatibility = rootProject.javaVersion
 }
 
-gradlePlugin{
+gradlePlugin {
+    automatedPublishing = false
     plugins {
-        VasDollyPlugin {
+        vasdolly {
             id = 'com.tencent.vasdolly'
             implementationClass = 'com.tencent.vasdolly.plugin.VasDollyPlugin'
         }

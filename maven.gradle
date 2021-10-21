@@ -1,23 +1,73 @@
-/*
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
+ext."signing.keyId" = properties.getProperty("signing.keyId")
+ext."signing.password" = properties.getProperty("signing.password")
+ext."signing.secretKeyRingFile" = properties.getProperty("signing.secretKeyRingFile")
+
+group = "com.tencent.vasdolly"
+version = '2.0.4'
 
 // Because the components are created only during the afterEvaluate phase, you must
 // configure your publications using the afterEvaluate() lifecycle method.
 afterEvaluate {
     publishing {
         publications {
-            // Creates a Maven publication called "release".
-            release(MavenPublication) {
-                groupId = project.rootProject.GROUP
-                artifactId = 'plugin'
-                version = project.rootProject.VERSION
-                from components.java
+            // Creates a Maven publication called "vasdollyRelease".
+            vasdollyRelease(MavenPublication) {
+                groupId = "com.tencent.vasdolly"
+                artifactId = POM_ARTIFACT_ID
+                version = "2.0.4"
+                if (POM_PACKAGING == "aar") {
+                    from components.release
+                } else {
+                    from components.java
+                }
+
+
+                pom {
+                    name = POM_NAME
+                    artifactId = POM_ARTIFACT_ID
+                    packaging = POM_PACKAGING
+                    scm {
+                        connection = "https://github.com/Tencent/VasDolly.git"
+                        developerConnection = "https://github.com/Tencent/VasDolly.git"
+                        url = "https://github.com/Tencent/VasDolly"
+                    }
+
+                    developers {
+                        developer { //developer info
+                            id = 'leon'
+                            name = 'leon'
+                            email = 'ltlovezh@gmail.com'
+                        }
+                        developer { //developer info
+                            id = 'yanyongshan'
+                            name = 'yanyongshan'
+                            email = 'wecityyan@tencent.com'
+                        }
+                    }
+                }
+            }
+        }
+
+        //发布仓库
+        repositories {
+            maven {
+                def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+                def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots'
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                credentials {
+                    username = properties.getProperty("ossrhUsername")
+                    password = properties.getProperty("ossrhPassword")
+                }
             }
         }
     }
+
+    signing {
+        sign publishing.publications.vasdollyRelease
+    }
 }
- */

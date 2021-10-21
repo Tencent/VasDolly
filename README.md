@@ -32,8 +32,8 @@ signingConfigs {
 在根工程的`build.gradle`中，添加对打包Plugin的依赖：
 ``` groovy
 dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0'
-        classpath 'com.leon.channel:plugin:2.0.3'
+        classpath 'com.android.tools.build:gradle:7.0.3'
+        classpath 'com.tencent.vasdolly:plugin:2.0.4'
 }
 ```
 ## 引用VasDolly Plugin
@@ -45,7 +45,7 @@ apply plugin: 'channel'
 在主App工程的`build.gradle`中，添加读取渠道信息的helper类库依赖：
 ``` groovy
 dependencies {
-    api 'com.leon.channel:helper:2.0.3'
+    api 'com.tencent.vasdolly:helper:2.0.4'
 }
 ```
 ## 配置渠道列表

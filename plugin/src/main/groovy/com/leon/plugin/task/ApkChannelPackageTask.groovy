@@ -144,18 +144,11 @@ public class ApkChannelPackageTask extends ChannelPackageTask {
     SigningConfig getSigningConfig() {
         //return mVariant.buildType.signingConfig == null ? mVariant.mergedFlavor.signingConfig : mVariant.buildType.signingConfig
         SigningConfig config = null
-        if (mVariant.hasProperty("signingConfig") && mVariant.signingConfig != null) {
-            config = mVariant.signingConfig
-        } else if (mVariant.hasProperty("variantData") &&
-                mVariant.variantData.hasProperty("variantConfiguration") &&
-                mVariant.variantData.variantConfiguration.hasProperty("signingConfig") &&
-                mVariant.variantData.variantConfiguration.signingConfig != null) {
+        try{
             config = mVariant.variantData.variantConfiguration.signingConfig
-        } else if (mVariant.hasProperty("apkVariantData") &&
-                mVariant.apkVariantData.hasProperty("variantConfiguration") &&
-                mVariant.apkVariantData.variantConfiguration.hasProperty("signingConfig") &&
-                mVariant.apkVariantData.variantConfiguration.signingConfig != null) {
+        } catch (Throwable e){
             config = mVariant.apkVariantData.variantConfiguration.signingConfig
+          //  e.printStackTrace()
         }
         return config
     }

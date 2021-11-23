@@ -1,7 +1,5 @@
 apply plugin: 'com.android.application'
 
-
-
 buildscript {
     repositories {
         mavenLocal()
@@ -9,7 +7,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.tencent.vasdolly:plugin:2.0.4'
+        classpath "com.tencent.vasdolly:plugin:${rootProject.VERSION}"
     }
 }
 
@@ -20,7 +18,7 @@ channel{
 
 rebuildChannel {
     baseDebugApk = new File(project.projectDir, "baseApk/app-debug.apk")
-    isFastMode = true
+    //isFastMode = true
 }
 
 android {
@@ -80,5 +78,5 @@ dependencies {
 
     api 'androidx.appcompat:appcompat:1.4.0'
     //api：同老版本compile作用一样，即本module将会向外暴露其依赖的module变化，即若'helper'库发生了改变，那么本module以及所有依赖于本module的module都要重新编译
-    api 'com.tencent.vasdolly:helper:2.0.4'
+    api "com.tencent.vasdolly:helper:${rootProject.VERSION}"
 }

@@ -8,7 +8,7 @@ ext."signing.password" = properties.getProperty("signing.password")
 ext."signing.secretKeyRingFile" = properties.getProperty("signing.secretKeyRingFile")
 
 group = "com.tencent.vasdolly"
-version = '2.0.4'
+version = project.rootProject.VERSION
 
 // Because the components are created only during the afterEvaluate phase, you must
 // configure your publications using the afterEvaluate() lifecycle method.
@@ -19,7 +19,7 @@ afterEvaluate {
             vasdollyRelease(MavenPublication) {
                 groupId = "com.tencent.vasdolly"
                 artifactId = POM_ARTIFACT_ID
-                version = "2.0.4"
+                version = project.rootProject.VERSION
                 if (POM_PACKAGING == "aar") {
                     from components.release
                 } else {

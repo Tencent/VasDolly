@@ -7,7 +7,7 @@
 
 # 简介
 VasDolly是一种快速多渠道打包工具，同时支持基于V1签名和V2签名进行多渠道打包。插件本身会自动检测Apk使用的签名类别，并选择合适的多渠道打包方式，对使用者来说完全透明。 
-`V2.0.4`版本已支持Android Gradle Plugin 4.2.0，欢迎使用！
+`V2.0.5`版本已支持Android Gradle Plugin 4.2.0，欢迎使用！
 
 目前Gradle Plugin 2.2以上默认开启V2签名，所以如果想关闭V2签名，可将下面的v2SigningEnabled设置为false。
 ``` groovy
@@ -33,7 +33,7 @@ signingConfigs {
 ``` groovy
 dependencies {
         classpath 'com.android.tools.build:gradle:7.0.3'
-        classpath 'com.tencent.vasdolly:plugin:2.0.4'
+        classpath 'com.tencent.vasdolly:plugin:2.0.5'
 }
 ```
 ## 引用VasDolly Plugin
@@ -45,7 +45,7 @@ apply plugin: 'com.tencent.vasdolly'
 在主App工程的`build.gradle`中，添加读取渠道信息的helper类库依赖：
 ``` groovy
 dependencies {
-    api 'com.tencent.vasdolly:helper:2.0.4'
+    api 'com.tencent.vasdolly:helper:2.0.5'
 }
 ```
 ## 配置渠道列表
@@ -74,7 +74,7 @@ channel{
     channelFile = file("/Users/leon/Downloads/testChannel.txt")
      //多渠道包的输出目录，默认为new File(project.buildDir,"channel")
     baseOutputDir = new File(project.buildDir,"xxx")
-    //多渠道包的命名规则，默认为：${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}
+    //多渠道包的命名规则，默认为：${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}-${buildTime}
     apkNameFormat ='${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}'
     //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上，默认为false）
     isFastMode = false

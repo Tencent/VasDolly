@@ -7,8 +7,9 @@ ext {
 
     javaVersion = JavaVersion.VERSION_11
 
+    //VasDolly插件版本信息
     GROUP = 'com.tencent.vasdolly'
-    VERSION = '2.0.4'
+    VERSION = '2.0.5'
 }
 
 buildscript {

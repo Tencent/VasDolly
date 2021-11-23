@@ -1,9 +1,10 @@
 apply plugin: 'com.android.application'
-//apply plugin: 'com.tencent.vasdolly'
+
 
 
 buildscript {
     repositories {
+        mavenLocal()
         mavenCentral()
         google()
     }
@@ -12,8 +13,9 @@ buildscript {
     }
 }
 
+apply plugin: 'com.tencent.vasdolly'
 channel{
-   //isFastMode = true
+    //isFastMode = true
 }
 
 rebuildChannel {
@@ -76,10 +78,7 @@ android {
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
 
-    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    api 'com.android.support:appcompat-v7:26.1.0'
+    api 'androidx.appcompat:appcompat:1.4.0'
     //api：同老版本compile作用一样，即本module将会向外暴露其依赖的module变化，即若'helper'库发生了改变，那么本module以及所有依赖于本module的module都要重新编译
     api 'com.tencent.vasdolly:helper:2.0.4'
 }

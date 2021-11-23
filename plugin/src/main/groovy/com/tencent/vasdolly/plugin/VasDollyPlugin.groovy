@@ -16,11 +16,16 @@
 
 package com.tencent.vasdolly.plugin
 
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.variant.impl.VariantOutputConfigurationImplKt
 import com.tencent.vasdolly.plugin.extension.ChannelConfigurationExtension
 import com.tencent.vasdolly.plugin.extension.RebuildChannelConfigurationExtension
 import com.tencent.vasdolly.plugin.task.ApkChannelPackageTask
 import com.tencent.vasdolly.plugin.task.RebuildApkChannelPackageTask
-import org.gradle.api.*
+import org.gradle.api.InvalidUserDataException
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.api.ProjectConfigurationException
 
 /***
  * VasDolly插件
@@ -40,7 +45,7 @@ class VasDollyPlugin implements Plugin<Project> {
     void apply(Project project) {
         this.mProject = project
         if (!project.plugins.hasPlugin("com.android.application")) {
-            throw new ProjectConfigurationException("plugin 'com.android.application' must be apply", null)
+            throw new ProjectConfigurationException("VasDolly plugin 'com.android.application' must be apply", null)
         }
 
         //@todo 这里要根据打包模式，进行gradle版本和配置的校验
@@ -64,21 +69,27 @@ class VasDollyPlugin implements Plugin<Project> {
             mChannelInfoList = getChannelListInfo()
         }
 
-        project.afterEvaluate {
-            project.android.applicationVariants.all { variant ->
-                def variantOutput = variant.outputs.first()
-                def dirName = variant.dirName;
-                def variantName = variant.name.capitalize();
-                Task channelTask = project.task("channel${variantName}", type: ApkChannelPackageTask) {
-                    mVariant = variant
-                    mChannelExtension = mChannelConfigurationExtension
-                    mOutputDir = new File(mChannelConfigurationExtension.baseOutputDir, dirName)
-                    isMergeExtensionChannelList = !mProject.hasProperty(PROPERTY_CHANNELS)
-                    channelList = mChannelInfoList
-                    dependsOn variant.assemble
-                }
+        def androidComponents = project.extensions.getByType(ApplicationAndroidComponentsExtension.class)
+        androidComponents.onVariants(androidComponents.selector().all(), { variant ->
+            def variantName = variant.name.capitalize()
+            // VariantOutputImpl
+            def outInfo = variant.outputs.first().toSerializedForm()
+            // VariantOutputConfigurationImpl
+            def dirName = VariantOutputConfigurationImplKt.dirName(outInfo.variantOutputConfiguration)
+            def fileName = outInfo.outputFileName
+
+            println("find android build variant name:${variant.name},dirName:${dirName},fileName:${fileName}")
+
+            // create channel task by variantName
+            project.task("channel${variantName}", type: ApkChannelPackageTask) {
+                mVariant = variant
+                mChannelExtension = mChannelConfigurationExtension
+                mOutputDir = new File(mChannelConfigurationExtension.baseOutputDir, dirName)
+                isMergeExtensionChannelList = !mProject.hasProperty(PROPERTY_CHANNELS)
+                channelList = mChannelInfoList
+                dependsOn "assemble${variantName}"
             }
-        }
+        })
 
         project.task("reBuildChannel", type: RebuildApkChannelPackageTask) {
             isMergeExtensionChannelList = !mProject.hasProperty(PROPERTY_CHANNELS)

@@ -18,18 +18,16 @@ package com.tencent.vasdolly.plugin.task
 
 import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.SigningConfig
+import com.tencent.vasdolly.common.ApkSectionInfo
+import com.tencent.vasdolly.plugin.extension.ChannelConfigurationExtension
 import com.tencent.vasdolly.reader.ChannelReader
 import com.tencent.vasdolly.verify.VerifyApk
 import com.tencent.vasdolly.writer.ChannelWriter
 import com.tencent.vasdolly.writer.IdValueWriter
-import com.tencent.vasdolly.common.ApkSectionInfo
-import com.tencent.vasdolly.plugin.extension.ChannelConfigurationExtension
 import groovy.text.SimpleTemplateEngine
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
@@ -40,9 +38,9 @@ class ApkChannelPackageTask extends ChannelPackageTask {
     int mChannelPackageMode = DEFAULT_MODE
     @Input
     ApplicationVariant mVariant
-    @InputFile
+    @Internal
     File mBaseApk
-    @InputDirectory
+    @Internal
     File mOutputDir
     @Input
     ChannelConfigurationExtension mChannelExtension
@@ -103,15 +101,21 @@ class ApkChannelPackageTask extends ChannelPackageTask {
                 }
             }
         }
+        println("Task ${name} , outputDir : ${mOutputDir.getPath()}")
 
         //3.check base apk
         if (mVariant == null) {
             throw new InvalidUserDataException("Task ${name} mVariant is null , you are joke!")
         }
-        mBaseApk = mVariant.outputs.first().outputFile
+
+        def outInfo = mVariant.outputs.first().toSerializedForm()
+        def fileName = outInfo.outputFileName
+        def filePath = project.buildDir.absolutePath + "/outputs/apk/${mVariant.name}/${fileName}"
+        mBaseApk = new File(filePath)
         if (mBaseApk == null || !mBaseApk.exists() || !mBaseApk.isFile()) {
-            throw new InvalidUserDataException("Task ${name} Base Apk is invalid , please check it")
+            throw new InvalidUserDataException("Task ${name} Base Apk is invalid , please check path:${filePath}")
         }
+        println("Task ${name} , mBaseApk : ${mBaseApk.getAbsoluteFile()}")
 
         //4.check ChannelExtension
         if (mChannelExtension == null) {
@@ -120,18 +124,22 @@ class ApkChannelPackageTask extends ChannelPackageTask {
         mChannelExtension.checkParamters()
     }
 
+    /***
+     * 检查当前APK的签名方式，v1/v2/v3/v4等
+     */
     void checkSigningConfig() {
         SigningConfig signingConfig = getSigningConfig()
         if (signingConfig == null) {
             throw new GradleException("SigningConfig is null , please check it")
         }
+        println("SigningConfig v1:${signingConfig.enableV1Signing},v2:${signingConfig.enableV2Signing},v3:${signingConfig.enableV3Signing},v4:${signingConfig.enableV4Signing}")
 
-        if (signingConfig.hasProperty("v2SigningEnabled") && signingConfig.v2SigningEnabled) {
-            if (signingConfig.hasProperty("v1SigningEnabled") && !signingConfig.v1SigningEnabled) {
+        if (signingConfig.enableV2Signing) {
+            if (!signingConfig.enableV1Signing) {
                 throw new GradleException("you only assign V2 Mode , but not assign V1 Mode , you can't install Apk below 7.0")
             }
             mChannelPackageMode = ChannelPackageTask.V2_MODE;
-        } else if ((signingConfig.hasProperty("v1SigningEnabled") && signingConfig.v1SigningEnabled) || !signingConfig.hasProperty("v1SigningEnabled")) {
+        } else if (signingConfig.enableV1Signing) {
             mChannelPackageMode = ChannelPackageTask.V1_MODE;
         } else {
             throw new GradleException("you must assign V1 or V2 Mode")
@@ -144,20 +152,9 @@ class ApkChannelPackageTask extends ChannelPackageTask {
      * @return
      */
     private SigningConfig getSigningConfig() {
-        //return mVariant.buildType.signingConfig == null ? mVariant.mergedFlavor.signingConfig : mVariant.buildType.signingConfig
         SigningConfig config = null
         if (mVariant.hasProperty("signingConfig") && mVariant.signingConfig != null) {
             config = mVariant.signingConfig
-        } else if (mVariant.hasProperty("variantData") &&
-                mVariant.variantData.hasProperty("variantConfiguration") &&
-                mVariant.variantData.variantConfiguration.hasProperty("signingConfig") &&
-                mVariant.variantData.variantConfiguration.signingConfig != null) {
-            config = mVariant.variantData.variantConfiguration.signingConfig
-        } else if (mVariant.hasProperty("apkVariantData") &&
-                mVariant.apkVariantData.hasProperty("variantConfiguration") &&
-                mVariant.apkVariantData.variantConfiguration.hasProperty("signingConfig") &&
-                mVariant.apkVariantData.variantConfiguration.signingConfig != null) {
-            config = mVariant.apkVariantData.variantConfiguration.signingConfig
         }
         return config
     }
@@ -183,13 +180,15 @@ class ApkChannelPackageTask extends ChannelPackageTask {
             println("Task ${name} , getChannelApkName Exception : ${e.toString()}")
             buildTime = new SimpleDateFormat(ChannelConfigurationExtension.DEFAULT_DATE_FORMAT).format(new Date())
         }
+        // VariantOutputImpl
+        def outInfo = mVariant.outputs.first()
 
         def keyValue = [
                 'appName'    : project.name,
                 'flavorName' : channel,
-                'buildType'  : mVariant.buildType.name,
-                'versionName': mVariant.versionName,
-                'versionCode': mVariant.versionCode,
+                'buildType'  : mVariant.buildType,
+                'versionName': outInfo.versionName.get(),
+                'versionCode': outInfo.versionCode.get().toString(),
                 'appId'      : mVariant.applicationId,
                 'buildTime'  : buildTime
         ]

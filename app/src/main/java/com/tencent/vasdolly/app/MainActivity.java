@@ -16,11 +16,10 @@
 
 package com.tencent.vasdolly.app;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.TextView;
 import com.tencent.vasdolly.helper.ChannelReaderUtil;
-import com.tencent.vasdolly.app.R;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";

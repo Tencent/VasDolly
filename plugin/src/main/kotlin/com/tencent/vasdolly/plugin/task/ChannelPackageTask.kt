@@ -24,7 +24,6 @@ abstract class ChannelPackageTask : DefaultTask() {
     /***
      * 合并渠道列表
      */
-    @Internal
     fun mergeChannelList() {
         val extensionChannelList = getExtensionChannelList()
         if (extensionChannelList.isNotEmpty()) {
@@ -35,7 +34,6 @@ abstract class ChannelPackageTask : DefaultTask() {
     /**
      * 生成V2渠道包
      */
-    @Internal
     fun generateV2ChannelApk(
         baseApk: File,
         outputDir: File,
@@ -79,7 +77,6 @@ abstract class ChannelPackageTask : DefaultTask() {
     /**
      * 生成V1渠道包
      */
-    @Internal
     fun generateV1ChannelApk(baseApk: File, outputDir: File, isFastMode: Boolean) {
         //check v1 signature , if not have v1 signature , you can't install Apk below 7.0
         println("------$project.name:$name generate v1 channel apk, begin------")
@@ -121,7 +118,6 @@ abstract class ChannelPackageTask : DefaultTask() {
         println("------$project.name:$name generate v1 channel apk , end------")
     }
 
-    @Internal
     abstract fun getChannelApkName(baseApkName: String, channel: String): String
 
     @Internal

@@ -3,8 +3,11 @@ package com.tencent.vasdolly.plugin.task
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.ApplicationVariant
 import com.tencent.vasdolly.plugin.extension.ChannelConfigExtension
+import com.tencent.vasdolly.plugin.util.SimpleAGPVersion
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.file.Directory
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
@@ -71,14 +74,7 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
         if (variant == null) {
             throw InvalidUserDataException("Task $name variant is null")
         }
-        variant?.artifacts?.let { artifact ->
-            val apkFolder = artifact.get(SingleArtifact.APK).get()
-            val builtArtifacts = artifact.getBuiltArtifactsLoader().load(apkFolder)
-            builtArtifacts?.let {
-                val baseApkFile = it.elements.first().outputFile
-                baseApk = File(baseApkFile)
-            }
-        } ?: throw RuntimeException("can't find base apk")
+        baseApk = getVariantBaseApk() ?: throw RuntimeException("can't find base apk")
         println("Task $name, baseApk: ${baseApk?.absolutePath}")
 
 
@@ -87,6 +83,31 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
             throw InvalidUserDataException("Task $name channel is null")
         }
         channelExtension?.checkParams()
+    }
+
+    @Suppress("PrivateApi")
+    private fun getVariantBaseApk(): File? {
+        return variant?.let { variant ->
+            val currentAGPVersion = SimpleAGPVersion.ANDROID_GRADLE_PLUGIN_VERSION
+            val agpVersion7 = SimpleAGPVersion(7, 0)
+            val apkFolder = if (currentAGPVersion < agpVersion7) {
+                //AGP4.2
+                val artifactCls = Class.forName("com.android.build.api.artifact.ArtifactType")
+                val apkClass =
+                    Class.forName("com.android.build.api.artifact.ArtifactType${'$'}APK").kotlin
+                val provider = variant.artifacts.javaClass.getMethod("get", artifactCls)
+                    .invoke(variant.artifacts, apkClass.objectInstance) as Provider<Directory>
+                provider.get()
+            } else {
+                //AGP7.0
+                variant.artifacts.get(SingleArtifact.APK).get()
+            }
+            val builtArtifacts = variant.artifacts.getBuiltArtifactsLoader().load(apkFolder)
+            builtArtifacts?.let {
+                val baseApkFile = it.elements.first().outputFile
+                return File(baseApkFile)
+            }
+        }
     }
 
     /***

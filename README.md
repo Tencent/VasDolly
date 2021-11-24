@@ -7,7 +7,7 @@
 
 # 简介
 VasDolly是一种快速多渠道打包工具，同时支持基于V1签名和V2签名进行多渠道打包。插件本身会自动检测Apk使用的签名类别，并选择合适的多渠道打包方式，对使用者来说完全透明。 
-`V2.0.5`版本已支持Android Gradle Plugin 4.2.0，欢迎使用！
+`V3.0.0`版本已支持Android Gradle Plugin 4.2.0以上版本，欢迎使用！
 
 目前Gradle Plugin 2.2以上默认开启V2签名，所以如果想关闭V2签名，可将下面的v2SigningEnabled设置为false。
 ``` groovy
@@ -33,7 +33,7 @@ signingConfigs {
 ``` groovy
 dependencies {
         classpath 'com.android.tools.build:gradle:7.0.3'
-        classpath 'com.tencent.vasdolly:plugin:2.0.5'
+        classpath 'com.tencent.vasdolly:plugin:3.0.0'
 }
 ```
 ## 引用VasDolly Plugin
@@ -45,7 +45,7 @@ apply plugin: 'com.tencent.vasdolly'
 在主App工程的`build.gradle`中，添加读取渠道信息的helper类库依赖：
 ``` groovy
 dependencies {
-    api 'com.tencent.vasdolly:helper:2.0.5'
+    api 'com.tencent.vasdolly:helper:3.0.0'
 }
 ```
 ## 配置渠道列表
@@ -77,7 +77,7 @@ channel{
     //多渠道包的命名规则，默认为：${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}-${buildTime}
     apkNameFormat ='${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}'
     //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上，默认为false）
-    isFastMode = false
+    fastMode = false
     //buildTime的时间格式，默认格式：yyyyMMdd-HHmmss
     buildTimeDateFormat = 'yyyyMMdd-HH:mm:ss'
     //低内存模式（仅针对V2签名，默认为false）：只把签名块、中央目录和EOCD读取到内存，不把最大头的内容块读取到内存，在手机上合成APK时，可以使用该模式
@@ -111,7 +111,7 @@ rebuildChannel {
   //默认为new File(project.buildDir, "rebuildChannel/release")
   releaseOutputDir = Release渠道包输出目录
   //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上，默认为false）
-  isFastMode = false
+  fastMode = false
   //低内存模式（仅针对V2签名，默认为false）：只把签名块、中央目录和EOCD读取到内存，不把最大头的内容块读取到内存，在手机上合成APK时，可以使用该模式
   lowMemory = false
 }

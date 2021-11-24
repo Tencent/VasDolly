@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.tencent.vasdolly'
 
 buildscript {
     repositories {
@@ -9,16 +10,6 @@ buildscript {
     dependencies {
         classpath "com.tencent.vasdolly:plugin:${rootProject.VERSION}"
     }
-}
-
-apply plugin: 'com.tencent.vasdolly'
-channel{
-    //isFastMode = true
-}
-
-rebuildChannel {
-    baseDebugApk = new File(project.projectDir, "baseApk/app-debug.apk")
-    //isFastMode = true
 }
 
 android {
@@ -71,6 +62,36 @@ android {
         targetCompatibility rootProject.javaVersion
     }
 
+}
+
+//VasDolly插件配置
+//gradle channelDebug/channelRelease 编译生成apk后，再根据生成的Apk生成渠道包
+channel{
+    channelFile = file("app_channel.txt")
+    //多渠道包的输出目录，默认为new File(project.buildDir,"channel")
+    baseOutputDir = new File(project.buildDir,"channels")
+    //多渠道包的命名规则，默认为：${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}-${buildTime}
+    apkNameFormat ='${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}'
+    //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上，默认为false）
+    fastMode = false
+    //buildTime的时间格式，默认格式：yyyyMMdd-HHmmss
+    buildTimeDateFormat = 'yyyyMMdd-HH:mm:ss'
+    //低内存模式（仅针对V2签名，默认为false）：只把签名块、中央目录和EOCD读取到内存，不把最大头的内容块读取到内存，在手机上合成APK时，可以使用该模式
+    lowMemory = false
+}
+
+// gradle rebuildChannel 配置此任务用于不希望重新构建apk，直接根据指定的apk生成渠道包
+rebuildChannel {
+    channelFile = file("app_channel.txt")
+    //baseDebugApk = new File(project.projectDir, "baseApk/app-debug.apk")
+    //默认为new File(project.buildDir, "rebuildChannel/debug")
+    //debugOutputDir = new File(project.buildDir, "rebuildChannel/debug")
+    //默认为new File(project.buildDir, "rebuildChannel/release")
+    //releaseOutputDir = new File(project.buildDir, "rebuildChannel/release")
+    //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上，默认为false）
+    fastMode = false
+    //低内存模式（仅针对V2签名，默认为false）：只把签名块、中央目录和EOCD读取到内存，不把最大头的内容块读取到内存，在手机上合成APK时，可以使用该模式
+    lowMemory = false
 }
 
 dependencies {

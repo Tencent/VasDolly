@@ -102,10 +102,8 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
                 //AGP7.0
                 variant.artifacts.get(SingleArtifact.APK).get()
             }
-            val builtArtifacts = variant.artifacts.getBuiltArtifactsLoader().load(apkFolder)
-            builtArtifacts?.let {
-                val baseApkFile = it.elements.first().outputFile
-                return File(baseApkFile)
+            variant.artifacts.getBuiltArtifactsLoader().load(apkFolder)?.let {
+                File(it.elements.first().outputFile)
             }
         }
     }
@@ -117,7 +115,7 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
         println("generateChannelApk baseApk:${baseApk?.absolutePath},outputDir:${outputDir?.path}")
         val signingConfig = variant?.signingConfig!!
         val lowMemory = channelExtension?.lowMemory ?: false
-        val isFastMode = channelExtension?.isFastMode ?: false
+        val isFastMode = channelExtension?.fastMode ?: false
         when {
             signingConfig.enableV2Signing.get() -> {
                 generateV2ChannelApk(baseApk!!, outputDir!!, lowMemory, isFastMode)

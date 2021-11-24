@@ -27,7 +27,7 @@ open class ConfigExtension(var project: Project) {
     var lowMemory = false
 
     //是否为快速模式，即不验证渠道名
-    var isFastMode = false
+    var fastMode = false
 
     //渠道列表文件
     var channelFile: File? = null

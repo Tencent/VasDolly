@@ -24,7 +24,9 @@ internal data class SimpleAGPVersion(
                 findClass("com.android.Version")
                     ?: findClass("com.android.builder.model.Version")
             if (clazz != null) {
-                return@lazy parse(clazz.getField("ANDROID_GRADLE_PLUGIN_VERSION").get(null) as String)
+                return@lazy parse(
+                    clazz.getField("ANDROID_GRADLE_PLUGIN_VERSION").get(null) as String
+                )
             }
             error(
                 "Unable to obtain AGP version. It is likely that the AGP version being used is too old."

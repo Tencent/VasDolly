@@ -44,12 +44,6 @@ open class ChannelConfigExtension(project: Project) : ConfigExtension(project) {
      */
     var buildTimeDateFormat = DEFAULT_DATE_FORMAT
 
-    init {
-        if (!baseOutputDir.exists()) {
-            baseOutputDir.mkdirs()
-        }
-    }
-
     /**
      * 检查channel属性参数
      */

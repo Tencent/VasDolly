@@ -3,6 +3,7 @@ package com.tencent.vasdolly.plugin.task
 import com.tencent.vasdolly.plugin.extension.RebuildChannelConfigExtension
 import com.tencent.vasdolly.reader.ChannelReader
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
@@ -11,6 +12,7 @@ import java.io.File
  */
 open class RebuildApkChannelPackageTask : ChannelPackageTask() {
     //根据已有基础包重新生成多渠道包
+    @get:Input
     var rebuildExt: RebuildChannelConfigExtension? = null
 
     @TaskAction
@@ -51,7 +53,7 @@ open class RebuildApkChannelPackageTask : ChannelPackageTask() {
     private fun generateChannelApk(baseApk: File?, outputDir: File?) {
         println("generateChannelApk baseApk:${baseApk?.absolutePath},outputDir:${outputDir?.path}")
         val lowMemory = rebuildExt?.lowMemory ?: false
-        val isFastMode = rebuildExt?.isFastMode ?: false
+        val isFastMode = rebuildExt?.fastMode ?: false
         if (baseApk != null && outputDir != null) {
             if (ChannelReader.containV2Signature(baseApk)) {
                 generateV2ChannelApk(baseApk, outputDir, lowMemory, isFastMode)

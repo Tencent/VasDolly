@@ -15,7 +15,6 @@
  */
 package com.tencent.vasdolly.plugin
 
-import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.ApplicationVariant
 import com.tencent.vasdolly.plugin.extension.ChannelConfigExtension
 import com.tencent.vasdolly.plugin.extension.RebuildChannelConfigExtension
@@ -26,8 +25,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import java.io.File
-import java.util.*
 
 /***
  * VasDolly插件
@@ -57,8 +54,13 @@ class VasDollyPlugin : Plugin<Project> {
             throw GradleException("VasDolly plugin 'com.android.application' must be apply")
         }
         //检查扩展配置（channel/rebuildChannel）
-        channelConfigExt = project.extensions.create("channel", ChannelConfigExtension::class.java, project)
-        rebuildConfigExt = project.extensions.create("rebuildChannel", RebuildChannelConfigExtension::class.java, project)
+        channelConfigExt =
+            project.extensions.create("channel", ChannelConfigExtension::class.java, project)
+        rebuildConfigExt = project.extensions.create(
+            "rebuildChannel",
+            RebuildChannelConfigExtension::class.java,
+            project
+        )
 
         //获取全局工程中配置的渠道列表（gradle.properties文件指定渠道属性）
         channelInfoList = getChannelList()
@@ -71,7 +73,8 @@ class VasDollyPlugin : Plugin<Project> {
      * 新建渠道任务
      */
     private fun createChannelTask() {
-        val androidComponents = AndroidComponentsExtensionCompat.getAndroidComponentsExtension(project)
+        val androidComponents =
+            AndroidComponentsExtensionCompat.getAndroidComponentsExtension(project)
         androidComponents.onAllVariants { variant ->
             if (variant is ApplicationVariant) {
                 val variantName = variant.name.capitalize()

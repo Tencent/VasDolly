@@ -36,7 +36,12 @@ abstract class ChannelPackageTask : DefaultTask() {
      * 生成V2渠道包
      */
     @Internal
-    fun generateV2ChannelApk(baseApk: File, outputDir: File, lowMemory: Boolean, isFastMode: Boolean) {
+    fun generateV2ChannelApk(
+        baseApk: File,
+        outputDir: File,
+        lowMemory: Boolean,
+        isFastMode: Boolean
+    ) {
         println("------ $project.name:$name generate v2 channel apk  , begin ------")
         val apkSectionInfo = IdValueWriter.getApkSectionInfo(baseApk, lowMemory)
         channelList.forEach { channel ->
@@ -75,12 +80,13 @@ abstract class ChannelPackageTask : DefaultTask() {
      * 生成V1渠道包
      */
     @Internal
-    fun generateV1ChannelApk(baseApk: File, outputDir: File,isFastMode: Boolean) {
+    fun generateV1ChannelApk(baseApk: File, outputDir: File, isFastMode: Boolean) {
         //check v1 signature , if not have v1 signature , you can't install Apk below 7.0
         println("------$project.name:$name generate v1 channel apk, begin------")
 
         if (!ChannelReader.containV1Signature(baseApk)) {
-            val msg = "$name get signing config apk ${baseApk.absolutePath} not signed by v1,you can't install Apk below Android7.0"
+            val msg =
+                "$name get signing config apk ${baseApk.absolutePath} not signed by v1,you can't install Apk below Android7.0"
             throw GradleException(msg)
         }
 

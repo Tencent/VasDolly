@@ -38,7 +38,7 @@ sealed class AndroidComponentsExtensionCompat {
 
     // AGP7.0
     class Api70Impl(
-            private val actual: AndroidComponentsExtension<*, *, *>
+        private val actual: AndroidComponentsExtension<*, *, *>
     ) : AndroidComponentsExtensionCompat() {
         override fun onAllVariants(block: (Variant) -> Unit) {
             actual.onVariants { variant ->
@@ -50,9 +50,11 @@ sealed class AndroidComponentsExtensionCompat {
     // AGP4.2
     class Api42Impl(private val actual: Any) : AndroidComponentsExtensionCompat() {
 
-        private val extensionClazz = Class.forName("com.android.build.api.extension.AndroidComponentsExtension")
+        private val extensionClazz =
+            Class.forName("com.android.build.api.extension.AndroidComponentsExtension")
 
-        private val variantSelectorClazz = Class.forName("com.android.build.api.extension.VariantSelector")
+        private val variantSelectorClazz =
+            Class.forName("com.android.build.api.extension.VariantSelector")
 
         override fun onAllVariants(block: (Variant) -> Unit) {
             val selector = extensionClazz.getDeclaredMethod("selector").invoke(actual)
@@ -61,7 +63,7 @@ sealed class AndroidComponentsExtensionCompat {
                 block.invoke(it)
             }
             extensionClazz.getDeclaredMethod(
-                    "onVariants", variantSelectorClazz, Function1::class.java
+                "onVariants", variantSelectorClazz, Function1::class.java
             ).invoke(actual, allSelector, wrapFunction)
 
         }
@@ -70,10 +72,11 @@ sealed class AndroidComponentsExtensionCompat {
     companion object {
         fun getAndroidComponentsExtension(project: Project): AndroidComponentsExtensionCompat {
             return if (
-                    findClass("com.android.build.api.variant.AndroidComponentsExtension") != null
+                findClass("com.android.build.api.variant.AndroidComponentsExtension") != null
             ) {
                 //AGP7.0
-                val actualExtension = project.extensions.getByType(AndroidComponentsExtension::class.java)
+                val actualExtension =
+                    project.extensions.getByType(AndroidComponentsExtension::class.java)
                 Api70Impl(actualExtension)
             } else {
                 //AGP4.2

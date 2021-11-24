@@ -18,7 +18,6 @@ package com.tencent.vasdolly.common;
 
 import com.tencent.vasdolly.common.verify.ApkSignatureSchemeV2Verifier;
 import com.tencent.vasdolly.common.verify.ZipUtils;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
@@ -61,7 +60,8 @@ public class V1SchemeUtil {
                 //1.locate comment length field
                 raf.seek(file.length() - ChannelConstants.SHORT_LENGTH);
                 //2.write zip comment length (content field length + length field length + magic field length)
-                writeShort(comment.length + ChannelConstants.SHORT_LENGTH + ChannelConstants.V1_MAGIC.length, raf);
+                writeShort(comment.length + ChannelConstants.SHORT_LENGTH + ChannelConstants.V1_MAGIC.length,
+                        raf);
                 //3.write content
                 raf.write(comment);
                 //4.write content length
@@ -80,23 +80,29 @@ public class V1SchemeUtil {
                     String existChannel = readChannel(file);
                     if (existChannel != null) {
                         file.delete();
-                        throw new ChannelExistException("file : " + file.getAbsolutePath() + " has a channel : " + existChannel + ", only ignore");
+                        throw new ChannelExistException(
+                                "file : " + file.getAbsolutePath() + " has a channel : " + existChannel
+                                        + ", only ignore");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
 
-            int existCommentLength = ZipUtils.getUnsignedInt16(eocdAndOffsetInFile.getFirst(), ZipUtils.ZIP_EOCD_REC_MIN_SIZE - ChannelConstants.SHORT_LENGTH);
-            int newCommentLength = existCommentLength + comment.length + ChannelConstants.SHORT_LENGTH + ChannelConstants.V1_MAGIC.length;
+            int existCommentLength = ZipUtils.getUnsignedInt16(eocdAndOffsetInFile.getFirst(),
+                    ZipUtils.ZIP_EOCD_REC_MIN_SIZE - ChannelConstants.SHORT_LENGTH);
+            int newCommentLength = existCommentLength + comment.length + ChannelConstants.SHORT_LENGTH
+                    + ChannelConstants.V1_MAGIC.length;
             try {
                 raf = new RandomAccessFile(file, "rw");
                 //1.locate comment length field
-                raf.seek(eocdAndOffsetInFile.getSecond() + ZipUtils.ZIP_EOCD_REC_MIN_SIZE - ChannelConstants.SHORT_LENGTH);
+                raf.seek(eocdAndOffsetInFile.getSecond() + ZipUtils.ZIP_EOCD_REC_MIN_SIZE
+                        - ChannelConstants.SHORT_LENGTH);
                 //2.write zip comment length (existCommentLength + content field length + length field length + magic field length)
                 writeShort(newCommentLength, raf);
                 //3.locate where channel should begin
-                raf.seek(eocdAndOffsetInFile.getSecond() + ZipUtils.ZIP_EOCD_REC_MIN_SIZE + existCommentLength);
+                raf.seek(eocdAndOffsetInFile.getSecond() + ZipUtils.ZIP_EOCD_REC_MIN_SIZE
+                        + existCommentLength);
                 //4.write content
                 raf.write(comment);
                 //5.write content length
@@ -124,11 +130,13 @@ public class V1SchemeUtil {
             System.out.println("file : " + file.getName() + " , has no comment");
         } else {
             System.out.println("file : " + file.getName() + " , has comment");
-            int existCommentLength = ZipUtils.getUnsignedInt16(eocdAndOffsetInFile.getFirst(), ZipUtils.ZIP_EOCD_REC_MIN_SIZE - ChannelConstants.SHORT_LENGTH);
+            int existCommentLength = ZipUtils.getUnsignedInt16(eocdAndOffsetInFile.getFirst(),
+                    ZipUtils.ZIP_EOCD_REC_MIN_SIZE - ChannelConstants.SHORT_LENGTH);
             try {
                 raf = new RandomAccessFile(file, "rw");
                 //1.locate comment length field
-                raf.seek(eocdAndOffsetInFile.getSecond() + ZipUtils.ZIP_EOCD_REC_MIN_SIZE - ChannelConstants.SHORT_LENGTH);
+                raf.seek(eocdAndOffsetInFile.getSecond() + ZipUtils.ZIP_EOCD_REC_MIN_SIZE
+                        - ChannelConstants.SHORT_LENGTH);
                 //2.write zip comment length (0)
                 writeShort(0, raf);
                 //3. modify the length of apk file
@@ -248,7 +256,8 @@ public class V1SchemeUtil {
      * @throws IOException
      * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
      */
-    public static Pair<ByteBuffer, Long> getEocd(File apk) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static Pair<ByteBuffer, Long> getEocd(File apk)
+            throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
         if (apk == null || !apk.exists() || !apk.isFile()) {
             return null;
         }
@@ -262,8 +271,8 @@ public class V1SchemeUtil {
             }
 
             return eocdAndOffsetInFile;
-        }finally {
-            if (raf != null){
+        } finally {
+            if (raf != null) {
                 raf.close();
             }
         }
@@ -304,9 +313,7 @@ public class V1SchemeUtil {
      * @return
      */
     public static boolean containV1Signature(File file) {
-        JarFile jarFile;
-        try {
-            jarFile = new JarFile(file);
+        try (JarFile jarFile = new JarFile(file)) {
             JarEntry manifestEntry = jarFile.getJarEntry("META-INF/MANIFEST.MF");
             JarEntry sfEntry = null;
             Enumeration<JarEntry> entries = jarFile.entries();
@@ -317,6 +324,7 @@ public class V1SchemeUtil {
                     break;
                 }
             }
+            jarFile.close();
             if (manifestEntry != null && sfEntry != null) {
                 return true;
             }
@@ -328,6 +336,7 @@ public class V1SchemeUtil {
 
 
     public static class ChannelExistException extends Exception {
+
         static final long serialVersionUID = -3387516993124229949L;
 
         public ChannelExistException() {

@@ -1,6 +1,6 @@
 apply plugin: 'java-library'
 apply from: rootProject.file("maven.gradle")
 
-targetCompatibility = rootProject.javaVersion
-sourceCompatibility = rootProject.javaVersion
+targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_1_8
 

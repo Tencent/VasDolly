@@ -16,8 +16,8 @@ dependencies {
 
 // 一定要记得使用交叉编译选项，因为我们可能用很高的JDK版本编译，为了让安装了低版本的同学能用上我们写的插件，必须设定source和target
 java {
-    targetCompatibility = rootProject.javaVersion
-    sourceCompatibility = rootProject.javaVersion
+    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
 // https://developer.android.com/studio/build/extend-agp

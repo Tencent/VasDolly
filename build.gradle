@@ -5,8 +5,6 @@ ext {
     targetSdkVersion = compileSdkVersion
     buildToolsVersion = '31.0.0'
 
-    javaVersion = JavaVersion.VERSION_11
-
     //VasDolly插件版本信息
     GROUP = 'com.tencent.vasdolly'
     VERSION = '3.0.2'

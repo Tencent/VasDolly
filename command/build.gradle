@@ -27,8 +27,8 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = rootProject.javaVersion
-    targetCompatibility = rootProject.javaVersion
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 task generateJar(type: Copy, dependsOn: shadowJar) {

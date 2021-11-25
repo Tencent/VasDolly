@@ -5,5 +5,5 @@ dependencies {
     api 'com.android.tools.build:apksig:3.6.4'
 }
 
-targetCompatibility = rootProject.javaVersion
-sourceCompatibility = rootProject.javaVersion
+targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_1_8

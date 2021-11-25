@@ -8,7 +8,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath "com.tencent.vasdolly:plugin:3.0.1"
+        classpath "com.tencent.vasdolly:plugin:${rootProject.VERSION}"
     }
 }
 

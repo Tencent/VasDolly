@@ -2,6 +2,7 @@ package com.tencent.vasdolly.plugin.task
 
 import com.tencent.vasdolly.plugin.extension.RebuildChannelConfigExtension
 import com.tencent.vasdolly.reader.ChannelReader
+import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -20,13 +21,7 @@ open class RebuildApkChannelPackageTask : ChannelPackageTask() {
         //1.check all params
         checkParameter();
         //2.generate channel apk
-        if (rebuildExt?.isNeedRebuildDebugApk()!!) {
-            generateChannelApk(rebuildExt?.baseDebugApk, rebuildExt?.debugOutputDir)
-        }
-
-        if (rebuildExt?.isNeedRebuildReleaseApk()!!) {
-            generateChannelApk(rebuildExt?.baseReleaseApk, rebuildExt?.releaseOutputDir)
-        }
+        generateChannelApk(rebuildExt?.baseApk, rebuildExt?.outputDir)
     }
 
     private fun checkParameter() {
@@ -54,13 +49,29 @@ open class RebuildApkChannelPackageTask : ChannelPackageTask() {
         println("generateChannelApk baseApk:${baseApk?.absolutePath},outputDir:${outputDir?.path}")
         val lowMemory = rebuildExt?.lowMemory ?: false
         val isFastMode = rebuildExt?.fastMode ?: false
-        if (baseApk != null && outputDir != null) {
+        //检要baseApk
+        if (baseApk == null || !baseApk.exists() || !baseApk.isFile) {
+            println("baseApk:$baseApk, it is not a valid file , so can not rebuild channel apk")
+            return
+        }
+        //检查是否有输出目录
+        outputDir?.let { outDir ->
+            if (!outDir.exists()) {
+                outDir.mkdirs()
+            }
+            //清空输出目录下已经存在的apk
+            outDir.listFiles()?.forEach { file ->
+                if (file.name.endsWith(".apk")) {
+                    file.delete()
+                }
+            }
+            //开始生成渠道包
             if (ChannelReader.containV2Signature(baseApk)) {
                 generateV2ChannelApk(baseApk, outputDir, lowMemory, isFastMode)
             } else if (ChannelReader.containV1Signature(baseApk)) {
                 generateV1ChannelApk(baseApk, outputDir, isFastMode)
             }
-        }
+        } ?: throw GradleException("rebuild apk channel outputDir is empty")
     }
 
     /**

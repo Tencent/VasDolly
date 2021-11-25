@@ -82,7 +82,6 @@ class VasDollyPlugin : Plugin<Project> {
                 project.tasks.register("channel$variantName", ApkChannelPackageTask::class.java) {
                     it.variant = variant
                     it.channelExtension = channelConfigExt
-                    it.outputDir = channelConfigExt.baseOutputDir
                     it.channelList.addAll(channelInfoList)
                     it.mergeExtChannelList = !project.hasProperty(PROPERTY_CHANNELS)
                     it.dependsOn("assemble$variantName")

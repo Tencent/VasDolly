@@ -73,7 +73,7 @@ android {
 channel{
     channelFile = file("app_channel.txt")
     //多渠道包的输出目录，默认为new File(project.buildDir,"channel")
-    baseOutputDir = new File(project.buildDir,"channels")
+    outputDir = new File(project.buildDir,"channels")
     //多渠道包的命名规则，默认为：${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}-${buildTime}
     apkNameFormat ='${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}'
     //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上，默认为false）
@@ -87,11 +87,10 @@ channel{
 // gradle rebuildChannel 配置此任务用于不希望重新构建apk，直接根据指定的apk生成渠道包
 rebuildChannel {
     channelFile = file("app_channel.txt")
-    //baseDebugApk = new File(project.projectDir, "baseApk/app-debug.apk")
-    //默认为new File(project.buildDir, "rebuildChannel/debug")
-    //debugOutputDir = new File(project.buildDir, "rebuildChannel/debug")
-    //默认为new File(project.buildDir, "rebuildChannel/release")
-    //releaseOutputDir = new File(project.buildDir, "rebuildChannel/release")
+    //指定的apk生成渠道包,文件名中如果有base将被替换为渠道名，否则渠道名将作为前缀
+    baseApk = new File(project.buildDir, "outputs/apk/debug/app-debug.apk")
+    //默认为new File(project.buildDir, "rebuildChannel")
+    outputDir = new File(project.buildDir, "rebuildChannels")
     //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上，默认为false）
     fastMode = false
     //低内存模式（仅针对V2签名，默认为false）：只把签名块、中央目录和EOCD读取到内存，不把最大头的内容块读取到内存，在手机上合成APK时，可以使用该模式

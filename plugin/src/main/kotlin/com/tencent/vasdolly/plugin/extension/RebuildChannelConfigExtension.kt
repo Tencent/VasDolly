@@ -16,79 +16,16 @@
 
 package com.tencent.vasdolly.plugin.extension
 
-import org.gradle.api.GradleException
 import org.gradle.api.Project
 import java.io.File
 
 open class RebuildChannelConfigExtension(project: Project) : ConfigExtension(project) {
     /**
-     * debug base APK path
+     * base APK path
      */
-    var baseDebugApk: File? = null
-
-    /**
-     * release base APK path
-     */
-    var baseReleaseApk: File? = null
-
-    /**
-     * debug channel apk output dir
-     */
-    var debugOutputDir: File? = null
-
-    /**
-     * release channel apk output dir
-     */
-    var releaseOutputDir: File? = null
+    var baseApk: File? = null
 
     init {
-        debugOutputDir = File(project.buildDir, "rebuildChannel/debug")
-        releaseOutputDir = File(project.buildDir, "rebuildChannel/release")
-    }
-
-    fun isNeedRebuildDebugApk(): Boolean {
-        if (baseDebugApk == null || !baseDebugApk?.exists()!! || !baseDebugApk?.isFile!!) {
-            println("baseDebugApk:$baseDebugApk, it is not a valid file , so can not rebuild debug channel apk")
-            return false
-        } else {
-            if (debugOutputDir == null) {
-                throw GradleException("baseDebugApk:$baseDebugApk is ok , so you should set a valid debugOutputDir , or you can set baseDebugApk = null")
-            }
-
-            if (!debugOutputDir?.exists()!!) {
-                debugOutputDir?.mkdirs()
-            } else {
-                // delete old apks
-                debugOutputDir?.listFiles()?.forEach { file ->
-                    if (file.name.endsWith(".apk")) {
-                        file.delete()
-                    }
-                }
-            }
-            return true
-        }
-    }
-
-    fun isNeedRebuildReleaseApk(): Boolean {
-        if (baseReleaseApk == null || !baseReleaseApk?.exists()!! || !baseReleaseApk?.isFile!!) {
-            println("baseReleaseApk:$baseReleaseApk, it is not a valid file , so can not rebuild release channel apk")
-            return false
-        } else {
-            if (releaseOutputDir == null) {
-                throw GradleException("baseReleaseApk:$baseReleaseApk is ok , so you should set a valid releaseOutputDir , or you can set baseReleaseApk = null")
-            }
-
-            if (!releaseOutputDir?.exists()!!) {
-                releaseOutputDir?.mkdirs()
-            } else {
-                // delete old apks
-                releaseOutputDir?.listFiles()?.forEach { file ->
-                    if (file.name.endsWith(".apk")) {
-                        file.delete()
-                    }
-                }
-            }
-            return true
-        }
+        outputDir = File(project.buildDir, "rebuildChannel")
     }
 }

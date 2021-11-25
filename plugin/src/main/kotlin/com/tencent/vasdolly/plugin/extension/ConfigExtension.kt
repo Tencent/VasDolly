@@ -32,6 +32,9 @@ open class ConfigExtension(var project: Project) {
     //渠道列表文件
     var channelFile: File? = null
 
+    //渠道包保持目录
+    var outputDir: File = File(project.buildDir,"channel")
+
     /**
      * 从扩展属性中获取channelFile配置的扩展渠道列表
      */

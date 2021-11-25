@@ -74,7 +74,7 @@ channel{
     //指定渠道文件
     channelFile = file("/Users/leon/Downloads/testChannel.txt")
      //多渠道包的输出目录，默认为new File(project.buildDir,"channel")
-    baseOutputDir = new File(project.buildDir,"xxx")
+    outputDir = new File(project.buildDir,"xxx")
     //多渠道包的命名规则，默认为：${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}-${buildTime}
     apkNameFormat ='${appName}-${versionName}-${versionCode}-${flavorName}-${buildType}'
     //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上，默认为false）
@@ -105,12 +105,10 @@ channel{
 rebuildChannel {
   //指定渠道文件
   channelFile = file("/Users/leon/Downloads/testReChannel.txt")
-  baseDebugApk = 已有Debug APK    
-  baseReleaseApk = 已有Release APK
-  //默认为new File(project.buildDir, "rebuildChannel/debug")
-  debugOutputDir = Debug渠道包输出目录   
-  //默认为new File(project.buildDir, "rebuildChannel/release")
-  releaseOutputDir = Release渠道包输出目录
+  // 已有APK文件地址（必填）,如new File(project.rootDir, "/baseApk/app_base.apk"),文件名中的base将被替换为渠道名
+  baseApk = 已有APK文件地址（必填）
+  //默认为new File(project.buildDir, "rebuildChannel")
+  outputDir = 渠道包输出目录
   //快速模式：生成渠道包时不进行校验（速度可以提升10倍以上，默认为false）
   fastMode = false
   //低内存模式（仅针对V2签名，默认为false）：只把签名块、中央目录和EOCD读取到内存，不把最大头的内容块读取到内存，在手机上合成APK时，可以使用该模式

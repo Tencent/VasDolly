@@ -15,8 +15,8 @@
  */
 package com.tencent.vasdolly.plugin.extension
 
+import org.gradle.api.GradleException
 import org.gradle.api.Project
-import java.io.File
 
 open class ChannelConfigExtension(project: Project) : ConfigExtension(project) {
 
@@ -28,11 +28,6 @@ open class ChannelConfigExtension(project: Project) : ConfigExtension(project) {
         //默认时间格式
         const val DEFAULT_DATE_FORMAT = "yyyyMMdd-HHmmss"
     }
-
-    /**
-     * 渠道包输出目录
-     */
-    var baseOutputDir = File(project.buildDir, "channel")
 
     /**
      * 渠道包的命名格式
@@ -48,8 +43,17 @@ open class ChannelConfigExtension(project: Project) : ConfigExtension(project) {
      * 检查channel属性参数
      */
     fun checkParams() {
-        if (!baseOutputDir.exists()) {
-            baseOutputDir.mkdirs()
+        if (!outputDir.exists()) {
+            outputDir.mkdirs()
+        }
+        if (!outputDir.isDirectory) {
+            throw GradleException("channel config outputDir:${outputDir.absolutePath} isn't directory")
+        }
+        //清理旧的apk文件
+        outputDir.listFiles()?.forEach { file ->
+            if (file.name.endsWith(".apk")) {
+                file.delete()
+            }
         }
     }
 }

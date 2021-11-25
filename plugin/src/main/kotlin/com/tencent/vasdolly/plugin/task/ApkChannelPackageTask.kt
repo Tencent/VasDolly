@@ -27,10 +27,6 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
     @get:Input
     var channelExtension: ChannelConfigExtension? = null
 
-    @get:InputDirectory
-    var outputDir: File? = null
-
-
     @TaskAction
     fun taskAction() {
         //1.check all params
@@ -53,24 +49,8 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
         }
         println("Task $name, channelList: $channelList")
 
-        //2.check output dir
-        if (outputDir == null) {
-            throw InvalidUserDataException("Task $name outputDir == null")
-        }
-        if (!outputDir!!.exists() || !outputDir!!.isDirectory) {
-            outputDir?.mkdirs()
-        } else {
-            // delete old apks
-            outputDir?.listFiles()?.forEach { file ->
-                if (file.name.endsWith(".apk")) {
-                    file.delete()
-                }
-            }
 
-        }
-        println("Task $name, channel file outputDir:$outputDir")
-
-        //3.check base apk
+        //2.check base apk
         if (variant == null) {
             throw InvalidUserDataException("Task $name variant is null")
         }
@@ -78,11 +58,12 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
         println("Task $name, baseApk: ${baseApk?.absolutePath}")
 
 
-        //4.check ChannelExtension
+        //3.check ChannelExtension
         if (channelExtension == null) {
             throw InvalidUserDataException("Task $name channel is null")
         }
         channelExtension?.checkParams()
+        println("Task $name, channel files outputDir:${channelExtension?.outputDir?.absolutePath}")
     }
 
     @Suppress("PrivateApi")
@@ -112,6 +93,7 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
      * 根据签名类型生成不同的渠道包
      */
     private fun generateChannelApk() {
+        val outputDir = channelExtension?.outputDir
         println("generateChannelApk baseApk:${baseApk?.absolutePath},outputDir:${outputDir?.path}")
         val signingConfig = variant?.signingConfig!!
         val lowMemory = channelExtension?.lowMemory ?: false

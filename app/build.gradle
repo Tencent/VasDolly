@@ -8,7 +8,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath "com.tencent.vasdolly:plugin:${rootProject.VERSION}"
+        classpath "com.tencent.vasdolly:plugin:3.0.1"
     }
 }
 
@@ -29,6 +29,8 @@ android {
             storePassword "123456"
             keyAlias "leon"
             keyPassword "123456"
+            enableV1Signing true
+            enableV2Signing true
         }
 
         debug {
@@ -36,6 +38,8 @@ android {
             storePassword "123456"
             keyAlias "leon"
             keyPassword "123456"
+            enableV1Signing true
+            enableV2Signing false
         }
     }
 

@@ -17,19 +17,22 @@
 package com.tencent.vasdolly.app;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
 import com.tencent.vasdolly.helper.ChannelReaderUtil;
 
 public class MainActivity extends AppCompatActivity {
+
     private static final String TAG = "MainActivity";
 
     TextView mTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mTextView = (TextView) findViewById(R.id.channel);
+        //读取当前应用渠道信息
         String channel = ChannelReaderUtil.getChannel(getApplicationContext());
         mTextView.setText(channel);
     }

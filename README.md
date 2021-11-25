@@ -1,5 +1,5 @@
 [![license](http://img.shields.io/badge/license-BSD3-brightgreen.svg?style=flat)](https://github.com/Tencent/VasDolly/blob/master/LICENSE)
-[![Release Version](https://img.shields.io/badge/release-3.0.1-red.svg)](https://github.com/Tencent/VasDolly/releases)
+[![Release Version](https://img.shields.io/badge/release-3.0.2-red.svg)](https://github.com/Tencent/VasDolly/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/VasDolly/pulls)
 [![wiki](https://img.shields.io/badge/Wiki-open-brightgreen.svg)](https://github.com/Tencent/VasDolly/wiki)
 ---
@@ -7,7 +7,7 @@
 
 # 简介
 VasDolly是一种快速多渠道打包工具，同时支持基于V1签名和V2签名进行多渠道打包。插件本身会自动检测Apk使用的签名类别，并选择合适的多渠道打包方式，对使用者来说完全透明。 
-`V3.0.1`版本已支持Android Gradle Plugin 4.2.0以上版本，欢迎使用！
+`V3.0.2`版本已支持Android Gradle Plugin 4.2.0以上版本，欢迎使用！
 
 目前Gradle Plugin 2.2以上默认开启V2签名，所以如果想关闭V2签名，可将下面的v2SigningEnabled设置为false。
 关于应用签名说明：[见官方文档](https://source.android.com/security/apksigning)
@@ -34,7 +34,7 @@ signingConfigs {
 ``` groovy
 dependencies {
         classpath 'com.android.tools.build:gradle:7.0.3'
-        classpath 'com.tencent.vasdolly:plugin:3.0.1'
+        classpath 'com.tencent.vasdolly:plugin:3.0.2'
 }
 ```
 ## 引用VasDolly Plugin
@@ -46,7 +46,7 @@ apply plugin: 'com.tencent.vasdolly'
 在主App工程的`build.gradle`中，添加读取渠道信息的helper类库依赖：
 ``` groovy
 dependencies {
-    api 'com.tencent.vasdolly:helper:3.0.1'
+    api 'com.tencent.vasdolly:helper:3.0.2'
 }
 ```
 ## 配置渠道列表

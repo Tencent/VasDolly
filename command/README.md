@@ -1,4 +1,4 @@
-## VasDolly命令行（要求Java11）
+## VasDolly命令行（要求Java8）
  命令行工具即：jar文件下`VasDolly.jar`，可以通过help查看具体命令：
  ``` java
  java -jar VasDolly.jar help

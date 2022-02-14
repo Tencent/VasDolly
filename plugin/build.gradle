@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id "java-gradle-plugin"
-    id 'org.jetbrains.kotlin.jvm' version "1.6.0"
+    id 'org.jetbrains.kotlin.jvm' version "1.4.32"
 }
 apply from: rootProject.file("maven.gradle")
 
@@ -10,7 +10,7 @@ dependencies {
     api project(':writer')
     api project(':reader')
     api project(':verify')
-    implementation gradleApi()
+    //implementation gradleApi()
     compileOnly "com.android.tools.build:gradle:7.0.2"
 }
 

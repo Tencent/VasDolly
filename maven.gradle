@@ -54,6 +54,7 @@ afterEvaluate {
         }
 
         //发布仓库
+        //仓库地址：https://repo.maven.apache.org/maven2/com/tencent/vasdolly/
         repositories {
             maven {
                 def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'

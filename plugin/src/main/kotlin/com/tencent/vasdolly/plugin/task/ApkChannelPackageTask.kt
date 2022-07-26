@@ -3,6 +3,7 @@ package com.tencent.vasdolly.plugin.task
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.ApplicationVariant
 import com.tencent.vasdolly.plugin.extension.ChannelConfigExtension
+import com.tencent.vasdolly.plugin.model.Channel
 import com.tencent.vasdolly.plugin.util.SimpleAGPVersion
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
@@ -114,7 +115,7 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
     /***
      * 获取渠道文件名
      */
-    override fun getChannelApkName(baseApkName: String, channel: String): String {
+    override fun getChannelApkName(baseApkName: String, channel: Channel): String {
         var timeFormat = ChannelConfigExtension.DEFAULT_DATE_FORMAT
         if (channelExtension?.buildTimeDateFormat!!.isNotEmpty()) {
             timeFormat = channelExtension?.buildTimeDateFormat!!
@@ -124,7 +125,8 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
 
         val keyValue: MutableMap<String, String> = mutableMapOf()
         keyValue["appName"] = project.name
-        keyValue["flavorName"] = channel
+        keyValue["flavorName"] = channel.channel
+        keyValue["aliasName"] =  channel.alias ?: channel.channel
         keyValue["buildType"] = variant?.buildType ?: ""
         keyValue["versionName"] = outInfo?.versionName?.get() ?: ""
         keyValue["versionCode"] = outInfo?.versionCode?.get().toString()
@@ -145,7 +147,7 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
     /***
      * 获取渠道列表
      */
-    override fun getExtensionChannelList(): List<String> {
+    override fun getExtensionChannelList(): List<Channel> {
         return channelExtension?.getExtensionChannelList() ?: listOf()
     }
 }

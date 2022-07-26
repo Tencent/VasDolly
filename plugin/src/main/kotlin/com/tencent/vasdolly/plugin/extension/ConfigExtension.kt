@@ -15,6 +15,7 @@
  */
 package com.tencent.vasdolly.plugin.extension
 
+import com.tencent.vasdolly.plugin.model.Channel
 import org.gradle.api.Project
 import java.io.File
 
@@ -32,18 +33,29 @@ open class ConfigExtension(var project: Project) {
     //渠道列表文件
     var channelFile: File? = null
 
+    //渠道分割符号
+    var channelSeparator: String? = null
+
     //渠道包保持目录
     var outputDir: File = File(project.buildDir,"channel")
 
     /**
      * 从扩展属性中获取channelFile配置的扩展渠道列表
      */
-    fun getExtensionChannelList(): List<String> {
-        val channelList = mutableListOf<String>()
+    fun getExtensionChannelList(): List<Channel> {
+        val channelList = mutableListOf<Channel>()
         if (channelFile != null && channelFile?.isFile!! && channelFile?.exists()!!) {
             channelFile?.forEachLine { channel ->
                 if (channel.isNotEmpty()) {
-                    channelList.add(channel)
+                    if (channelSeparator.isNullOrEmpty()) {
+                        val channelModel = Channel(channel, null)
+                        channelList.add(channelModel)
+                    } else {
+                        val split = channel.split(channelSeparator!!)
+                        val channelModel =
+                            Channel(split.first(), if (split.size > 1) split[1] else null)
+                        channelList.add(channelModel)
+                    }
                 }
             }
             println("get channels from `channelFile`,channels:$channelList")

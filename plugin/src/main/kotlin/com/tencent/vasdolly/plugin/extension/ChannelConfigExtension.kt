@@ -23,7 +23,7 @@ open class ChannelConfigExtension(project: Project) : ConfigExtension(project) {
     companion object {
         //默认文件名模板
         const val DEFAULT_APK_NAME_FORMAT =
-            "${'$'}{appName}-${'$'}{versionName}-${'$'}{versionCode}-${'$'}{flavorName}-${'$'}{buildType}-${'$'}{buildTime}"
+            "${'$'}{appName}-${'$'}{versionName}-${'$'}{versionCode}-${'$'}{aliasName}-${'$'}{flavorName}-${'$'}{buildType}-${'$'}{buildTime}"
 
         //默认时间格式
         const val DEFAULT_DATE_FORMAT = "yyyyMMdd-HHmmss"

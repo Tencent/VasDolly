@@ -1,5 +1,6 @@
 package com.tencent.vasdolly.plugin.task
 
+import com.tencent.vasdolly.plugin.model.Channel
 import com.tencent.vasdolly.reader.ChannelReader
 import com.tencent.vasdolly.verify.VerifyApk
 import com.tencent.vasdolly.writer.ChannelWriter
@@ -15,7 +16,7 @@ abstract class ChannelPackageTask : DefaultTask() {
     var mergeExtChannelList: Boolean = true
 
     @Input
-    var channelList: MutableList<String> = mutableListOf()
+    var channelList: MutableList<Channel> = mutableListOf()
 
     init {
         group = "com.tencent.vasdolly"
@@ -50,10 +51,10 @@ abstract class ChannelPackageTask : DefaultTask() {
             if (apkSectionInfo.lowMemory) {
                 baseApk.copyTo(destFile)
             }
-            ChannelWriter.addChannelByV2(apkSectionInfo, destFile, channel)
+            ChannelWriter.addChannelByV2(apkSectionInfo, destFile, channel.channel)
             if (!isFastMode) {
                 //1. verify channel info
-                if (ChannelReader.verifyChannelByV2(destFile, channel)) {
+                if (ChannelReader.verifyChannelByV2(destFile, channel.channel)) {
                     println("generateV2ChannelApk, $destFile add channel success")
                 } else {
                     throw GradleException("generateV2ChannelApk, $destFile add channel failure")
@@ -99,10 +100,10 @@ abstract class ChannelPackageTask : DefaultTask() {
             println("generateV1ChannelApk,channel=$channel,apkChannelName=$apkChannelName")
             val destFile = File(outputDir, apkChannelName)
             baseApk.copyTo(destFile)
-            ChannelWriter.addChannelByV1(destFile, channel)
+            ChannelWriter.addChannelByV1(destFile, channel.channel)
             if (isFastMode) {
                 //1. verify channel info
-                if (ChannelReader.verifyChannelByV1(destFile, channel)) {
+                if (ChannelReader.verifyChannelByV1(destFile, channel.channel)) {
                     println("generateV1ChannelApk,apk $destFile add channel success")
                 } else {
                     throw GradleException("generateV1ChannelApk,apk $destFile add channel failure")
@@ -118,8 +119,8 @@ abstract class ChannelPackageTask : DefaultTask() {
         println("------$project.name:$name generate v1 channel apk , end------")
     }
 
-    abstract fun getChannelApkName(baseApkName: String, channel: String): String
+    abstract fun getChannelApkName(baseApkName: String, channel: Channel): String
 
     @Internal
-    abstract fun getExtensionChannelList(): List<String>
+    abstract fun getExtensionChannelList(): List<Channel>
 }

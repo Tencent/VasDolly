@@ -109,9 +109,9 @@ class VasDollyPlugin : Plugin<Project> {
         if (project.hasProperty(PROPERTY_CHANNELS)) {
             val channels = project.properties[PROPERTY_CHANNELS] as String
             if (channels.isNotEmpty()) {
-                channelInfoList = channels.split(",")
+                channelList = channels.split(",")
             }
-            if (channelInfoList.isEmpty()) {
+            if (channelList.isEmpty()) {
                 throw InvalidUserDataException("Property(${PROPERTY_CHANNELS}) channel list is empty , please fix it")
             }
             println("get project channel list from `channels` property,channels:$channelList")

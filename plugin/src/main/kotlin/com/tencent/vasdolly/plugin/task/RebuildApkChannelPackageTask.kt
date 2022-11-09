@@ -1,6 +1,7 @@
 package com.tencent.vasdolly.plugin.task
 
 import com.tencent.vasdolly.plugin.extension.RebuildChannelConfigExtension
+import com.tencent.vasdolly.plugin.model.Channel
 import com.tencent.vasdolly.reader.ChannelReader
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
@@ -77,15 +78,19 @@ open class RebuildApkChannelPackageTask : ChannelPackageTask() {
     /**
      * 获取Apk文件名
      */
-    override fun getChannelApkName(baseApkName: String, channel: String): String {
+    override fun getChannelApkName(baseApkName: String, channel: Channel): String {
         return if (baseApkName.contains("base")) {
-            baseApkName.replace("base", channel)
+            baseApkName.replace("base", channel.channel)
         } else {
-            "$channel-$baseApkName";
+            if(channel.alias.isNullOrEmpty()){
+                "${channel.channel}-$baseApkName"
+            }else{
+                "${channel.alias}-${channel.channel}-$baseApkName"
+            }
         }
     }
 
-    override fun getExtensionChannelList(): List<String> {
+    override fun getExtensionChannelList(): List<Channel> {
         return rebuildExt?.getExtensionChannelList() ?: listOf()
     }
 }

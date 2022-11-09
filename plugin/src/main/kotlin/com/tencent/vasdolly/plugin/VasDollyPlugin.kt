@@ -119,7 +119,7 @@ class VasDollyPlugin : Plugin<Project> {
                     }
                 }
             }
-            if (channelInfoList.isEmpty()) {
+            if (channelList.isEmpty()) {
                 throw InvalidUserDataException("Property(${PROPERTY_CHANNELS}) channel list is empty , please fix it")
             }
             println("get project channel list from `channels` property,channels:$channelList")

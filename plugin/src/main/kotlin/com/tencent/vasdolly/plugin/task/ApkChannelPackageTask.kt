@@ -124,6 +124,8 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
 
         val keyValue: MutableMap<String, String> = mutableMapOf()
         keyValue["appName"] = project.name
+        keyValue["productFlavorName"] = variant?.flavorName ?: ""
+        keyValue["channelName"] = channel
         keyValue["flavorName"] = channel
         keyValue["buildType"] = variant?.buildType ?: ""
         keyValue["versionName"] = outInfo?.versionName?.get() ?: ""

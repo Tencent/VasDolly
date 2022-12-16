@@ -102,6 +102,12 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
      */
     private fun generateChannelApk() {
         val outputDir = getOutputDir()
+        // 清理旧的apk
+        outputDir?.listFiles()?.forEach { file ->
+            if (file.name.endsWith(".apk")) {
+                file.delete()
+            }
+        }
         println("generateChannelApk baseApk:${baseApk?.absolutePath},outputDir:${outputDir?.path}")
         val signingConfig = variant?.signingConfig!!
         val lowMemory = channelExtension?.lowMemory ?: false

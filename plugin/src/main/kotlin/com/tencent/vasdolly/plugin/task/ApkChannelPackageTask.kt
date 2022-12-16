@@ -35,6 +35,14 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
         generateChannelApk();
     }
 
+    private fun getOutputDir(): File? {
+        if (variant?.flavorName?.isNotEmpty() == true) {
+            return File(channelExtension?.outputDir, variant!!.flavorName!!)
+        } else {
+            return channelExtension?.outputDir
+        }
+    }
+
     /***
      * check channel plugin params
      */
@@ -63,7 +71,7 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
             throw InvalidUserDataException("Task $name channel is null")
         }
         channelExtension?.checkParams()
-        println("Task $name, channel files outputDir:${channelExtension?.outputDir?.absolutePath}")
+        println("Task $name, channel files outputDir:${getOutputDir()?.absolutePath}")
     }
 
     @Suppress("PrivateApi")
@@ -93,7 +101,13 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
      * 根据签名类型生成不同的渠道包
      */
     private fun generateChannelApk() {
-        val outputDir = channelExtension?.outputDir
+        val outputDir = getOutputDir()
+        // 清理旧的apk
+        outputDir?.listFiles()?.forEach { file ->
+            if (file.name.endsWith(".apk")) {
+                file.delete()
+            }
+        }
         println("generateChannelApk baseApk:${baseApk?.absolutePath},outputDir:${outputDir?.path}")
         val signingConfig = variant?.signingConfig!!
         val lowMemory = channelExtension?.lowMemory ?: false
@@ -124,6 +138,8 @@ open class ApkChannelPackageTask : ChannelPackageTask() {
 
         val keyValue: MutableMap<String, String> = mutableMapOf()
         keyValue["appName"] = project.name
+        keyValue["productFlavorName"] = variant?.flavorName ?: ""
+        keyValue["channelName"] = channel
         keyValue["flavorName"] = channel
         keyValue["buildType"] = variant?.buildType ?: ""
         keyValue["versionName"] = outInfo?.versionName?.get() ?: ""

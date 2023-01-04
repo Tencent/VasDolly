@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.vasdolly.common.verify;
+package com.tencent.vasdolly.common.apk;
 import com.tencent.vasdolly.common.Pair;
 
 import java.io.IOException;

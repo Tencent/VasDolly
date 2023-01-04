@@ -19,6 +19,7 @@ package com.tencent.vasdolly.reader;
 import com.tencent.vasdolly.common.ChannelConstants;
 import com.tencent.vasdolly.common.V1SchemeUtil;
 import com.tencent.vasdolly.common.V2SchemeUtil;
+import com.tencent.vasdolly.common.V3SchemeUtil;
 
 import java.io.File;
 
@@ -107,6 +108,19 @@ public class ChannelReader {
             return false;
         }
         return V2SchemeUtil.containV2Signature(file);
+    }
+
+    /**
+     * judge whether apk contain v2 signature block
+     *
+     * @param file
+     * @return
+     */
+    public static boolean containV3Signature(File file) {
+        if (file == null || !file.exists() || !file.isFile()) {
+            return false;
+        }
+        return V3SchemeUtil.containV3Signature(file);
     }
 
 }

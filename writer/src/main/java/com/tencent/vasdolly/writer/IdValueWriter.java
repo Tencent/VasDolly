@@ -18,8 +18,8 @@ package com.tencent.vasdolly.writer;
 
 import com.tencent.vasdolly.common.ApkSectionInfo;
 import com.tencent.vasdolly.common.V2SchemeUtil;
-import com.tencent.vasdolly.common.verify.ApkSignatureSchemeV2Verifier;
-import com.tencent.vasdolly.common.verify.ZipUtils;
+import com.tencent.vasdolly.common.apk.SignatureNotFoundException;
+import com.tencent.vasdolly.common.apk.ZipUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,34 +44,24 @@ public class IdValueWriter {
      * @param id
      * @param valueBuffer
      * @throws IOException
-     * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
+     * @throws SignatureNotFoundException
      */
-    public static void addIdValue(ApkSectionInfo apkSectionInfo, File destApk, int id, ByteBuffer valueBuffer) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
-        if (id == ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID) {
-            throw new RuntimeException("addIdValue , id can not is " + String.valueOf(ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID) + " , v2 signature block use it");
-        }
-
+    public static void addIdValue(ApkSectionInfo apkSectionInfo, File destApk, int id, ByteBuffer valueBuffer) throws IOException, SignatureNotFoundException {
         Map<Integer, ByteBuffer> idValueMap = new LinkedHashMap<>();
         idValueMap.put(id, valueBuffer);
         addIdValueByteBufferMap(apkSectionInfo, destApk, idValueMap);
     }
 
-    public static void removeIdValue(ApkSectionInfo apkSectionInfo, File destApk, List<Integer> idList) throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException, IOException {
+    public static void removeIdValue(ApkSectionInfo apkSectionInfo, File destApk, List<Integer> idList) throws SignatureNotFoundException, IOException {
         if (apkSectionInfo == null || destApk == null || !destApk.isFile() || !destApk.exists() || idList == null || idList.isEmpty()) {
             return;
         }
-        Map<Integer, ByteBuffer> existentIdValueMap = V2SchemeUtil.getAllIdValue(apkSectionInfo.schemeV2Block.getFirst());
+        Map<Integer, ByteBuffer> existentIdValueMap = V2SchemeUtil.getAllIdValue(apkSectionInfo.apkSigningBlock.getFirst());
         int existentIdValueSize = existentIdValueMap.size();
-        if (!existentIdValueMap.containsKey(ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID)) {
-            throw new ApkSignatureSchemeV2Verifier.SignatureNotFoundException(
-                    "No APK V2 Signature Scheme block in APK Signing Block");
-        }
         System.out.println("removeIdValue , existed IdValueMap = " + existentIdValueMap);
 
         for (Integer id : idList) {
-            if (id.intValue() != ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID) {
-                existentIdValueMap.remove(id);
-            }
+            existentIdValueMap.remove(id);
         }
         int remainderIdValueSize = existentIdValueMap.size();
         if (existentIdValueSize == remainderIdValueSize) {
@@ -79,12 +69,12 @@ public class IdValueWriter {
         } else {
             System.out.println("removeIdValue , final IdValueMap = " + existentIdValueMap);
             ByteBuffer newApkSigningBlock = V2SchemeUtil.generateApkSigningBlock(existentIdValueMap);
-            System.out.println("removeIdValue , oldApkSigningBlock size = " + apkSectionInfo.schemeV2Block.getFirst().remaining() + " , newApkSigningBlock size = " + newApkSigningBlock.remaining());
+            System.out.println("removeIdValue , oldApkSigningBlock size = " + apkSectionInfo.apkSigningBlock.getFirst().remaining() + " , newApkSigningBlock size = " + newApkSigningBlock.remaining());
 
             ByteBuffer centralDir = apkSectionInfo.centralDir.getFirst();
             ByteBuffer eocd = apkSectionInfo.eocd.getFirst();
             long centralDirOffset = apkSectionInfo.centralDir.getSecond();
-            int apkChangeSize = newApkSigningBlock.remaining() - apkSectionInfo.schemeV2Block.getFirst().remaining();
+            int apkChangeSize = newApkSigningBlock.remaining() - apkSectionInfo.apkSigningBlock.getFirst().remaining();
             //update the offset of centralDir
             ZipUtils.setZipEocdCentralDirectoryOffset(eocd, centralDirOffset + apkChangeSize);//修改了EOCD中保存的中央目录偏移量
 
@@ -93,7 +83,7 @@ public class IdValueWriter {
             try {
                 fIn = new RandomAccessFile(destApk, "rw");
                 if (apkSectionInfo.lowMemory) {
-                    fIn.seek(apkSectionInfo.schemeV2Block.getSecond());
+                    fIn.seek(apkSectionInfo.apkSigningBlock.getSecond());
                 } else {
                     ByteBuffer contentEntry = apkSectionInfo.contentEntry.getFirst();
                     fIn.seek(apkSectionInfo.contentEntry.getSecond());
@@ -130,34 +120,23 @@ public class IdValueWriter {
      * @param destApk
      * @param idValueMap
      * @throws IOException
-     * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
+     * @throws SignatureNotFoundException
      */
-    public static void addIdValueByteBufferMap(ApkSectionInfo apkSectionInfo, File destApk, Map<Integer, ByteBuffer> idValueMap) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static void addIdValueByteBufferMap(ApkSectionInfo apkSectionInfo, File destApk, Map<Integer, ByteBuffer> idValueMap) throws IOException, SignatureNotFoundException {
         if (idValueMap == null || idValueMap.isEmpty()) {
             throw new RuntimeException("addIdValueByteBufferMap , id value pair is empty");
         }
-        if (idValueMap.containsKey(ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID)) { //不能和系统V2签名块的ID冲突
-            idValueMap.remove(ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID);
-        }
-        System.out.println("addIdValueByteBufferMap , new IdValueMap = " + idValueMap);
 
-        Map<Integer, ByteBuffer> existentIdValueMap = V2SchemeUtil.getAllIdValue(apkSectionInfo.schemeV2Block.getFirst());
-        if (!existentIdValueMap.containsKey(ApkSignatureSchemeV2Verifier.APK_SIGNATURE_SCHEME_V2_BLOCK_ID)) {
-            throw new ApkSignatureSchemeV2Verifier.SignatureNotFoundException(
-                    "No APK V2 Signature Scheme block in APK Signing Block");
-        }
-        System.out.println("addIdValueByteBufferMap , existed IdValueMap = " + existentIdValueMap);
-
+        Map<Integer, ByteBuffer> existentIdValueMap = V2SchemeUtil.getAllIdValue(apkSectionInfo.apkSigningBlock.getFirst());
         existentIdValueMap.putAll(idValueMap);
-        System.out.println("addIdValueByteBufferMap , final IdValueMap = " + existentIdValueMap);
 
         ByteBuffer newApkSigningBlock = V2SchemeUtil.generateApkSigningBlock(existentIdValueMap);
-        System.out.println("addIdValueByteBufferMap , oldApkSigningBlock size = " + apkSectionInfo.schemeV2Block.getFirst().remaining() + " , newApkSigningBlock size = " + newApkSigningBlock.remaining());
+        System.out.println("addIdValueByteBufferMap , oldApkSigningBlock size = " + apkSectionInfo.apkSigningBlock.getFirst().remaining() + " , newApkSigningBlock size = " + newApkSigningBlock.remaining());
 
         ByteBuffer centralDir = apkSectionInfo.centralDir.getFirst();
         ByteBuffer eocd = apkSectionInfo.eocd.getFirst();
         long centralDirOffset = apkSectionInfo.centralDir.getSecond();
-        int apkChangeSize = newApkSigningBlock.remaining() - apkSectionInfo.schemeV2Block.getFirst().remaining();
+        int apkChangeSize = newApkSigningBlock.remaining() - apkSectionInfo.apkSigningBlock.getFirst().remaining();
         //update the offset of centralDir
         ZipUtils.setZipEocdCentralDirectoryOffset(eocd, centralDirOffset + apkChangeSize);//修改了EOCD中保存的中央目录偏移量
 
@@ -166,7 +145,7 @@ public class IdValueWriter {
         try {
             fIn = new RandomAccessFile(destApk, "rw");
             if (apkSectionInfo.lowMemory) {
-                fIn.seek(apkSectionInfo.schemeV2Block.getSecond());
+                fIn.seek(apkSectionInfo.apkSigningBlock.getSecond());
             } else {
                 ByteBuffer contentEntry = apkSectionInfo.contentEntry.getFirst();
                 fIn.seek(apkSectionInfo.contentEntry.getSecond());
@@ -203,7 +182,7 @@ public class IdValueWriter {
      * @param id
      * @param buffer  please ensure utf-8 charset
      */
-    public static void addIdValue(File srcApk, File destApk, int id, byte[] buffer, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static void addIdValue(File srcApk, File destApk, int id, byte[] buffer, boolean lowMemory) throws IOException, SignatureNotFoundException {
         ApkSectionInfo apkSectionInfo = getApkSectionInfo(srcApk, lowMemory);
         ByteBuffer channelByteBuffer = ByteBuffer.wrap(buffer);
         //apk中所有字节都是小端模式
@@ -219,9 +198,9 @@ public class IdValueWriter {
      * @param id
      * @param buffer
      * @throws IOException
-     * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
+     * @throws SignatureNotFoundException
      */
-    public static void addIdValue(File apkFile, int id, byte[] buffer, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static void addIdValue(File apkFile, int id, byte[] buffer, boolean lowMemory) throws IOException, SignatureNotFoundException {
         addIdValue(apkFile, apkFile, id, buffer, lowMemory);
     }
 
@@ -233,9 +212,9 @@ public class IdValueWriter {
      * @param destApk
      * @param idValueByteMap
      * @throws IOException
-     * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
+     * @throws SignatureNotFoundException
      */
-    public static void addIdValueByteMap(File srcApk, File destApk, Map<Integer, byte[]> idValueByteMap, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static void addIdValueByteMap(File srcApk, File destApk, Map<Integer, byte[]> idValueByteMap, boolean lowMemory) throws IOException, SignatureNotFoundException {
         if (idValueByteMap == null || idValueByteMap.isEmpty()) {
             throw new RuntimeException("addIdValueByteMap , idValueByteMap is empty");
         }
@@ -258,9 +237,9 @@ public class IdValueWriter {
      * @param apkFile
      * @param idValueByteMap
      * @throws IOException
-     * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
+     * @throws SignatureNotFoundException
      */
-    public static void addIdValueByteMap(File apkFile, Map<Integer, byte[]> idValueByteMap, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static void addIdValueByteMap(File apkFile, Map<Integer, byte[]> idValueByteMap, boolean lowMemory) throws IOException, SignatureNotFoundException {
         addIdValueByteMap(apkFile, apkFile, idValueByteMap, lowMemory);
     }
 
@@ -268,7 +247,7 @@ public class IdValueWriter {
 
     }
 
-    public static ApkSectionInfo getApkSectionInfo(File baseApk, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static ApkSectionInfo getApkSectionInfo(File baseApk, boolean lowMemory) throws IOException, SignatureNotFoundException {
         if (baseApk == null || !baseApk.exists() || !baseApk.isFile()) {
             return null;
         }

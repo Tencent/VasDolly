@@ -20,7 +20,7 @@ package com.tencent.vasdolly.writer;
 import com.tencent.vasdolly.common.ApkSectionInfo;
 import com.tencent.vasdolly.common.ChannelConstants;
 import com.tencent.vasdolly.common.V1SchemeUtil;
-import com.tencent.vasdolly.common.verify.ApkSignatureSchemeV2Verifier;
+import com.tencent.vasdolly.common.apk.SignatureNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,9 +42,9 @@ public class ChannelWriter {
      * @param destApk
      * @param channel
      * @throws IOException
-     * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
+     * @throws SignatureNotFoundException
      */
-    public static void addChannelByV2(ApkSectionInfo apkSectionInfo, File destApk, String channel) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static void addChannelByV2(ApkSectionInfo apkSectionInfo, File destApk, String channel) throws IOException, SignatureNotFoundException {
         if (destApk == null || channel == null || channel.length() <= 0) {
             throw new RuntimeException("addChannelByV2 , param invalid, channel = " + channel + " , destApk = " + destApk);
         }
@@ -74,9 +74,9 @@ public class ChannelWriter {
      * @param apkFile
      * @param channel
      * @throws IOException
-     * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
+     * @throws SignatureNotFoundException
      */
-    public static void addChannelByV2(File apkFile, String channel, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static void addChannelByV2(File apkFile, String channel, boolean lowMemory) throws IOException, SignatureNotFoundException {
         addChannelByV2(apkFile, apkFile, channel, lowMemory);
     }
 
@@ -87,9 +87,9 @@ public class ChannelWriter {
      * @param destApk dest apk
      * @param channel channel info
      * @throws IOException
-     * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
+     * @throws SignatureNotFoundException
      */
-    public static void addChannelByV2(File srcApk, File destApk, String channel, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static void addChannelByV2(File srcApk, File destApk, String channel, boolean lowMemory) throws IOException, SignatureNotFoundException {
         ApkSectionInfo apkSectionInfo = IdValueWriter.getApkSectionInfo(srcApk, lowMemory);
         addChannelByV2(apkSectionInfo, destApk, channel);
     }
@@ -124,9 +124,9 @@ public class ChannelWriter {
      * @param destApk
      * @param lowMemory
      * @throws IOException
-     * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
+     * @throws SignatureNotFoundException
      */
-    public static void removeChannelByV2(File destApk, boolean lowMemory) throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public static void removeChannelByV2(File destApk, boolean lowMemory) throws IOException, SignatureNotFoundException {
         if (destApk == null || !destApk.isFile() || !destApk.exists()) {
             return;
         }
@@ -141,7 +141,7 @@ public class ChannelWriter {
     /**
      * remove channel from apk in the v1 signature mode
      */
-    public static void removeChannelByV1(File destApk) throws Exception  {
+    public static void removeChannelByV1(File destApk) throws Exception {
         V1SchemeUtil.removeChannelByV1(destApk);
     }
 

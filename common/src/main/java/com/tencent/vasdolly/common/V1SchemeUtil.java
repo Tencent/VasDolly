@@ -16,8 +16,9 @@
 
 package com.tencent.vasdolly.common;
 
-import com.tencent.vasdolly.common.verify.ApkSignatureSchemeV2Verifier;
-import com.tencent.vasdolly.common.verify.ZipUtils;
+import com.tencent.vasdolly.common.apk.ApkSigningBlockUtils;
+import com.tencent.vasdolly.common.apk.SignatureNotFoundException;
+import com.tencent.vasdolly.common.apk.ZipUtils;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
@@ -254,10 +255,10 @@ public class V1SchemeUtil {
      * @param apk
      * @return
      * @throws IOException
-     * @throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException
+     * @throws SignatureNotFoundException
      */
     public static Pair<ByteBuffer, Long> getEocd(File apk)
-            throws IOException, ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+            throws IOException, SignatureNotFoundException {
         if (apk == null || !apk.exists() || !apk.isFile()) {
             return null;
         }
@@ -265,9 +266,9 @@ public class V1SchemeUtil {
         try {
             raf = new RandomAccessFile(apk, "r");
             //find the EOCD
-            Pair<ByteBuffer, Long> eocdAndOffsetInFile = ApkSignatureSchemeV2Verifier.getEocd(raf);
+            Pair<ByteBuffer, Long> eocdAndOffsetInFile = ApkSigningBlockUtils.getEocd(raf);
             if (ZipUtils.isZip64EndOfCentralDirectoryLocatorPresent(raf, eocdAndOffsetInFile.getSecond())) {
-                throw new ApkSignatureSchemeV2Verifier.SignatureNotFoundException("ZIP64 APK not supported");
+                throw new SignatureNotFoundException("ZIP64 APK not supported");
             }
 
             return eocdAndOffsetInFile;

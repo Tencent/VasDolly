@@ -16,9 +16,12 @@
 
 package com.tencent.vasdolly.command;
 
+import com.android.apksig.ApkVerifier;
+import com.tencent.vasdolly.common.V1SchemeUtil;
+import com.tencent.vasdolly.common.V2SchemeUtil;
+import com.tencent.vasdolly.common.V3SchemeUtil;
 import com.tencent.vasdolly.verify.VerifyApk;
 import com.tencent.vasdolly.common.ApkSectionInfo;
-import com.tencent.vasdolly.common.verify.ApkSignatureSchemeV2Verifier;
 import com.tencent.vasdolly.reader.ChannelReader;
 import com.tencent.vasdolly.writer.ChannelWriter;
 import com.tencent.vasdolly.writer.IdValueWriter;
@@ -47,6 +50,7 @@ public class Util {
     public static final int DEFAULT_MODE = -1;
     public static final int V1_MODE = 1;
     public static final int V2_MODE = 2;
+    public static final int V3_MODE = 3;
 
     /**
      * 获取APK的签名方式
@@ -88,6 +92,7 @@ public class Util {
         File f = new File("C:/Users/caikun/Desktop/222.apk");
         writeChannel(f, Arrays.asList("10000"), f, false, false);
     }
+
     /**
      * 根据不同的方式写入渠道，并生成apk
      *
@@ -100,19 +105,29 @@ public class Util {
             System.out.println("channel list is empty , please set channel list");
             return;
         }
-        int mode = judgeChannelPackageMode(baseApk);
+        int mode = DEFAULT_MODE;
+        try {
+            mode = judgeChannelPackageMode(baseApk);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            return;
+        }
+        System.out.println("begin writing apk channel and apk signature version:V" + mode);
+        System.out.println("baseApk:" + baseApk.getAbsolutePath());
+        System.out.println("outputDir:" + outputDir.getAbsolutePath());
+        System.out.println("isMultiThread:" + isMultiThread);
+        System.out.println("isFastMode:" + isFastMode);
         if (mode == V1_MODE) {
-            System.out.println("baseApk : " + baseApk.getAbsolutePath() + " , ChannelPackageMode : V1 Mode , isMultiThread : " + isMultiThread + " , isFastMode : " + isFastMode);
             if (isMultiThread) {
                 generateV1ChannelApkMultiThread(baseApk, channelList, outputDir, isFastMode);
             } else {
                 generateV1ChannelApk(baseApk, channelList, outputDir, isFastMode);
             }
-        } else if (mode == V2_MODE) {
-            System.out.println("baseApk : " + baseApk.getAbsolutePath() + " , ChannelPackageMode : V2 Mode" + " , isFastMode : " + isFastMode);
+        } else if (mode == V2_MODE || mode == V3_MODE) {
             generateV2ChannelApk(baseApk, channelList, outputDir, isFastMode);
         } else {
-            throw new IllegalStateException("not have precise channel package mode");
+            throw new IllegalStateException("not support channel package mode:" + mode);
         }
     }
 
@@ -124,14 +139,19 @@ public class Util {
      * @return
      * @link https://source.android.com/security/apksigning/v2
      */
-    private static int judgeChannelPackageMode(File baseApk) {
-        if (ChannelReader.containV2Signature(baseApk)) {
+    private static int judgeChannelPackageMode(File baseApk) throws Exception {
+        if (baseApk == null || !baseApk.exists() || !baseApk.isFile()) {
+            throw new IOException("not find base apk");
+        }
+        System.out.println("start check apk signature mode...");
+        if (V3SchemeUtil.containV3Signature(baseApk)) {
+            return V3_MODE;
+        } else if (V2SchemeUtil.containV2Signature(baseApk)) {
             return V2_MODE;
-        } else if (ChannelReader.containV1Signature(baseApk)) {
+        } else if (V1SchemeUtil.containV1Magic(baseApk)) {
             return V1_MODE;
         } else {
-            System.out.println("no signature, v1 operation.");
-            return V1_MODE;
+            return DEFAULT_MODE;
         }
     }
 
@@ -251,6 +271,7 @@ public class Util {
         System.out.println("------ File " + apkName + " generate v2 channel apk  , begin ------");
 
         try {
+            // 获取Apk的各部分片段信息
             ApkSectionInfo apkSectionInfo = IdValueWriter.getApkSectionInfo(baseApk, false);
             for (String channel : channelList) {
                 File destFile = getDestinationFile(outputDir, apkName, channel);
@@ -262,16 +283,16 @@ public class Util {
                 if (!isFastMode) {
                     //1. verify channel info
                     if (ChannelReader.verifyChannelByV2(destFile, channel)) {
-                        System.out.println("generateV2ChannelApk , " + destFile + " add channel success");
+                        System.out.println("generateV2ChannelApk destFile（" + destFile + "）add channel success");
                     } else {
-                        throw new RuntimeException("generateV2ChannelApk , " + destFile + " add channel failure");
+                        throw new RuntimeException("generateV2ChannelApk destFile（ " + destFile + "） add channel failure");
                     }
 
-                    //2. verify v2 signature
+                    //2. 检查生成的渠道包是否是合法的APK文件
                     if (VerifyApk.verifyV2Signature(destFile)) {
                         System.out.println("generateV2ChannelApk , after add channel ,  " + destFile + " v2 verify success");
                     } else {
-                        throw new RuntimeException("generateV2ChannelApk , after add channel , " + destFile + " v1 verify failure");
+                        throw new RuntimeException("generateV2ChannelApk , after add channel , " + destFile + " verify failure");
                     }
                 }
                 apkSectionInfo.rewind();
@@ -291,25 +312,23 @@ public class Util {
 
 
     public static boolean removeChannel(File channelApk) {
-        int mode = judgeChannelPackageMode(channelApk);
-        if (mode == V1_MODE) {
-            try {
+        try {
+            int mode = judgeChannelPackageMode(channelApk);
+            if (mode == V1_MODE) {
                 ChannelWriter.removeChannelByV1(channelApk);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if (mode == V2_MODE) {
-            try {
+                return true;
+            } else if (mode == V2_MODE) {
                 ChannelWriter.removeChannelByV2(channelApk, true);
                 return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ApkSignatureSchemeV2Verifier.SignatureNotFoundException e) {
-                e.printStackTrace();
+            } else {
+                System.out.println("not have precise channel package mode");
             }
-        } else {
-            throw new IllegalStateException("not have precise channel package mode");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            return false;
         }
+
         return false;
     }
 

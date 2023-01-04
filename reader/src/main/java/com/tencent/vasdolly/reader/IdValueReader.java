@@ -18,7 +18,7 @@ package com.tencent.vasdolly.reader;
 
 import com.tencent.vasdolly.common.ChannelConstants;
 import com.tencent.vasdolly.common.V2SchemeUtil;
-import com.tencent.vasdolly.common.verify.ApkSignatureSchemeV2Verifier;
+import com.tencent.vasdolly.common.apk.SignatureNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
@@ -118,7 +118,7 @@ public class IdValueReader {
             return V2SchemeUtil.getAllIdValue(apkSigningBlock);
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (ApkSignatureSchemeV2Verifier.SignatureNotFoundException e) {
+        } catch (SignatureNotFoundException e) {
             //e.printStackTrace();
             System.out.println("APK : " + channelFile.getAbsolutePath() + " not have apk signature block");
         }

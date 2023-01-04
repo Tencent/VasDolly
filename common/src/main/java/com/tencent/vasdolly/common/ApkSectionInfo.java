@@ -16,7 +16,8 @@
 
 package com.tencent.vasdolly.common;
 
-import com.tencent.vasdolly.common.verify.ApkSignatureSchemeV2Verifier;
+import com.tencent.vasdolly.common.apk.ApkSigningBlockUtils;
+import com.tencent.vasdolly.common.apk.SignatureNotFoundException;
 
 import java.nio.ByteBuffer;
 
@@ -26,20 +27,24 @@ import java.nio.ByteBuffer;
  */
 
 public class ApkSectionInfo {
+    // 当设备需要复制Apk内容到内存Buffer时支持的最大大小，由于ByteBuffer仅支持int，因此最大不可以大于int的长度
+    static int COPY_CONTENT_MAX_SIZE = 512 * 1024 * 1024; // 最大申请 512MB Buffer
+    // 是否复制Apk内容到内存中（主要是为了提升写入渠道包的速度）lowMemory=false表示复制apk
     public boolean lowMemory = false;
     public long apkSize;
     public Pair<ByteBuffer, Long> contentEntry;
-    public Pair<ByteBuffer, Long> schemeV2Block;
+    // apk签名块
+    public Pair<ByteBuffer, Long> apkSigningBlock;
     public Pair<ByteBuffer, Long> centralDir;
     public Pair<ByteBuffer, Long> eocd;
 
-    public void checkParamters() throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
-        if ((!lowMemory && contentEntry == null) || schemeV2Block == null || centralDir == null || eocd == null) {
+    public void checkParamters() throws SignatureNotFoundException {
+        if ((!lowMemory && contentEntry == null) || apkSigningBlock == null || centralDir == null || eocd == null) {
             throw new RuntimeException("ApkSectionInfo paramters is not valid : " + toString());
         }
 
-        boolean result = (lowMemory ? true : (contentEntry.getSecond() == 0l && contentEntry.getFirst().remaining() + contentEntry.getSecond() == schemeV2Block.getSecond()))
-                && (schemeV2Block.getFirst().remaining() + schemeV2Block.getSecond() == centralDir.getSecond())
+        boolean result = (lowMemory || (contentEntry.getSecond() == 0L && contentEntry.getFirst().remaining() == apkSigningBlock.getSecond()))
+                && (apkSigningBlock.getFirst().remaining() + apkSigningBlock.getSecond() == centralDir.getSecond())
                 && (centralDir.getFirst().remaining() + centralDir.getSecond() == eocd.getSecond())
                 && (eocd.getFirst().remaining() + eocd.getSecond() == apkSize);
 
@@ -53,8 +58,8 @@ public class ApkSectionInfo {
         if (contentEntry != null) {
             contentEntry.getFirst().rewind();
         }
-        if (schemeV2Block != null) {
-            schemeV2Block.getFirst().rewind();
+        if (apkSigningBlock != null) {
+            apkSigningBlock.getFirst().rewind();
         }
         if (centralDir != null) {
             centralDir.getFirst().rewind();
@@ -64,9 +69,9 @@ public class ApkSectionInfo {
         }
     }
 
-    public void checkEocdCentralDirOffset() throws ApkSignatureSchemeV2Verifier.SignatureNotFoundException {
+    public void checkEocdCentralDirOffset() throws SignatureNotFoundException {
         //通过eocd找到中央目录的偏移量
-        long centralDirOffset = ApkSignatureSchemeV2Verifier.getCentralDirOffset(eocd.getFirst(), eocd.getSecond());
+        long centralDirOffset = ApkSigningBlockUtils.getCentralDirOffset(eocd.getFirst(), eocd.getSecond());
         if (centralDirOffset != centralDir.getSecond()) {
             throw new RuntimeException("CentralDirOffset mismatch , EocdCentralDirOffset : " + centralDirOffset + ", centralDirOffset : " + centralDir.getSecond());
         }
@@ -74,6 +79,6 @@ public class ApkSectionInfo {
 
     @Override
     public String toString() {
-        return "lowMemory : " + lowMemory + "\n apkSize : " + apkSize + "\n contentEntry : " + contentEntry + "\n schemeV2Block : " + schemeV2Block + "\n centralDir : " + centralDir + "\n eocd : " + eocd;
+        return "lowMemory : " + lowMemory + "\n apkSize : " + apkSize + "\n contentEntry : " + contentEntry + "\n schemeV2Block : " + apkSigningBlock + "\n centralDir : " + centralDir + "\n eocd : " + eocd;
     }
 }

@@ -31,6 +31,7 @@ android {
             keyPassword "123456"
             enableV1Signing true
             enableV2Signing true
+            enableV3Signing true
         }
 
         debug {

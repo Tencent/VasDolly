@@ -59,7 +59,7 @@ abstract class ChannelPackageTask : DefaultTask() {
                     throw GradleException("generateV2ChannelApk, $destFile add channel failure")
                 }
                 //2. verify v2 signature
-                if (VerifyApk.verifyV2Signature(destFile)) {
+                if (VerifyApk.verifySignature(destFile)) {
                     println("generateV2ChannelApk,after add channel,apk $destFile v2 verify success")
                 } else {
                     throw GradleException("generateV2ChannelApk,after add channel, apk $destFile v2 verify failure")
@@ -108,10 +108,10 @@ abstract class ChannelPackageTask : DefaultTask() {
                     throw GradleException("generateV1ChannelApk,apk $destFile add channel failure")
                 }
                 //2. verify v1 signature
-                if (VerifyApk.verifyV1Signature(destFile)) {
-                    println("generateV1ChannelApk,after add channel,apk $destFile v1 verify success")
+                if (VerifyApk.verifySignature(destFile)) {
+                    println("generateV1ChannelApk,after add channel,apk $destFile verify success")
                 } else {
-                    throw GradleException("generateV1ChannelApk , after add channel , apk $destFile v1 verify failure")
+                    throw GradleException("generateV1ChannelApk , after add channel , apk $destFile verify failure")
                 }
             }
         }

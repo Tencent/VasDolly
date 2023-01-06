@@ -17,10 +17,6 @@
 package com.tencent.vasdolly.command;
 
 import com.android.apksig.ApkVerifier;
-import com.tencent.vasdolly.common.V1SchemeUtil;
-import com.tencent.vasdolly.common.V2SchemeUtil;
-import com.tencent.vasdolly.common.V3SchemeUtil;
-import com.tencent.vasdolly.common.apk.ApkSigningBlockUtils;
 import com.tencent.vasdolly.verify.VerifyApk;
 import com.tencent.vasdolly.common.ApkSectionInfo;
 import com.tencent.vasdolly.reader.ChannelReader;
@@ -207,11 +203,11 @@ public class Util {
                     } else {
                         throw new RuntimeException("generateV1ChannelApk , " + destFile + " add channel failure");
                     }
-                    //2. verify v1 signature
-                    if (VerifyApk.verifyV1Signature(destFile)) {
-                        System.out.println("generateV1ChannelApk , after add channel , " + destFile + " v1 verify success");
+                    //2. verify signature
+                    if (VerifyApk.verifySignature(destFile)) {
+                        System.out.println("generateV1ChannelApk , after add channel , " + destFile + " verify success");
                     } else {
-                        throw new RuntimeException("generateV1ChannelApk , after add channel , " + destFile + " v1 verify failure");
+                        throw new RuntimeException("generateV1ChannelApk , after add channel , " + destFile + " verify failure");
                     }
                 }
             }
@@ -287,7 +283,7 @@ public class Util {
                     }
 
                     //2. 检查生成的渠道包是否是合法的APK文件
-                    if (VerifyApk.verifyV2Signature(destFile)) {
+                    if (VerifyApk.verifySignature(destFile)) {
                         System.out.println("generateV2ChannelApk , after add channel ,  " + destFile + " v2 verify success");
                     } else {
                         throw new RuntimeException("generateV2ChannelApk , after add channel , " + destFile + " verify failure");

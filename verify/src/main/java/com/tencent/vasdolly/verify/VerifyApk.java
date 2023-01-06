@@ -30,73 +30,41 @@ import java.security.NoSuchAlgorithmException;
 
 public class VerifyApk {
     /***
-     * 获取签名信息
-     * @param inputApk
-     * @return
+     * 获取签名验证结果
+     * @param inputApk 需要验证的apk
+     * @return 获取签名验证结果
      * @throws NoSuchAlgorithmException
      * @throws IOException
      * @throws ZipFormatException
      * @throws ApkFormatException
      */
-    public static ApkVerifier.Result getVerifierResult(File inputApk) throws NoSuchAlgorithmException, IOException, ZipFormatException, ApkFormatException {
+    public static ApkVerifier.Result getVerifierResult(File inputApk) throws NoSuchAlgorithmException, IOException, ApkFormatException {
         ApkVerifier.Builder apkVerifierBuilder = new ApkVerifier.Builder(inputApk);
         ApkVerifier apkVerifier = apkVerifierBuilder.build();
         return apkVerifier.verify();
     }
 
     /**
-     * verify V2 signature
+     * 签名和apk验证
      *
-     * @param inputApk
-     * @return
+     * @param inputApk 需要验证的apk
+     * @return 签名和apk验证是否成功
      * @throws NoSuchAlgorithmException
      * @throws IOException
      * @throws ZipFormatException
      * @throws ApkFormatException
      */
-    public static boolean verifyV2Signature(File inputApk) throws NoSuchAlgorithmException, IOException, ZipFormatException, ApkFormatException {
-        ApkVerifier.Builder apkVerifierBuilder = new ApkVerifier.Builder(inputApk);
-        ApkVerifier apkVerifier = apkVerifierBuilder.build();
-        ApkVerifier.Result result = apkVerifier.verify();
+    public static boolean verifySignature(File inputApk) throws NoSuchAlgorithmException, IOException, ZipFormatException, ApkFormatException {
+        ApkVerifier.Result result = getVerifierResult(inputApk);
         boolean verified = result.isVerified();
         System.out.println("verify apk file verified : " + verified + ", errors:" + result.getErrors());
         if (verified) {
             System.out.println("Verified using v1 scheme (JAR signing): " + result.isVerifiedUsingV1Scheme());
             System.out.println("Verified using v2 scheme (APK Signature Scheme v2): " + result.isVerifiedUsingV2Scheme());
             System.out.println("Verified using v3 scheme (APK Signature Scheme v3): " + result.isVerifiedUsingV3Scheme());
-            if (result.isVerifiedUsingV2Scheme()) {
-                return true;
-            }
+            return true;
         }
         return false;
     }
-
-    /**
-     * verify V1 signature
-     *
-     * @param inputApk
-     * @return
-     * @throws NoSuchAlgorithmException
-     * @throws IOException
-     * @throws ZipFormatException
-     * @throws ApkFormatException
-     */
-    public static boolean verifyV1Signature(File inputApk) throws NoSuchAlgorithmException, IOException, ZipFormatException, ApkFormatException {
-        ApkVerifier.Builder apkVerifierBuilder = new ApkVerifier.Builder(inputApk);
-        ApkVerifier apkVerifier = apkVerifierBuilder.build();
-        ApkVerifier.Result result = apkVerifier.verify();
-        boolean verified = result.isVerified();
-        System.out.println("verify apk file verified : " + verified + ",errors:" + result.getErrors());
-        if (verified) {
-            System.out.println("Verified using v1 scheme (JAR signing): " + result.isVerifiedUsingV1Scheme());
-            System.out.println("Verified using v2 scheme (APK Signature Scheme v2): " + result.isVerifiedUsingV2Scheme());
-            if (result.isVerifiedUsingV1Scheme()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
 }
 

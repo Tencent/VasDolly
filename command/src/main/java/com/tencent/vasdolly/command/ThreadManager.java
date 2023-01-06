@@ -141,13 +141,13 @@ public class ThreadManager {
                     } else {
                         throw new RuntimeException("Thread : " + threadName + " , generateV1Channel , " + mDestFile + " add channel failure");
                     }
-                    //2. verify v1 signature
-                    if (VerifyApk.verifyV1Signature(mDestFile)) {
+                    //2. verify signature
+                    if (VerifyApk.verifySignature(mDestFile)) {
                         mChannelSuccessNum.incrementAndGet();//表示生成渠道包成功
                         mChannelSuccessList.add(mDestFile.getName());
-                        System.out.println("Thread : " + threadName + " , generateV1Channel , after add channel , " + mDestFile + " v1 verify success");
+                        System.out.println("Thread : " + threadName + " , generateV1Channel , after add channel , " + mDestFile + " verify success");
                     } else {
-                        throw new RuntimeException("Thread : " + threadName + " , generateV1Channel , after add channel , " + mDestFile + " v1 verify failure");
+                        throw new RuntimeException("Thread : " + threadName + " , generateV1Channel , after add channel , " + mDestFile + " verify failure");
                     }
                 }
             } catch (Exception e) {

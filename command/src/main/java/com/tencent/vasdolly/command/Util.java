@@ -138,6 +138,9 @@ public class Util {
         ApkVerifier.Builder apkVerifierBuilder = new ApkVerifier.Builder(baseApk);
         ApkVerifier apkVerifier = apkVerifierBuilder.build();
         ApkVerifier.Result result = apkVerifier.verify();
+        System.out.println("Verified using v1 scheme (JAR signing): " + result.isVerifiedUsingV1Scheme());
+        System.out.println("Verified using v2 scheme (APK Signature Scheme v2): " + result.isVerifiedUsingV2Scheme());
+        System.out.println("Verified using v3 scheme (APK Signature Scheme v3): " + result.isVerifiedUsingV3Scheme());
         if (result.isVerifiedUsingV3Scheme()) {
             return V3_MODE;
         } else if (result.isVerifiedUsingV2Scheme()) {

@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 public class V3SchemeUtil {
-    public static final int APK_SIGNATURE_SCHEME_V3_BLOCK_ID = 0x7109871a;
+    public static final int APK_SIGNATURE_SCHEME_V3_BLOCK_ID = 0xf05368c0;
 
     /**
      * judge whether apk contain v3 signature block
@@ -26,7 +26,7 @@ public class V3SchemeUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SignatureNotFoundException e) {
-            System.out.println("APK : " + apk.getAbsolutePath() + " not have apk signature block");
+            System.out.println("APK : " + apk.getAbsolutePath() + " not have apk v3 signature block");
         }
 
         return false;

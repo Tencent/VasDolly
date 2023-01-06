@@ -138,8 +138,10 @@ public class V2SchemeUtil {
             }
 
             //2.find the APK Signing Block. The block immediately precedes the Central Directory.
-            long centralDirOffset = ApkSigningBlockUtils.getCentralDirOffset(eocd, eocdOffset);//通过eocd找到中央目录的偏移量
-            Pair<ByteBuffer, Long> apkSchemeV2Block = ApkSigningBlockUtils.findApkSigningBlock(apk, centralDirOffset);//找到V2签名块的内容和偏移量
+            //通过eocd找到中央目录的偏移量
+            long centralDirOffset = ApkSigningBlockUtils.getCentralDirOffset(eocd, eocdOffset);
+            //找到V2/V3签名块的内容和偏移量
+            Pair<ByteBuffer, Long> apkSchemeV2Block = ApkSigningBlockUtils.findApkSigningBlock(apk, centralDirOffset);
 
             //3.find the centralDir
             Pair<ByteBuffer, Long> centralDir = findCentralDir(apk, centralDirOffset, (int) (eocdOffset - centralDirOffset));
@@ -302,7 +304,7 @@ public class V2SchemeUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SignatureNotFoundException e) {
-            System.out.println("APK : " + apk.getAbsolutePath() + " not have apk signature block");
+            System.out.println("APK : " + apk.getAbsolutePath() + " not have apk v2 signature block");
         }
 
         return false;

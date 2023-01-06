@@ -20,6 +20,7 @@ import com.android.apksig.ApkVerifier;
 import com.tencent.vasdolly.common.V1SchemeUtil;
 import com.tencent.vasdolly.common.V2SchemeUtil;
 import com.tencent.vasdolly.common.V3SchemeUtil;
+import com.tencent.vasdolly.common.apk.ApkSigningBlockUtils;
 import com.tencent.vasdolly.verify.VerifyApk;
 import com.tencent.vasdolly.common.ApkSectionInfo;
 import com.tencent.vasdolly.reader.ChannelReader;
@@ -47,7 +48,7 @@ public class Util {
     private static final String V2 = "V2";
     private static final String V1_V2 = "V1_V2";
 
-    public static final int DEFAULT_MODE = -1;
+    public static final int DEFAULT_MODE = 0;
     public static final int V1_MODE = 1;
     public static final int V2_MODE = 2;
     public static final int V3_MODE = 3;
@@ -59,17 +60,11 @@ public class Util {
      * @return V1, V2, V1_V2
      */
     public static String getSignMode(File apkFile) {
-
-        if (ChannelReader.containV2Signature(apkFile)) {
-            //如果有V2签名段，并且没有CERT.SF，那么一定是仅仅V2签名,否则就是V1和V2一起签名的
-            if (!ChannelReader.containV1Signature(apkFile)) {
-                return V2;
-            } else {
-                return V1_V2;
-            }
-        } else if (ChannelReader.containV1Signature(apkFile)) { //如果没有V2签名段，并且有CERT.SF，那么一定是仅仅V1签名
-            return V1;
-        } else {
+        try {
+            int signMode = judgeChannelPackageMode(apkFile);
+            return "V" + signMode;
+        } catch (Exception e) {
+            System.out.println("get sign exception:" + e.getMessage());
             return "Apk was not signed";
         }
     }
@@ -144,11 +139,14 @@ public class Util {
             throw new IOException("not find base apk");
         }
         System.out.println("start check apk signature mode...");
-        if (V3SchemeUtil.containV3Signature(baseApk)) {
+        ApkVerifier.Builder apkVerifierBuilder = new ApkVerifier.Builder(baseApk);
+        ApkVerifier apkVerifier = apkVerifierBuilder.build();
+        ApkVerifier.Result result = apkVerifier.verify();
+        if (result.isVerifiedUsingV3Scheme()) {
             return V3_MODE;
-        } else if (V2SchemeUtil.containV2Signature(baseApk)) {
+        } else if (result.isVerifiedUsingV2Scheme()) {
             return V2_MODE;
-        } else if (V1SchemeUtil.containV1Magic(baseApk)) {
+        } else if (result.isVerifiedUsingV1Scheme()) {
             return V1_MODE;
         } else {
             return DEFAULT_MODE;

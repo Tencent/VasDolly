@@ -116,7 +116,7 @@ public class Util {
                 generateV1ChannelApk(baseApk, channelList, outputDir, isFastMode);
             }
         } else if (mode == V2_MODE || mode == V3_MODE) {
-            generateV2ChannelApk(baseApk, channelList, outputDir, isFastMode);
+            generateChannelApk(baseApk, channelList, outputDir, isFastMode);
         } else {
             throw new IllegalStateException("not support channel package mode:" + mode);
         }
@@ -256,23 +256,23 @@ public class Util {
     }
 
     /**
-     * V2方式写入渠道
+     * V2/V3签名方式写入渠道
      *
      * @param baseApk
      * @param channelList
      * @param outputDir
      */
-    private static void generateV2ChannelApk(File baseApk, List<String> channelList, File outputDir, boolean isFastMode) {
+    private static void generateChannelApk(File baseApk, List<String> channelList, File outputDir, boolean isFastMode) {
         String apkName = baseApk.getName();
         long startTime = System.currentTimeMillis();
-        System.out.println("------ File " + apkName + " generate v2 channel apk  , begin ------");
+        System.out.println("------ File " + apkName + " generate channel apk  , begin ------");
 
         try {
             // 获取Apk的各部分片段信息
             ApkSectionInfo apkSectionInfo = IdValueWriter.getApkSectionInfo(baseApk, false);
             for (String channel : channelList) {
                 File destFile = getDestinationFile(outputDir, apkName, channel);
-                System.out.println("generatedV2ChannelApk , channel = " + channel + " , apkChannelName = " + destFile.getName());
+                System.out.println("generatedChannelApk , channel = " + channel + " , apkChannelName = " + destFile.getName());
                 if (apkSectionInfo.lowMemory) {
                     copyFileUsingNio(baseApk, destFile);
                 }
@@ -280,16 +280,16 @@ public class Util {
                 if (!isFastMode) {
                     //1. verify channel info
                     if (ChannelReader.verifyChannelByV2(destFile, channel)) {
-                        System.out.println("generateV2ChannelApk destFile（" + destFile + "）add channel success");
+                        System.out.println("generatedChannelApk destFile（" + destFile + "）add channel success");
                     } else {
-                        throw new RuntimeException("generateV2ChannelApk destFile（ " + destFile + "） add channel failure");
+                        throw new RuntimeException("generatedChannelApk destFile（ " + destFile + "） add channel failure");
                     }
 
                     //2. 检查生成的渠道包是否是合法的APK文件
                     if (VerifyApk.verifySignature(destFile)) {
-                        System.out.println("generateV2ChannelApk , after add channel ,  " + destFile + " v2 verify success");
+                        System.out.println("generatedChannelApk , after add channel ,  " + destFile + " verify success");
                     } else {
-                        throw new RuntimeException("generateV2ChannelApk , after add channel , " + destFile + " verify failure");
+                        throw new RuntimeException("generatedChannelApk , after add channel , " + destFile + " verify failure");
                     }
                 }
                 apkSectionInfo.rewind();
@@ -298,11 +298,11 @@ public class Util {
                 }
             }
         } catch (Exception e) {
-            System.out.println("generateV2ChannelApk error , please check it and fix it ，and that you should generate all V2 Channel Apk again!");
+            System.out.println("generatedChannelApk error , please check it and fix it ，and that you should generate all  Channel Apk again!");
             e.printStackTrace();
         }
 
-        System.out.println("------ File " + apkName + " generate v2 channel apk , end ------");
+        System.out.println("------ File " + apkName + " generate channel apk , end ------");
         long cost = System.currentTimeMillis() - startTime;
         System.out.println("------ total " + channelList.size() + " channel apk , cost : " + cost + " ------");
     }
@@ -314,7 +314,7 @@ public class Util {
             if (mode == V1_MODE) {
                 ChannelWriter.removeChannelByV1(channelApk);
                 return true;
-            } else if (mode == V2_MODE) {
+            } else if (mode == V2_MODE || mode == V3_MODE) {
                 ChannelWriter.removeChannelByV2(channelApk, true);
                 return true;
             } else {
@@ -410,7 +410,13 @@ public class Util {
             outStream = new FileOutputStream(dest, false);
             in = inStream.getChannel();
             out = outStream.getChannel();
-            in.transferTo(0, in.size(), out);
+            long pos = 0;
+            long count = in.size();
+            long copied = 0;
+            while (copied != count) {
+                // 特别注意，使用transferTo最多只能复制int.MAX_VALUE个字节(约2GB)，因此需要多次操作
+                copied += in.transferTo(pos + copied, count - copied, out);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

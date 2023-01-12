@@ -83,7 +83,9 @@ public class IdValueWriter {
             try {
                 fIn = new RandomAccessFile(destApk, "rw");
                 if (apkSectionInfo.lowMemory) {
-                    fIn.seek(apkSectionInfo.apkSigningBlock.getSecond());
+                    long signBlockPos = apkSectionInfo.apkSigningBlock.getSecond();
+                    System.out.println("seek to apk signing block pos:" + signBlockPos);
+                    fIn.seek(signBlockPos);
                 } else {
                     ByteBuffer contentEntry = apkSectionInfo.contentEntry.getFirst();
                     fIn.seek(apkSectionInfo.contentEntry.getSecond());
@@ -145,7 +147,9 @@ public class IdValueWriter {
         try {
             fIn = new RandomAccessFile(destApk, "rw");
             if (apkSectionInfo.lowMemory) {
-                fIn.seek(apkSectionInfo.apkSigningBlock.getSecond());
+                long signBlockPos = apkSectionInfo.apkSigningBlock.getSecond();
+                System.out.println("seek to apk signing block pos:" + signBlockPos + ",dest apk file len:" + fIn.length());
+                fIn.seek(signBlockPos);
             } else {
                 ByteBuffer contentEntry = apkSectionInfo.contentEntry.getFirst();
                 fIn.seek(apkSectionInfo.contentEntry.getSecond());

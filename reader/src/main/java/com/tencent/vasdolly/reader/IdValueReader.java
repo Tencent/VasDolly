@@ -44,19 +44,20 @@ public class IdValueReader {
      */
     public static String getStringValueById(File channelFile, int id) {
         if (channelFile == null || !channelFile.exists() || !channelFile.isFile()) {
-            return null;
+            return "";
         }
 
         byte[] buffer = getByteValueById(channelFile, id);
         try {
             if (buffer != null && buffer.length > 0) {
-                return new String(buffer, ChannelConstants.CONTENT_CHARSET);
+                String str = new String(buffer, ChannelConstants.CONTENT_CHARSET);
+                return str.trim();
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
 
-        return null;
+        return "";
     }
 
     /**

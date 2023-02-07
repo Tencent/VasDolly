@@ -53,7 +53,7 @@ public class ChannelReader {
         } catch (Exception e) {
             System.out.println("APK : " + channelFile.getAbsolutePath() + " not have channel info from Zip Comment");
         }
-        return null;
+        return "";
     }
 
     /**

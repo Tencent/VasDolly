@@ -19,6 +19,7 @@ package com.tencent.vasdolly.common;
 import com.tencent.vasdolly.common.apk.ApkSigningBlockUtils;
 import com.tencent.vasdolly.common.apk.SignatureNotFoundException;
 import com.tencent.vasdolly.common.apk.ZipUtils;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
@@ -179,7 +180,8 @@ public class V1SchemeUtil {
                     // read channel bytes
                     byte[] bytesComment = new byte[length];
                     raf.readFully(bytesComment);
-                    return new String(bytesComment, ChannelConstants.CONTENT_CHARSET);
+                    String channel = new String(bytesComment, ChannelConstants.CONTENT_CHARSET);
+                    return channel.trim();
                 } else {
                     throw new Exception("zip channel info not found");
                 }

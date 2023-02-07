@@ -7,7 +7,7 @@ ext {
 
     //VasDolly插件版本信息
     GROUP = 'com.tencent.vasdolly'
-    VERSION = '3.0.5'
+    VERSION = '3.0.6'
 }
 
 buildscript {
@@ -17,7 +17,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.3'
+        classpath 'com.android.tools.build:gradle:4.2.2'
     }
 }
 

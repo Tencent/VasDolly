@@ -91,7 +91,8 @@ public class Main {
                         if (command1.equals(cmdSignMode)) { //获取签名方式
                             System.out.print("\n\nsignature mode:" + Util.getSignMode(file));
                         } else if (command1.equals(cmdChannel)) {//获取渠道信息
-                            System.out.print("\n\nChannel: " + Util.readChannel(file));
+                            String channel = Util.readChannel(file);
+                            System.out.print("\n\nChannel: " + channel + ",len=" + channel.length());
                         } else {
                             System.out.print("\n\nPlease enter the correct command!");
                         }

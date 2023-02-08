@@ -1,5 +1,5 @@
 [![license](http://img.shields.io/badge/license-BSD3-brightgreen.svg?style=flat)](https://github.com/Tencent/VasDolly/blob/master/LICENSE)
-[![Release Version](https://img.shields.io/badge/release-3.0.5-red.svg)](https://github.com/Tencent/VasDolly/releases)
+[![Release Version](https://img.shields.io/badge/release-3.0.6-red.svg)](https://github.com/Tencent/VasDolly/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/VasDolly/pulls)
 [![wiki](https://img.shields.io/badge/Wiki-open-brightgreen.svg)](https://github.com/Tencent/VasDolly/wiki)
 ---
@@ -33,7 +33,7 @@ signingConfigs {
 ``` groovy
 dependencies {
         classpath 'com.android.tools.build:gradle:7.0.3'
-        classpath 'com.tencent.vasdolly:plugin:3.0.5'
+        classpath 'com.tencent.vasdolly:plugin:3.0.6'
 }
 ```
 ## 引用VasDolly Plugin
@@ -45,7 +45,7 @@ apply plugin: 'com.tencent.vasdolly'
 在主App工程的`build.gradle`中，添加读取渠道信息的helper类库依赖：
 ``` groovy
 dependencies {
-    api 'com.tencent.vasdolly:helper:3.0.5'
+    api 'com.tencent.vasdolly:helper:3.0.6'
 }
 ```
 ## 配置渠道列表
@@ -135,7 +135,7 @@ String channel = ChannelReaderUtil.getChannel(getApplicationContext());
 具体原理可参考[VasDolly实现原理](https://github.com/Tencent/VasDolly/wiki/VasDolly%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86)
 
 # 问题反馈
-遇到任何问题或者有好的建议，欢迎提[issues](https://github.com/Tencent/VasDolly/issues)，或者QQ（1031747903）联系。
+遇到任何问题或者有好的建议，欢迎提[issues](https://github.com/Tencent/VasDolly/issues)
 
 # TODO
 

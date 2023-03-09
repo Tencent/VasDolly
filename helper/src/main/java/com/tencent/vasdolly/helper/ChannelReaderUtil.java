@@ -39,7 +39,7 @@ public class ChannelReaderUtil {
     public static String getChannel(Context context) {
         if (mChannelCache == null) {
             String channel = getChannelByV2(context);
-            if (channel == null) {
+            if (channel.isEmpty()) {
                 channel = getChannelByV1(context);
             }
             mChannelCache = channel;

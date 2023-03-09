@@ -73,7 +73,7 @@ public class Util {
      */
     public static String readChannel(File apkFile) {
         String channel = ChannelReader.getChannelByV2(apkFile);
-        if (channel == null) {
+        if (channel.isEmpty()) {
             channel = ChannelReader.getChannelByV1(apkFile);
         }
         return channel;
@@ -185,7 +185,7 @@ public class Util {
         //判断基础包是否已经包含渠道信息
 
         String testChannel = ChannelReader.getChannelByV1(baseApk);
-        if (testChannel != null) {
+        if (!testChannel.isEmpty()) {
             System.out.println("baseApk : " + baseApk.getAbsolutePath() + " has a channel : " + testChannel + ", only ignore");
             return;
         }
